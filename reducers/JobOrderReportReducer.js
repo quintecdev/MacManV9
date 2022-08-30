@@ -1,0 +1,19 @@
+import actionsConstants from '../constants/actionsConstants';
+
+const initialState = {
+	JobOrderReportData:{},
+	
+};
+
+export default (state = initialState, action) => {
+	console.log({action });
+	switch (action.type) {
+		case actionsConstants.ACTION_SET_JOB_ORDER_REPORT:
+			return {
+				...state,
+				JobOrderReportData: action.payload.jobOrderReport
+			};
+		default:
+			return state;
+	}
+};
