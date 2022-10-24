@@ -46,9 +46,9 @@
 
     <queries>
         <intent>
-            <action android:name="android.intent.action.VIEW" />
+            <action android:name="android.intent.action.VIEW" /> -->
             <!-- "application/pdf" If you don't know the MIME type in advance, set "mimeType" to "*/*". -->
-            <data android:mimeType="*/*" />
+           <data android:mimeType="*/*" />
         </intent>
     </queries>
 </manifest>

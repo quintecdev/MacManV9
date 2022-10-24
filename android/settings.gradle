@@ -3,8 +3,7 @@ include ':react-native-splash-screen'
 project(':react-native-splash-screen').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-splash-screen/android')
 include ':react-native-photo-editor'
 project(':react-native-photo-editor').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-photo-editor/android')
-include ':react-native-fetch-blob'
-project(':react-native-fetch-blob').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-fetch-blob/android')
+
 include ':react-native-signature-capture'
 project(':react-native-signature-capture').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-signature-capture/android')
 include ':react-native-charts-wrapper'
@@ -13,8 +12,6 @@ include ':@react-native-community_art'
 project(':@react-native-community_art').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/art/android')
 include ':react-native-background-timer'
 project(':react-native-background-timer').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-background-timer/android')
-include ':react-native-keep-awake'
-project(':react-native-keep-awake').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-keep-awake/android')
 include ':@react-native-async-storage_async-storage'
 include ':react-native-vector-icons'
 //project(':react-native-vector-icons').projectDir = new File(rootProject.projetDir, '../node_modules/react-native-vector-icons/android')

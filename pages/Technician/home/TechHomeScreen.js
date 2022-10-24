@@ -560,9 +560,9 @@ export default HomeScreen = ({ navigation,route:{params,name} }) => {
                     }
                     else panelRef?.current?.togglePanel()
                   } 
-                  else{
-                    navigation.navigate('CheckList',{JOID:selectedJob.JOID})
-                  }
+                  // else{
+                  //   selectedJob.IsCheckListAvaliable && navigation.navigate('CheckList',{JOID:selectedJob.JOID})
+                  // }
 
                 }
                 }

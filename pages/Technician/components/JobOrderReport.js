@@ -25,7 +25,6 @@ import { Dialog } from 'react-native-simple-dialogs';
 import CustomerReview from './CustomerReview';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ic_play from '../../../assets/icons/ic_play.png';
-import RNFetchBlob from 'react-native-fetch-blob';
 import { CmmsText, CTextHint, CTextThin } from '../../../common/components/CmmsText';
 import { actionSetJobOrderReport } from '../../../action/ActionJobOrderReport';
 import { Picker } from '@react-native-picker/picker';
