@@ -688,7 +688,7 @@ export default ({navigation, route: {params}}) => {
                             WHstockChecking,
                           );
 
-                          if (item.Stock > 0) {
+                          // if (item.Stock > 0) { --vvj
                             if (
                               UpdateWHId == null &&
                               WHstockChecking == false
@@ -723,18 +723,18 @@ export default ({navigation, route: {params}}) => {
                               );
                               setUpdateWHId(null);
                             }
-                          } else {
-                            dispatch(
-                              actionSetAlertPopUpTwo({
-                                title: AppTextData.txt_Alert,
-                                body: AppTextData.txt_No_Stock_Available,
-                                visible: true,
-                                type: 'ok',
-                              }),
-                            );
-                            setUpdateWHId(null);
-                            setWHStockChecking(false);
-                          }
+                          // } else {
+                          //   dispatch(
+                          //     actionSetAlertPopUpTwo({
+                          //       title: AppTextData.txt_Alert,
+                          //       body: AppTextData.txt_No_Stock_Available,
+                          //       visible: true,
+                          //       type: 'ok',
+                          //     }),
+                          //   );
+                          //   setUpdateWHId(null);
+                          //   setWHStockChecking(false);
+                          // }
                         }}>
                         <CTextTitle
                           style={{
