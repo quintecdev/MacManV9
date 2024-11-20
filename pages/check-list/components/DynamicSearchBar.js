@@ -1,10 +1,10 @@
-import { el } from 'date-fns/locale';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Text, TextInput, TouchableOpacity, View, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CmmsColors from '../../../common/CmmsColors';
 import { CmmsText, CTextHint, CTextTitle } from '../../../common/components/CmmsText';
 import AssetInfoPopUp from '../../components/AssetInfoPopUp';
+
 const DynamicSearchBar = ({
 	searchFilterList = [
 		
@@ -121,7 +121,7 @@ const DynamicSearchBar = ({
 						data={filterList}
 						keyExtractor={(item, index) => index.toString()}
 						renderItem={({ item, index }) => {
-							console.log('renderItem', { item });
+							// console.log('renderItem', { item });
 							const isEnd = index === item.length - 1;
 							return (
 								<View

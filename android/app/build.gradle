@@ -1,9 +1,9 @@
 apply plugin: "com.android.application"
 project.ext.envConfigFiles = [
     debug: ".env",
-    release: ".env.production",
-    thai: ".env.thai"
-    // anothercustombuild: ".env",
+    dev:".env",
+    qa: ".env.qa",
+    thai: ".env.thai",
 ]
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 apply plugin: "com.google.gms.google-services"
@@ -85,7 +85,11 @@ import com.android.build.OutputFile
  *   extraPackagerArgs: []
  * ]
  */
-
+ext {    
+    react = [
+        nodeExecutableAndArgs:  ["/usr/local/bin/node"]
+    ]
+}
 project.ext.react = [
         entryFile   : "index.js",
         enableHermes: true,  // clean and rebuild if changing
@@ -142,10 +146,32 @@ android {
         applicationId "com.quickbiscmms"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1"
-        missingDimensionStrategy 'react-native-camera', 'general'
+        versionCode 3
+        versionName "3"
+        missingDimensionStrategy 'react-native-camera', 'general' //for qr code scanner
         multiDexEnabled true
+    }
+    
+    flavorDimensions "default"
+    productFlavors {
+        dev {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'com.quickbiscmms'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+            resValue "string", "build_config_package", "com.quickbiscmms"
+        }
+        thai {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'com.quickbiscmms'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+            resValue "string", "build_config_package", "com.quickbiscmms"
+        }
+        qa {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'com.quickbiscmms'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+            resValue "string", "build_config_package", "com.quickbiscmms"
+        }
     }
     splits {
         abi {
@@ -179,6 +205,7 @@ android {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             // debuggable true
+            crunchPngs false //to solve Error "unsupported png signature"
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"

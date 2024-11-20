@@ -9,6 +9,7 @@ import store from './store';
 import CmmsColors from './common/CmmsColors';
 import SplashScreen from 'react-native-splash-screen'
 import messaging, { firebase } from '@react-native-firebase/messaging';
+import ErrorPage from './pages/ErrorPage';
 const TAG = "CMMS_APP"
 function App() {
   console.log(TAG,'App_page');
@@ -28,10 +29,11 @@ function App() {
       translucent 
       />
       <SafeAreaView
-        style={{ flex: 1,}}
+        style={{ flex: 1}}
         >
+          {/* <ErrorPage/> */}
           {/* <LoginScreen/> */}
-        <NavigationContainerCmms />
+         <NavigationContainerCmms />
       </SafeAreaView>
     </Provider>
   );

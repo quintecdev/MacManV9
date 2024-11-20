@@ -39,6 +39,7 @@ const NAMED_COLORS = {
   timberwolf: "rgba(218, 216, 210, 1)",
   magnesium: "rgba(178, 178, 178, 1)",
   black: "rgba(3, 3, 3, 1)",
+  gray:'#A9A9A9',
 
   // blues (light to dark)
   iceberg: "rgba(216, 240, 246, 1)",
@@ -64,6 +65,8 @@ const NAMED_COLORS = {
   darkPink: "rgba(200, 40, 159, 1)",
   orange: "rgba(247, 144, 77, 1)",
   salmon: "rgba(243, 91, 89, 1)",
+  darkGreen:"#008000",
+  lightGreen:'#D7DAD5',
 
   //20211110
   selectionColor:'#34b7f1'

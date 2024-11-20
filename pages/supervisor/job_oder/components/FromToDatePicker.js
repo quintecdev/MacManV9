@@ -25,7 +25,7 @@ export default FromToDatePicker = ({ ...props }) => {
 
 	return (
 		<View style={{ ...{ flexDirection: 'row',flex:1,alignItems: 'center',}, ...props.style }}>
-			<View style={{ flexDirection: 'row',flex:1, alignItems: 'center' }}>
+			<View style={{ flexDirection: 'row',flex:1, alignItems: 'center' ,}}>
 				{props.hasFromTxt && <CmmsText style={{ fontWeight: 'bold' }}>{AppTextData.txt_From} </CmmsText>}
 				{props.isAssignDate?<DatePicker
 					style={{ flex: 1 }}
@@ -49,7 +49,11 @@ export default FromToDatePicker = ({ ...props }) => {
 
 						// },
 						dateInput: {
-							borderWidth: 1
+							borderWidth: 0.5,
+							borderColor:'#777',
+							borderRadius:10,
+							elevation:10,
+							backgroundColor:'#fff'
 						},
 						dateText: {
 							fontWeight: 'bold',
@@ -84,7 +88,11 @@ export default FromToDatePicker = ({ ...props }) => {
 
 					// },
 					dateInput: {
-						borderWidth: 1
+						borderWidth: 0.5,
+						borderColor:'#777',
+						borderRadius:10,
+						elevation:10,
+						backgroundColor:'#fff'
 					},
 					dateText: {
 						fontWeight: 'bold',
@@ -123,9 +131,12 @@ export default FromToDatePicker = ({ ...props }) => {
 
 						// },
 						dateInput: {
-							padding: 0,
-							margin: 0,
-							borderWidth: 1
+							borderWidth: 0.5,
+							borderColor:'#777',
+							borderRadius:10,
+							elevation:10,
+							marginRight:10,
+							backgroundColor:'#fff'
 						},
 
 						dateText: {

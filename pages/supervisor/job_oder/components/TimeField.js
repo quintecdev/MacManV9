@@ -3,8 +3,8 @@ import {View,Text,TextInput} from 'react-native'
 import { getHours } from '../../../Technician/utils';
 
 export default ({...props})=>{
-  console.log("TimeField",{props})
-    const [Ehrs,setEhrs] = useState(props.Ehrs)
+  // console.log("TimeField",{props})
+    const [Ehrs,setEhrs] = useState(props?.Ehrs)
     
     var m = Ehrs % 60;
     var h = Math.floor(Ehrs / 60)
@@ -12,7 +12,7 @@ export default ({...props})=>{
     useEffect(()=>{
       setEhrs(props.Ehrs)
     },[Ehrs!=props.Ehrs])
-    console.log("TimeField",{m,h})
+    // console.log("TimeField",{m,h})
     return(<View
         style={{flexDirection:'row',alignItems:'center',borderWidth:1,borderColor:'green',height:30,padding:4}}
         >
