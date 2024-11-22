@@ -1,0 +1,1 @@
+export  const chat_ip_container_height = 48

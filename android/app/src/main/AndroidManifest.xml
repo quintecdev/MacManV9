@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.quickbiscmms">
+
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Required -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- Include this only if you are planning to use the camera roll -->
+     <uses-permission android:name="android.permission.VIBRATE"/> <!--for Qr code scanner -->
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/><!--to check the internet status  -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+      <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name=".MainApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+ <!-- for background app working -->
+              <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="MacMan" />
+         <!-- for background app working -->
+
+    </intent-filter>
+        </activity>
+        <!-- <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+           > -->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.MAIN" />-->
+
+        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+        <!--            </intent-filter>-->
+        <!-- </activity> -->
+        <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
+        <activity android:name="com.ahmedadeltito.photoeditor.PhotoEditorActivity" />
+        <activity android:name="com.yalantis.ucrop.UCropActivity" />
+         <!-- for background app working -->
+             <service android:name="com.asterinet.react.bgactions.RNBackgroundActionsTask" />
+             <!-- for background app working -->
+    </application>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" /> -->
+            <!-- "application/pdf" If you don't know the MIME type in advance, set "mimeType" to "*/*". -->
+           <data android:mimeType="*/*" />
+        </intent>
+    </queries>
+</manifest>
