@@ -277,6 +277,10 @@ const initialState = {
     //27 june 2023
     txt_Sorry_this_Job_has_reassinged_to_another_employee:'Sorry, this Job has Re assigned to another employee',
 
+    //12-02-2025
+    txt_internal_workorder:'Internal Work Order',
+    txt_internal_wo_saved_successfully: 'Internal work order saved successfully'
+
   },
 };
 

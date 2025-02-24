@@ -207,6 +207,7 @@ android {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             // debuggable true
+            minifyEnabled true
             crunchPngs false //to solve Error "unsupported png signature"
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds

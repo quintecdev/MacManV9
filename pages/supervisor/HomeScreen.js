@@ -158,6 +158,28 @@ export default HomeScreen = ({navigation}) => {
         return (
           <View
             style={{flexDirection: 'row', marginEnd: 8, alignItems: 'center'}}>
+              <TouchableOpacity
+              style={{
+                paddingHorizontal: 8,
+                marginEnd: 6,
+                borderWidth: 2,
+                borderColor: 'grey',
+                borderRadius: 29,
+                backgroundColor: 'gray',
+              }}
+              onPress={() => {
+                navigation.navigate('InternalWorkOrder');
+                // console.log('checklist notification count==>>',ChecklistNotifactionCount)
+
+                console.log(
+                  'ChecklistNotifactionCount==>',
+                  ChecklistNotifactionCount,
+                );
+              }}>
+              <Text style={{color: 'white', fontSize: 12}}>
+               IWO
+              </Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={{
                 paddingHorizontal: 8,

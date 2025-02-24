@@ -94,6 +94,7 @@ import {actionSetAlertPopUpTwo} from '../action/ActionAlertPopUp';
 import BackgroundActions from 'react-native-background-actions';
 import CycleCount from '../pages/supervisor/job_oder/CycleCount';
 import Alerts from '../pages/components/Alert/Alerts';
+import InternalWorkOrder from '../pages/supervisor/InternalWorkOrder';
 // console.log('device model===>>>>', DeviceInfo.getBuildNumber());
 
 const screenWidth = Dimensions.get('window').width;
@@ -1453,6 +1454,21 @@ export default () => {
               options={({route: {params}, navigation}) => ({
                 //vbn lang
                 title: AppTextData.txt_Checklist_Notification,
+                headerTintColor: CmmsColors.logoBottomGreen,
+                headerBackImage: () => (
+                  <Image
+                    style={{height: 46, width: 28}}
+                    source={require('../assets/logo/macman-logo-large-C.png')}
+                  />
+                ),
+              })}
+            />
+            <Stack.Screen
+              name="InternalWorkOrder"
+              component={InternalWorkOrder}
+              options={({route: {params}, navigation}) => ({
+                //vbn lang
+                title: AppTextData.txt_internal_workorder,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
