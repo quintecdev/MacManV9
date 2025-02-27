@@ -5,6 +5,7 @@ import {SvgCss, SvgFromXml, SvgXml} from 'react-native-svg';
 import {CmmsText, CText, CTextThin} from '../../common/components/CmmsText';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {svgXmlTech} from '../../common/SvgIcons';
+import {parse, format} from 'date-fns';
 
 export function statusDetails(item) {
   // console.log(
@@ -175,6 +176,23 @@ const JobOrderView = (props) => {
           {item.SRDetails}
         </Text>
       )}
+      <Text
+        numberOfLines={1}
+        style={{
+          position: 'absolute',
+          start: 4,
+          bottom: 4,
+          fontSize: 11,
+          // backgroundColor: CmmsColors.colorWithAlpha('white',0.7),
+          fontFamily: 'san-serif-thin',
+          borderRadius: 5,
+          paddingHorizontal: 5,
+          color: 'blue',
+          fontWeight: '100',
+          marginStart: 5,
+        }}>
+        {item.NotiNumber}{item.CreationDate?`/${format(item.CreationDate,'dd/MM/yyyy')}`:""}
+      </Text>
       <Text
         numberOfLines={1}
         style={{

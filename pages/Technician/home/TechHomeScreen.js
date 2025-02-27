@@ -978,7 +978,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         // ****15 dec****
         // console.error('StartJob Error catch>>>>', err);
         // alert('Error in Start job, Try again');
-      });
+      })
+      .finally(()=>dispatch(actionSetLoading(false)));
     // } else {
     //   setEmergencyJobList(false);
     // }
@@ -1047,6 +1048,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         }),
       );
     }
+    dispatch(actionSetLoading(false))
   }
   async function SeriesFunction() {
     setTimeout(function () {
@@ -2508,6 +2510,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                       // setEmergencyJobList(false);
                       // setSelectionID(item.ID);
                       // setReasonTypeId(item.ReasonTypeID);
+                      dispatch(actionSetLoading(true));
                       if (selectionID != '' || ReasonTypeId != '') {
                         if (EmergencyJobList == false) {
                           StartJob();
@@ -2515,6 +2518,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                           StartEmergencyJob();
                         }
                       } else {
+                        dispatch(actionSetLoading(false));
                         dispatch(
                           actionSetAlertPopUpTwo({
                             title: AppTextData.txt_Alert,
