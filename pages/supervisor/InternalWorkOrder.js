@@ -430,7 +430,7 @@ const InternalWorkOrder = ({route: {params}}) => {
         QrCodeData={(data) => {
           // Qrcodefunction(data);
           console.log('Internal work order>>>>', data);
-          setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,AssetCode:internalWorkOrder.AssetCode}))
+          setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,AssetCode:data}))
           setShowScanner(false)
         }}
         // reactivate={isScanfailed}
