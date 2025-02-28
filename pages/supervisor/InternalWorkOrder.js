@@ -21,7 +21,7 @@ import { actionSetLoading } from '../../action/ActionSettings';
 import RNFS from 'react-native-fs';
 
 const InternalWorkOrder = ({route: {params}}) => {
-  const defaultInternalWO = {RefNo:0,Images:[],AssetCode:"3GTT3057",Date:Date.now(),ID:0};
+  const defaultInternalWO = {RefNo:0,Images:[],Damage:"Select Damage",Date:Date.now(),ID:0};
   const dispatch = useDispatch();
   const {loggedUser} = useSelector((state) => state.LoginReducer);
   const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
@@ -36,31 +36,37 @@ const InternalWorkOrder = ({route: {params}}) => {
   const [eqCode,setEqCode] = useState("vvj");
   const [showDamageList,setShowDamageList] = useState(false);
   const [damageList,setDamageList] = useState([])
-  const [imagesToUpload,setImagesToUpload] = useState([])
-  useEffect(()=>{
+  const [imagesToUpload,setImagesToUpload] = useState([]);
+
+  const getLastRefNo = ()=>{
+    dispatch(actionSetLoading(true));
     requestWithEndUrl(`${API_COMMON}GetCode`,{FormID:'WOI',TransMode:'GET',BranchID:0,PeriodID:0})
-    .then((res) => {
-      console.log('GetCode', {res});
-      if (res.status != 200) {
-        throw Error(res.statusText);
-      }
-      return res.data;
-    })
-    .then((data) => {
-     setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,RefNo:data}))
-    })
-    .catch((err) => {
-      console.log('GetCode error', err);
-      dispatch(
-        actionSetAlertPopUpTwo({
-          title: AppTextData.txt_Alert,
-          body: AppTextData.txt_somthing_wrong_try_again,
-          visible: true,
-          type: 'ok',
-        }),
-      );
-    })
-    .finally(()=>{dispatch(actionSetLoading(false))});
+  .then((res) => {
+    console.log('GetCode', {res});
+    if (res.status != 200) {
+      throw Error(res.statusText);
+    }
+    return res.data;
+  })
+  .then((data) => {
+   setInternalWorkOrder({...defaultInternalWO,RefNo:data})
+  })
+  .catch((err) => {
+    console.log('GetCode error', err);
+    dispatch(
+      actionSetAlertPopUpTwo({
+        title: AppTextData.txt_Alert,
+        body: AppTextData.txt_somthing_wrong_try_again,
+        visible: true,
+        type: 'ok',
+      }),
+    );
+  })
+  .finally(()=>{dispatch(actionSetLoading(false))});
+}
+
+  useEffect(()=>{
+    getLastRefNo()
   },[])
   const checkForCameraRollPermission = async () => {
     console.log('CAMERA', 'start');
@@ -255,7 +261,7 @@ const InternalWorkOrder = ({route: {params}}) => {
                 AssetCode,
                 AssetDescription} = data;
               setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,AssetCode,AssetRegID,AssetDescription}))
-            }
+            } else alert("Invalid Data");
           })
           .catch(()=>{
             dispatch(
@@ -328,7 +334,7 @@ const InternalWorkOrder = ({route: {params}}) => {
         >
         <Text
         style={{backgroundColor:'white',flex:1,height:30,justifyContent:'space-between',textAlignVertical:'center'}}
-        >{internalWorkOrder.Damage??"Select Damage"}</Text>
+        >{internalWorkOrder.Damage}</Text>
          <Icon  name="chevron-down" size={18} color="grey" />
          </TouchableOpacity>
       </View>
@@ -418,6 +424,9 @@ const InternalWorkOrder = ({route: {params}}) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={{justifyContent:'center',alignItems:'center'}}
+        onPress={()=>
+          getLastRefNo()
+        }
      >
       <Icon name="refresh" size={24} color="white" />
       </TouchableOpacity>
@@ -427,9 +436,9 @@ const InternalWorkOrder = ({route: {params}}) => {
         Close={() => {
           setShowScanner(false)
         }}
-        QrCodeData={(data) => {
+        QrCodeData={({data}) => {
           // Qrcodefunction(data);
-          console.log('Internal work order>>>>', data);
+          console.log('Internal work order>>>>','QRcode: ', data);
           setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,AssetCode:data}))
           setShowScanner(false)
         }}
