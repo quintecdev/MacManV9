@@ -227,7 +227,9 @@ const InternalWorkOrder = ({route: {params}}) => {
   }
   return (
     <SafeAreaView style={{flex:1}}>
-      <ScrollView>
+      <ScrollView
+      keyboardShouldPersistTaps={'handled'}
+      >
     <View style={{flex: 1,padding:8}}>
       <View style={{flexDirection:'row',justifyContent:'space-between'}}>
         <Text>RefNo:{internalWorkOrder.RefNo}</Text>
@@ -244,8 +246,9 @@ const InternalWorkOrder = ({route: {params}}) => {
         <TouchableOpacity
         style={{width:48,height:48,backgroundColor:CmmsColors.logoBottomGreen,marginStart:8,justifyContent:'center',alignItems:'center'}}
         onPress={()=>{
+          if(internalWorkOrder.AssetCode){
           dispatch(actionSetLoading(true))
-          requestWithEndUrl(`${API_SUPERVISOR}GetAssetDetailsByCode`,{AssetCode:internalWorkOrder.AssetCode})
+          requestWithEndUrl(`${API_SUPERVISOR}GetAssetDetailsByCode`,{AssetCode:internalWorkOrder.AssetCode??""})
           .then((res) => {
             console.log('GetMaster', {res});
     
@@ -277,6 +280,7 @@ const InternalWorkOrder = ({route: {params}}) => {
           .finally(()=>{
             dispatch(actionSetLoading(false))
           })
+        }
         }}
         >
           <Icon name="search" size={24} color="white" />
@@ -287,6 +291,7 @@ const InternalWorkOrder = ({route: {params}}) => {
         <TextInput
         style={{backgroundColor:'white',flex:1}}
         value={internalWorkOrder.AssetDescription}
+        editable={false}
         onChangeText={text=>setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,AssetDescription:text}))}
         />
       </View>
