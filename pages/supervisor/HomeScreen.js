@@ -160,12 +160,8 @@ export default HomeScreen = ({navigation}) => {
             style={{flexDirection: 'row', marginEnd: 8, alignItems: 'center'}}>
               <TouchableOpacity
               style={{
-                paddingHorizontal: 8,
+                paddingHorizontal: 4,
                 marginEnd: 6,
-                borderWidth: 2,
-                borderColor: 'grey',
-                borderRadius: 29,
-                backgroundColor: 'gray',
               }}
               onPress={() => {
                 navigation.navigate('InternalWorkOrder');
@@ -176,9 +172,7 @@ export default HomeScreen = ({navigation}) => {
                   ChecklistNotifactionCount,
                 );
               }}>
-              <Text style={{color: 'white', fontSize: 12}}>
-               IWO
-              </Text>
+              <Icon name='briefcase' color={'grey'} size={24}/>
             </TouchableOpacity>
             <TouchableOpacity
               style={{
