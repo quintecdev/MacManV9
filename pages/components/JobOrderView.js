@@ -191,11 +191,13 @@ const JobOrderView = (props) => {
           fontWeight: '100',
           marginStart: 5,
         }}>
-        {item.NotiNumber}{item.CreationDate?`/${format(item.CreationDate,'dd/MM/yyyy')}`:""}
+        {item.NotiNumber && item.NotiNumber !== "0" ? item.NotiNumber : ""}
+{item.NotiNumber && item.NotiNumber !== "0" && item.CreationDate ? " - " : ""}
+{item.CreationDate ? format(item.CreationDate, 'dd/MM/yyyy') : ""}
       </Text>
       <Text
         numberOfLines={1}
-        style={{
+        style={{ 
           position: 'absolute',
           end: 4,
           bottom: 4,
