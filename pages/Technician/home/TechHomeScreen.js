@@ -34,6 +34,7 @@ import {
   API_TECHNICIAN,
   URL_GETWORKSTATUSPIEGRAPHBYDATE,
   API_SUPERVISOR,
+  API_COMMON,
 } from '../../../network/api_constants';
 import {parse, format} from 'date-fns';
 import {useSelector, useDispatch} from 'react-redux';
@@ -216,6 +217,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   const [workId, setWorkId] = useState({});
   const [isScanfailed, setisScanfailed] = useState(false);
   const [actionData, setActionData] = useState([]);
+  const [workNatureData, setWorkNatureData] = useState([]);
+
   const [selectionID, setSelectionID] = useState('');
   const [JOIDDDD, setJOIDDDD] = useState(0);
   // const [ReasonListStatus, setReasonListStatus] = useState(1);
@@ -459,6 +462,23 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     }
   }, []);
 
+  useEffect(()=>{
+    //http://185.250.36.197:2021/api/Common/GetMaster?FormID=WORKNATURE&BranchID=0&PeriodID=0&OL=ol
+    requestWithEndUrl(`${API_COMMON}GetMaster`,{FormID:'WORKNATURE',BranchID:0,PeriodID:0,OL:'ol'})
+      .then((res) => {
+        console.log('GetMaster-WORKNATURE', {res});
+        if (res.status != 200) {
+          throw Error(res.statusText);
+        }
+        return res.data;
+      })
+      .then((data) => {
+        setWorkNatureData(data)
+      })
+      .catch(err=>{
+        console.error("GetMaster-WORKNATURE",err);
+      })
+  },[])
   //useEffect1
   //vbn this useEffect used to Update DashBoard Data by Date and the Refresh call
   useEffect(() => {
@@ -466,6 +486,10 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       getJobOrderNChartDetails();
     }
   }, [jobDate, refresh]);
+
+  useEffect(()=>{
+    console.log("JIJU",{selectedJob})
+  },[selectedJob])
 
   async function getJobOrderNChartDetails() {
     console.log('getJobOrderNChartDetails function');
@@ -882,7 +906,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     });
   }
 
-  function StartJob() {
+  function StartJob(WorkNatureID="") {
     // function to Start a new job by by Selecting the Reasons
     console.log('<<<<===start Job function===>>>>');
     console.log('selected job ReasonTypeId------>>>>', ReasonTypeId);
@@ -891,6 +915,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       SEID: TechnicianID,
       ReasonID: selectionID,
       JOID: ReasonTypeId == 1 || IsBreakdown == true ? 0 : JOIDDDD, //vbn i mistakly given selectionID==13 insted of ReasonTypeId ==1
+      WorkNatureID
     };
     console.log('params for AdministrationStatus---?????', params);
     // if (EmergencyJobList == false) {
@@ -965,6 +990,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         }
       })
       .catch((err) => {
+        console.error("StartJob",err);
         setShowModal(false);
         setIsBreakdown(false);
         dispatch(
@@ -1256,6 +1282,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
           }),
         );
         setReason(alreadyWorkingRes?.data?.Reason);
+        console.log("JIJU","InitialjobCheck",{Data:alreadyWorkingRes?.data});
         setSelectedJob(alreadyWorkingRes?.data);
         setJOIDDDD(alreadyWorkingRes?.data?.JOID);
         SetAssetName(
@@ -1281,6 +1308,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
             'we are inside e.work parameter on initial check api call',
           );
           if (e.Type == 1) {
+            console.log("JIJU","InitialjobCheck-Type-1",{Data:e?.Work})
             setSelectedJob(e?.Work);
           } else if (e.Type == 2) {
             setModalVisible(true);
@@ -1582,6 +1610,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         return item;
     }
   }
+
 
   return (
     <View style={{flex: 1}}>
@@ -2115,18 +2144,19 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                       </TouchableOpacity>
                     </>
                   )}
-                  {selectedJob.IsCheckListAvaliable &&
-                  selectedJob.ReasonTypeID == 0 ? (
+                  {selectedJob.WorkType==0?(selectedJob.IsCheckListAvaliable &&
+                  selectedJob.ReasonTypeID == 0):selectedJob.IsSafeRegulationRequired ? (
                     // Reason == 'Job Order Performance'
                     <TouchableOpacity
                       style={styles.joActionBtn}
                       onPress={() => {
-                        Promise.resolve(setModalVisible(false)).then(
-                          navigation.navigate('CheckList', {
-                            JOID: selectedJob.JOID,
-                            ServiceType: selectedJob.ServiceType,
-                          }),
-                        );
+                        setModalVisible(false)
+                        navigation.navigate(selectedJob.IsSafeRegulationRequired?"CheckListSafetyRegulationPage":'CheckList', {
+                          JOID: selectedJob.JOID,
+                          ServiceType: selectedJob.ServiceType,
+                          WorkNatureID:selectedJob.WorkNatureID
+                        })
+                       
                       }}>
                       <Image
                         style={{width: 38, height: 38}}
@@ -2426,17 +2456,117 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
             style={styles.imageBack}
             source={require('../../../assets/icons/OverLay.png')}>
             <View style={styles.modalView}>
-              <View style={styles.modalViewOne}>
+            {(item.IsSafeRegulationRequired && workNatureData.length>0 )&&<View style={styles.modalViewOne}>
                 <Text
                   style={{
                     fontSize: 21,
                     color: '#000',
                     fontWeight: 'bold',
-                    marginBottom: '15%',
+                    marginBottom: 10,
+                  }}>
+                  { "Work Nature" }
+                </Text>
+                <View >
+                  {workNatureData.map((mainItem) => {
+                    // console.log(
+                    //   'selection id from the selection Map----->>',
+                    //   item,
+                    // );
+                    return (
+                      <View
+                        style={{
+                          backgroundColor: '#fff',
+                          justifyContent: 'flex-start',
+                      
+                        }}>
+                        <TouchableOpacity
+                          style={{
+                            height: Height / 20,
+                            width: '100%',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                          }}
+                          onPress={() => {
+                          //   const selectedCount = workNatureData.reduce((count, item) => count + (item.selected ? 1 : 0), 0);
+                          //   const isNormalSelected = workNatureData.some(item=>item.ID===1&&item.selected);
+
+                          //  setWorkNatureData(workNatureData=>workNatureData.map(item=>item.ID === mainItem.ID ? (item.selected && selectedCount === 1 ?  item : { ...item, selected: !item.selected }) : item))
+
+                          setWorkNatureData((prevData) => {
+                            let mainItemId = mainItem.ID;
+                            const selectedCount = prevData.reduce((count, item) => count + (item.selected ? 1 : 0), 0);
+                            const isNormalSelected = prevData.some((item) => item.ID === 1 && item.selected);
+                            const targetItem = prevData.find((item) => item.ID === mainItemId);
+                        
+                            if (!targetItem) return prevData; // Safety check
+                        
+                            return prevData.map((item) => {
+                              // If selecting "Normal", unselect others and select "Normal"
+                              if (targetItem.ID === 1) {
+                                return { ...item, selected: item.ID === 1 };
+                              }
+                        
+                              // If selecting others, unselect "Normal"
+                              if (isNormalSelected) {
+                                return item.ID === 1
+                                  ? { ...item, selected: false } // Unselect "Normal"
+                                  : { ...item, selected: item.ID === mainItemId }; // Select target item
+                              }
+                        
+                              // Toggle target item if at least one will remain selected
+                              if (item.ID === mainItemId) {
+                                return {
+                                  ...item,
+                                  selected: item.selected && selectedCount === 1 ? true : !item.selected,
+                                };
+                              }
+                        
+                              return item; // Keep other items unchanged
+                            });
+                          });
+
+                          }}>
+                          {mainItem.selected ? (
+                            <Image
+                              style={{height: 20, width: 20}}
+                              resizeMode="contain"
+                              source={{
+                                uri: 'https://cdn-icons-png.flaticon.com/128/61/61024.png',
+                              }}/>
+                          ) : (
+                            <Image
+                              style={{height: 20, width: 20}}
+                              resizeMode="contain"
+                              source={{
+                                uri: 'https://cdn-icons-png.flaticon.com/128/25/25235.png',
+                              }}/>
+                          )}
+                          <Text
+                            style={{
+                              color: '#000',
+                              marginLeft: '10%',
+                              fontSize: 13,
+                              fontWeight: '700',
+                            }}>
+                            {mainItem.Name}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
+                </View>
+            </View>}
+            <View style={styles.modalViewOne}>
+                <Text
+                  style={{
+                    fontSize: 21,
+                    color: '#000',
+                    fontWeight: 'bold',
+                    marginBottom: 10,
                   }}>
                   {AppTextData.txt_Select_Action}
                 </Text>
-                <SafeAreaView style={{height: 300, width: '100%'}}>
+                <View>
                   {actionData.map((item) => {
                     // console.log(
                     //   'selection id from the selection Map----->>',
@@ -2493,12 +2623,11 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                       </View>
                     );
                   })}
-                </SafeAreaView>
-              </View>
-              <View style={styles.modalViewTwo}>
+                </View>
+            </View>
+            <View style={styles.modalViewTwo}>
                 <View
                   style={{
-                    flex: 1,
                     flexDirection: 'row',
                     justifyContent: 'space-evenly',
                   }}>
@@ -2513,7 +2642,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                       dispatch(actionSetLoading(true));
                       if (selectionID != '' || ReasonTypeId != '') {
                         if (EmergencyJobList == false) {
-                          StartJob();
+                          StartJob(workNatureData?.filter(work=>work?.selected).map(work=>work.ID).join(","));
                         } else {
                           StartEmergencyJob();
                         }
@@ -2537,6 +2666,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                   {EmergencyJobList == false ? (
                     <TouchableOpacity
                       style={styles.touch}
+                      disabled={!selectedJob.NoSafeRegulationInCorrect}
                       onPress={() => {
                         setModal(true);
                       }}>
@@ -2659,7 +2789,7 @@ const styles = StyleSheet.create({
     // backgroundColor:'#000'
   },
   modalView: {
-    height: Height / 1.4,
+    // height: Height / 1.4,
     width: '90%',
     backgroundColor: 'white',
     borderRadius: 20,
@@ -2674,16 +2804,15 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   modalViewOne: {
-    flex: 3,
     backgroundColor: '#fff',
     paddingHorizontal: '10%',
     paddingTop: '10%',
   },
   modalViewTwo: {
-    flex: 1,
     // flexDirection:'row',
     // alignItems:'flex-start',
     // justifyContent:'space-evenly',
+    marginVertical:'10%',
     backgroundColor: '#fff',
   },
   touch: {
