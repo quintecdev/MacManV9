@@ -466,12 +466,32 @@ export default Notes = ({navigation, route: {params}}) => {
           </View>
         )}
 
+<View 
+ style={{
+  position: 'absolute',
+  bottom: 8,
+  end: 8,
+  marginTop: 10,}}
+>
         <TouchableOpacity
-          style={{
-            position: 'absolute',
-            bottom: 8,
-            end: 8,
-            marginTop: 10,
+         style={{
+            borderRadius: 25,
+            borderColor: 'rgba(0,0,0,0.2)',
+            backgroundColor: CmmsColors.logoBottomGreen,
+            height: 50,
+            width: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom:8
+            // paddingHorizontal:8,paddingVertical:4
+          }}
+          onPress={() => {
+            checkForCameraRollPermission();
+          }}>
+          <Icon name="camera" size={18} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity
+         style={{
             borderRadius: 25,
             borderColor: 'rgba(0,0,0,0.2)',
             backgroundColor: CmmsColors.logoBottomGreen,
@@ -482,10 +502,16 @@ export default Notes = ({navigation, route: {params}}) => {
             // paddingHorizontal:8,paddingVertical:4
           }}
           onPress={() => {
-            checkForCameraRollPermission();
+             launchImageLibrary(
+                    {
+                      selectionLimit: 1,
+                    },
+                   setImage
+                  )
           }}>
-          <Icon name="camera" size={18} color="white" />
+          <Icon name="paperclip" size={18} color="white" />
         </TouchableOpacity>
+        </View>
       </View>
     );
   }
