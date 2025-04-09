@@ -124,7 +124,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   // console.error('selected date state value==>>>', selectedDate);
   const [chartData, setChartData] = useState([]);
 
-  const [selectedJob, setSelectedJob] = useState({});
+  const [selectedJob, setSelectedJob] = useState();
 
   //console.log('seleted job->>>>>', {selectedJob});
   const {refresh} = useSelector((state) => state.SettingsReducer);
@@ -213,7 +213,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   );
   // **** newly added states****
   const [modal, setModal] = useState(false);
-  const [item, setItem] = useState([]);
+  const [item, setItem] = useState();
   const [workId, setWorkId] = useState({});
   const [isScanfailed, setisScanfailed] = useState(false);
   const [actionData, setActionData] = useState([]);
@@ -255,6 +255,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     return state.AlertPopUpReducer;
   });
 
+  const [fromTop,setFromTop] = useState(false);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: (props) => {
@@ -266,8 +268,10 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
             <TouchableOpacity
               style={{padding: 4, marginEnd: 5}}
               onPress={() => {
+                setFromTop(true)
+                setWorkNatureDefault("selected")
                 setStandBy(false);
-                InitialjobCheck(1);
+                InitialjobCheck(1,true);
               }}>
               <Image
                 style={{height: 24, width: 24}}
@@ -557,8 +561,11 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       // checkAlreadyWorking(); //june 26 2023
       InitialjobCheck();
     }
-  }, [jobDate]);
+  }, [jobDate,refresh]);
 
+  /**
+   * unused function from vbn
+   */
   const checkAlreadyWorking = async () => {
     const selectedTimemillies = parse(
       jobDate,
@@ -740,22 +747,22 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       //vbn joid==0 has no success call from 'c' and 'GetJOWiseActivity' call
       console.log(
         'Useeffect 4 params---->>>',
-        'JOID:::' + selectedJob.JOID,
+        'JOID:::' + selectedJob?.JOID,
         'SEID::::' + TechnicianID,
       );
       try {
         dispatch(actionSetLoading(true));
         const jobOrderStatusDetRes = await requestWithEndUrl(
           `${API_TECHNICIAN}GetWorkingTime`,
-          {JOID: selectedJob.JOID, SEID: TechnicianID},
+          {JOID: selectedJob?.JOID, SEID: TechnicianID},
         );
         const sparePartsRes = await requestWithEndUrl(
           `${API_TECHNICIAN}GetJOWiseSpareParts`,
-          {JOID: selectedJob.JOID, SEID: TechnicianID},
+          {JOID: selectedJob?.JOID, SEID: TechnicianID},
         );
         const activityRes = await requestWithEndUrl(
           `${API_TECHNICIAN}GetJOWiseActivity`,
-          {JOID: selectedJob.JOID, SEID: TechnicianID},
+          {JOID: selectedJob?.JOID, SEID: TechnicianID},
         );
         const jobOrderStatusDet = jobOrderStatusDetRes.data;
         setTimer(Number(jobOrderStatusDet.WorkTime));
@@ -797,7 +804,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       dispatch(actionSetLoading(false));
     };
 
-    Object.keys(selectedJob).length > 0 && fetchJobOrderWiseDetails();
+    if(selectedJob)fetchJobOrderWiseDetails();
   }, [selectedJob]);
 
   //useEffect5
@@ -890,6 +897,11 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     //   setJobStopedWithoutSave(false);
     // }
   }, [modalVisible]);
+
+  useEffect(()=>{
+    if(!fromTop)setIsBreakdown(selectionID==13)
+  },[selectionID,fromTop])
+  
   function getJoblist(Status) {
     dispatch(actionSetLoading(true));
     console.log('inside the Getjoblist status---->>>>>', Status);
@@ -945,7 +957,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
             // panelRef?.current?.togglePanel();
             RefreshCall(1);
             //pausetimer
-          } else if (item.Status == 0) {
+          } else if (item?.Status == 0) {
             console.log('---St3----');
             RefreshCall();
             // } else if (
@@ -1005,7 +1017,11 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         // console.error('StartJob Error catch>>>>', err);
         // alert('Error in Start job, Try again');
       })
-      .finally(()=>dispatch(actionSetLoading(false)));
+      .finally(()=>{
+        dispatch(actionSetLoading(false))
+        setSelectionID(0)
+        setFromTop(false)
+      });
     // } else {
     //   setEmergencyJobList(false);
     // }
@@ -1016,18 +1032,18 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     try {
       console.log('Home page breakdown parameter is there????');
       const params = {
-        AssetCode: EmergencyJoblistSelectedJob.Code,
+        AssetCode: EmergencyJoblistselectedJob?.Code,
         SEID: TechnicianID,
-        WorkID: EmergencyJoblistSelectedJob.WorkID,
+        WorkID: EmergencyJoblistselectedJob?.WorkID,
         ReasonID: selectionID,
       };
       console.log('params for StartCustodianMachineCode api call==>>', params);
       const alreadyWorkingRes = await requestWithEndUrl(
         `${API_TECHNICIAN}StartCustodianMachineCode`,
         {
-          AssetCode: EmergencyJoblistSelectedJob.Code,
+          AssetCode: EmergencyJoblistselectedJob?.Code,
           SEID: TechnicianID,
-          WorkID: EmergencyJoblistSelectedJob.WorkID,
+          WorkID: EmergencyJoblistselectedJob?.WorkID,
           ReasonID: selectionID,
         },
         'POST',
@@ -1076,12 +1092,14 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     }
     dispatch(actionSetLoading(false))
   }
+
   async function SeriesFunction() {
     setTimeout(function () {
       console.log('inside the series functions');
       return true;
     }, 1000);
   }
+
   //************** */
   async function Qrcodefunction(data) {
     console.log('mislenious===>>', Mislenious, 'Stand By==>>', StandBy);
@@ -1154,12 +1172,13 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         AssetCode: data?.data,
         SEID: TechnicianID,
         JOID:
-          workId?.JobId == 0 || selectedJob.JOID == 0 || IsBreakdown == true
+          workId?.JobId == 0 || selectedJob?.JOID == 0 || IsBreakdown == true
             ? 0
             : workId.JobId,
         WorkID: workId?.JobId == 0 || IsBreakdown == true ? 0 : workId?.WorkID,
         WorkType:
           workId?.JobId == 0 || IsBreakdown == true ? 0 : workId?.WorkType,
+          WorkNatureID:!IsBreakdown? (selectedJob?.IsWorking?selectedJob.WorkNatureID:workNatureData?.filter(work=>work?.selected).map(work=>work.ID).join(",")):workNatureData?.filter(work=>work?.selected).map(work=>work.ID).join(",")
       };
       console.log('params for Qrcode scanning->>>>', params);
       requestWithEndUrl(`${API_TECHNICIAN}ScanMachineCode`, params, 'POST')
@@ -1180,10 +1199,10 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
             if (IsBreakdown == true) {
               console.log('---Qr1----');
               RefreshCall(3);
-            } else if (item.Status == 0) {
+            } else if (item?.Status == 0) {
               console.log('---Qr3----');
               RefreshCall();
-            } else if (workId?.JobId == 0 || selectedJob.JOID == 0) {
+            } else if (workId?.JobId == 0 || selectedJob?.JOID == 0) {
               setModalVisible(false);
               RefreshCall(4);
             } else {
@@ -1225,11 +1244,17 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
               type: 'ok',
             }),
           );
-        });
+        })
+        .finally(()=>{
+          dispatch(actionSetLoading(false))
+        setSelectionID(0)
+        setFromTop(false)
+        })
+        
     }
   }
 
-  async function InitialjobCheck(e) {
+  async function InitialjobCheck(e,argFromTop=false) {
     console.log('----InitialjobCheck----');
     console.log('Home page breakdown parameter is there????', e);
     dispatch(actionSetLoading(true));
@@ -1328,6 +1353,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
               console.log(
                 'else condition to work homepage breakdon joblist call',
               );
+              setSelectedJob(undefined)
               getJoblist(1);
               break;
             case 3:
@@ -1348,6 +1374,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         }
       }
     }
+    if(argFromTop && IsWorking)setFromTop(false)
+    // if(from==="break") setSelectedJob(selectedJob=>({...selectedJob,WorkNatureID:"1",NoSafeRegulationInCorrect:false}))
   }
 
   const RefreshCall = async (data) => {
@@ -1381,7 +1409,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   };
 
   const StopJob = async () => {
-    if (selectedJob.IsCheckListAvaliable && Reason == 'Job Order Performance') {
+    if (selectedJob?.IsCheckListAvaliable && Reason == 'Job Order Performance') {
       dispatch(actionSetLoading(true));
       console.log(
         'params for get checklist functioncall--->>>',
@@ -1415,8 +1443,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                   text: AppTextData.txt_OK,
                   onPress: () => {
                     navigation.navigate('CheckList', {
-                      JOID: selectedJob.JOID,
-                      ServiceType: selectedJob.ServiceType,
+                      JOID: selectedJob?.JOID,
+                      ServiceType: selectedJob?.ServiceType,
                     });
                   },
                 },
@@ -1436,7 +1464,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                 text: AppTextData.txt_Yes,
                 onPress: () => {
                   setModalVisible(false);
-                  handleReset(selectedJob.JOID, selectedJob.ServiceType);
+                  handleReset(selectedJob?.JOID, selectedJob?.ServiceType);
                 },
               },
             ]);
@@ -1466,15 +1494,16 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
           text: AppTextData.txt_Yes,
           onPress: () => {
             setModalVisible(false);
-            handleReset(selectedJob.JOID, selectedJob.ServiceType);
+            handleReset(selectedJob?.JOID, selectedJob?.ServiceType);
           },
         },
       ]);
     }
   };
+
   const PaueseButtonFunction = () => {
     // console.log('JobStopedWithoutSave==>>', JobStopedWithoutSave);
-    if (IsHeworking == true && selectedJob.JOID == 0) {
+    if (IsHeworking == true && selectedJob?.JOID == 0) {
       console.log('pause button 1=>');
       getJoblist(1);
       // } else if (JobStopedWithoutSave == true) {
@@ -1483,26 +1512,26 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       console.log('pause button 2=>');
       getJoblist(1);
     } else if (
-      selectedJob.JOID != 0 &&
+      selectedJob?.JOID != 0 &&
       maintananceJobType == 16 &&
-      selectedJob.ReasonTypeID != 5
+      selectedJob?.ReasonTypeID != 5
     ) {
       console.log('pause button 3=>');
       //maintananceJobType == 16 inticate that it's a breakdown child job
       getJoblist(3);
-    } else if (selectedJob.IsStandBy == true) {
+    } else if (selectedJob?.IsStandBy == true) {
       console.log('pause button 4=>');
       //is StandBy true And It's a breakdown parent job(timer is in pause state)
       getJoblist(5);
-    } else if (selectedJob.ReasonTypeID == 5) {
+    } else if (selectedJob?.ReasonTypeID == 5) {
       console.log('pause button 5=>');
       //personal break
       getJoblist(1);
-    } else if (selectedJob.BreakDownFrom == 1) {
+    } else if (selectedJob?.BreakDownFrom == 1) {
       //BreakDownFrom ==1 (this job is a parent of a Breakdown Job)
       console.log('pause button 6=>');
       getJoblist(4);
-      // } else if (selectedJob.IsStandBy == true) {
+      // } else if (selectedJob?.IsStandBy == true) {
       //   console.log('pause button 6=>');
       //   //is StandBy true for the "Standby call from the homepage icon"
       //   getJoblist(5);
@@ -1511,6 +1540,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       getJoblist(2);
     }
   };
+
   const SwipFromTray = (item, Status) => {
     console.log('parameter from the tray==>>', item);
     console.log('parameter from the tray==>>', Status);
@@ -1519,7 +1549,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       `${API_TECHNICIAN}UpdateActivity`,
       {
         ActivityID: item.ActivityID,
-        JOID: selectedJob.JOID,
+        JOID: selectedJob?.JOID,
         SEID: TechnicianID,
         Date: new Date().getTime(),
         Status: Status.Status, // 1-2,0-2,2-0
@@ -1563,6 +1593,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         );
       });
   };
+
   async function Logout() {
     requestWithEndUrl(
       `${API_TECHNICIAN}LogOut`,
@@ -1596,6 +1627,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         console.error({err});
       });
   }
+
   function statusDetails(item) {
     switch (item) {
       case 'Technician is already working in same machine':
@@ -1611,6 +1643,12 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     }
   }
 
+  const setWorkNatureDefault = (keyToRemove) =>{
+    setWorkNatureData(data=>data.map((item) => {
+      const { [keyToRemove]: _, ...rest } = item;  // Remove key using destructuring
+      return rest;
+    }))
+  }
 
   return (
     <View style={{flex: 1}}>
@@ -1817,9 +1855,11 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                 {/*vbn Activity lists */}
                 <TouchableOpacity
                   onPress={() => {
+                    setFromTop(false)
                     // clearTimer(); //checking
                     // setJobStopedWithoutSave(true);
                     setIsBreakdown(false);
+                    setWorkNatureDefault("selected")
                     //i'm commenting the below asset because, if that drawer is not opened then next job may display that asset code
                     if (IsHeworking == false) {
                       SetAssetName(item?.Asset);
@@ -1840,16 +1880,16 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                     if (item.Status != 1) {
                       if (item.Status == 2 || item.JOID == 0) {
                         if (
-                          selectedJob.ReasonTypeID == 5 &&
+                          selectedJob?.ReasonTypeID == 5 &&
                           item.ReasonTypeID != 5
-                          // selectedJob.Reason == 'Personal Break' &&
+                          // selectedJob?.Reason == 'Personal Break' &&
                           // item.Reason != 'Personal Break'
                         ) {
                           console.log('****Status 2 with personal break*****');
                           InitialjobCheck();
                         } else {
                           console.log('if condition1->>>>>>');
-                          if (item.JOID != selectedJob.JOID) {
+                          if (item.JOID != selectedJob?.JOID) {
                             console.log('drawer open 1');
                             if (isPaused || !isActive) {
                               console.log('drawer open 2');
@@ -1960,13 +2000,13 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                 }}></View>
             </TouchableOpacity>
             {/* job order checklist */}
-            {/* {selectedJob.IsCheckListAvaliable && (
+            {/* {selectedJob?.IsCheckListAvaliable && (
               <TouchableOpacity
                 style={{position: 'absolute', end: 0, padding: 8, elevation: 5}}
                 onPress={() =>
                   navigation.navigate('CheckList', {
-                    JOID: selectedJob.JOID,
-                    ServiceType: selectedJob.ServiceType,
+                    JOID: selectedJob?.JOID,
+                    ServiceType: selectedJob?.ServiceType,
                   })
                 }>
                 <Image
@@ -1986,17 +2026,17 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                   alignSelf: 'center',
                 }}>
                 {/* {Reason ? Reason : null} */}
-                {/* {IsHeworking == true && selectedJob.JOID == 0
+                {/* {IsHeworking == true && selectedJob?.JOID == 0
                 ? 'BreakDown'
                 :  */}
 
-                {selectedJob.ReasonTypeID == 0 && selectedJob.JOID != 0
+                {selectedJob?.ReasonTypeID == 0 && selectedJob?.JOID != 0
                   ? AppTextData.txt_Job_Order_Performance
                   : Reason}
                 {/* } */}
               </CmmsText>
               {/*vbn Asset Name and Asset Code */}
-              {IsHeworking == true && selectedJob.JOID == 0 ? null : (
+              {IsHeworking == true && selectedJob?.JOID == 0 ? null : (
                 <CmmsText
                   style={{
                     fontWeight: 'bold',
@@ -2012,13 +2052,13 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                   fontSize: 16,
                   alignSelf: 'center',
                 }}>
-                {selectedJob.TNO == 0 ? null : selectedJob.TNO}
+                {selectedJob?.TNO == 0 ? null : selectedJob?.TNO}
               </CmmsText>
               {/*vbn WORK DATE AND TIME */}
               {
                 <CmmsText
                   style={{fontWeight: 'bold', color: 'green', fontSize: 14}}>
-                  {AppTextData.txt_Started_at}: {selectedJob.LatestStartTime}
+                  {AppTextData.txt_Started_at}: {selectedJob?.LatestStartTime}
                 </CmmsText>
               }
               <Timer timer={timer} />
@@ -2060,8 +2100,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
 
               {/*vbn Stop button */}
 
-              {selectedJob.BreakDownFrom == 1 ||
-              selectedJob.ReasonTypeID == 5 ? null : (
+              {selectedJob?.BreakDownFrom == 1 ||
+              selectedJob?.ReasonTypeID == 5 ? null : (
                 <>
                   <TouchableOpacity
                     style={styles.joActionBtn}
@@ -2092,7 +2132,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                     style={styles.joActionBtn}
                     onPress={() => {
                       setModalVisible(false);
-                      navigation.navigate('Notes', {JOID: selectedJob.JOID});
+                      navigation.navigate('Notes', {JOID: selectedJob?.JOID});
                     }}>
                     <Image
                       style={{width: 39, height: 39}}
@@ -2100,7 +2140,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                     />
                     {/* <Icon name="file-text" size={32} color='black'/> */}
                   </TouchableOpacity>
-                  {IsHeworking == true && selectedJob.JOID == 0 ? null : (
+                  {IsHeworking == true && selectedJob?.JOID == 0 ? null : (
                     <>
                       {/*vbn new joborder Report direct access Button*/}
                       <TouchableOpacity
@@ -2109,12 +2149,12 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                           // panelRef?.current?.togglePanel(),
                           Promise.resolve(setModalVisible(false)).then(
                             navigation.push('JobOrderReport', {
-                              JOID: selectedJob.JOID,
+                              JOID: selectedJob?.JOID,
                               SEID: TechnicianID,
                               selectedActivityDetails: [],
                               SelectedSpareParts: [],
                               IsSuperVisor: 0,
-                              ServiceType: selectedJob.ServiceType,
+                              ServiceType: selectedJob?.ServiceType,
                               CheckJobBeforeSave: true,
                             }),
                           );
@@ -2130,9 +2170,9 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                         onPress={() => {
                           setModalVisible(false);
                           navigation.navigate('MHistory', {
-                            AssetCode: selectedJob.Code,
-                            Asset: selectedJob.Asset,
-                            AssetID: selectedJob.AssetID,
+                            AssetCode: selectedJob?.Code,
+                            Asset: selectedJob?.Asset,
+                            AssetID: selectedJob?.AssetID,
                             TechnicianID,
                           });
                         }}>
@@ -2144,17 +2184,19 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                       </TouchableOpacity>
                     </>
                   )}
-                  {selectedJob.WorkType==0?(selectedJob.IsCheckListAvaliable &&
-                  selectedJob.ReasonTypeID == 0):selectedJob.IsSafeRegulationRequired ? (
+                
+                  {selectedJob?.WorkType==0?(selectedJob?.IsCheckListAvaliable &&
+                  selectedJob?.ReasonTypeID == 0):selectedJob?.IsSafeRegulationRequired ? (
                     // Reason == 'Job Order Performance'
+                    // preventive
                     <TouchableOpacity
                       style={styles.joActionBtn}
                       onPress={() => {
                         setModalVisible(false)
-                        navigation.navigate(selectedJob.IsSafeRegulationRequired?"CheckListSafetyRegulationPage":'CheckList', {
-                          JOID: selectedJob.JOID,
-                          ServiceType: selectedJob.ServiceType,
-                          WorkNatureID:selectedJob.WorkNatureID
+                        navigation.navigate(selectedJob?.IsSafeRegulationRequired?"CheckListSafetyRegulationPage":'CheckList', {
+                          JOID: selectedJob?.JOID,
+                          ServiceType: selectedJob?.ServiceType,
+                          WorkNatureID:selectedJob?.WorkNatureID
                         })
                        
                       }}>
@@ -2208,7 +2250,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                               SparePartsID: item.SparePartsID,
                               UOMID: item.UOMID,
                               Qty: newQty,
-                              JOID: selectedJob.JOID,
+                              JOID: selectedJob?.JOID,
                               SEID: TechnicianID,
                               Date: new Date().getTime(),
                             },
@@ -2298,7 +2340,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                         console.log(
                           'close all activity from the bottomsheet==>>',
                           'JOID:',
-                          selectedJob.JOID,
+                          selectedJob?.JOID,
                           'SEID:',
                           TechnicianID,
                           'Date: ',
@@ -2311,7 +2353,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                         requestWithEndUrl(
                           `${API_TECHNICIAN}ClosedAllActivity`,
                           {
-                            JOID: selectedJob.JOID,
+                            JOID: selectedJob?.JOID,
                             SEID: TechnicianID,
                             Date: new Date().getTime(),
                             Status: 2,
@@ -2431,10 +2473,10 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
           visible={showJoStartingPopUp}
           onCancel={() => setshowJoStartingPopUp(false)}
           techId={TechnicianID}
-          JOID={selectedJob.JOID}
+          JOID={selectedJob?.JOID}
           startJoFromPopUp={(techList) =>
             handleStart(
-              selectedJob.JOID,
+              selectedJob?.JOID,
               techList,
               setshowJoStartingPopUp(false),
             )
@@ -2456,7 +2498,10 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
             style={styles.imageBack}
             source={require('../../../assets/icons/OverLay.png')}>
             <View style={styles.modalView}>
-            {(item.IsSafeRegulationRequired && workNatureData.length>0 )&&<View style={styles.modalViewOne}>
+            {(()=>{
+              const currentJob = selectedJob??item;  
+              console.log('Current Job:', currentJob,"IsBreakdown",IsBreakdown,);
+            return (!IsBreakdown?(currentJob?.IsSafeRegulationRequired && !currentJob?.IsWorking):IsBreakdown && workNatureData.length>0 )&&<View style={styles.modalViewOne}>
                 <Text
                   style={{
                     fontSize: 21,
@@ -2467,95 +2512,104 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                   { "Work Nature" }
                 </Text>
                 <View >
-                  {workNatureData.map((mainItem) => {
-                    // console.log(
-                    //   'selection id from the selection Map----->>',
-                    //   item,
-                    // );
-                    return (
-                      <View
-                        style={{
-                          backgroundColor: '#fff',
-                          justifyContent: 'flex-start',
-                      
-                        }}>
-                        <TouchableOpacity
-                          style={{
-                            height: Height / 20,
-                            width: '100%',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                          }}
-                          onPress={() => {
-                          //   const selectedCount = workNatureData.reduce((count, item) => count + (item.selected ? 1 : 0), 0);
-                          //   const isNormalSelected = workNatureData.some(item=>item.ID===1&&item.selected);
+                {workNatureData.map((mainItem) => {
+                  if((IsBreakdown || !currentJob?.WorkNatureID) && mainItem.ID ===1 && !workNatureData.some(item => item.ID !== 1 && item.selected)){
+                     mainItem.selected = true
+                  }
+                return (
+                  <View
+                    key={mainItem.ID}
+                    style={{
+                      backgroundColor: '#fff',
+                      justifyContent: 'flex-start',
+                    }}
+                  >
+                    <TouchableOpacity
+                      style={{
+                        height: Height / 20,
+                        width: '100%',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                      onPress={() => {
+                        setWorkNatureData((prevData) => {
+                          const mainItemId = mainItem.ID;
+                          const selectedCount = prevData.reduce(
+                            (count, item) => count + (item.selected ? 1 : 0),
+                            0
+                          );
+                          const isNormalSelected = prevData.some(
+                            (item) => item.ID === 1 && item.selected
+                          );
+                          const targetItem = prevData.find(
+                            (item) => item.ID === mainItemId
+                          );
 
-                          //  setWorkNatureData(workNatureData=>workNatureData.map(item=>item.ID === mainItem.ID ? (item.selected && selectedCount === 1 ?  item : { ...item, selected: !item.selected }) : item))
+                          if (!targetItem) return prevData; // Safety check
 
-                          setWorkNatureData((prevData) => {
-                            let mainItemId = mainItem.ID;
-                            const selectedCount = prevData.reduce((count, item) => count + (item.selected ? 1 : 0), 0);
-                            const isNormalSelected = prevData.some((item) => item.ID === 1 && item.selected);
-                            const targetItem = prevData.find((item) => item.ID === mainItemId);
-                        
-                            if (!targetItem) return prevData; // Safety check
-                        
-                            return prevData.map((item) => {
-                              // If selecting "Normal", unselect others and select "Normal"
-                              if (targetItem.ID === 1) {
-                                return { ...item, selected: item.ID === 1 };
-                              }
-                        
-                              // If selecting others, unselect "Normal"
-                              if (isNormalSelected) {
-                                return item.ID === 1
-                                  ? { ...item, selected: false } // Unselect "Normal"
-                                  : { ...item, selected: item.ID === mainItemId }; // Select target item
-                              }
-                        
-                              // Toggle target item if at least one will remain selected
-                              if (item.ID === mainItemId) {
-                                return {
-                                  ...item,
-                                  selected: item.selected && selectedCount === 1 ? true : !item.selected,
-                                };
-                              }
-                        
-                              return item; // Keep other items unchanged
-                            });
+                          return prevData.map((item) => {
+                            // Select "Normal" and unselect others
+                            if (targetItem.ID === 1) {
+                              return { ...item, selected: item.ID === 1 };
+                            }
+
+                            // Unselect "Normal" when selecting other items
+                            if (isNormalSelected) {
+                              return item.ID === 1
+                                ? { ...item, selected: false }
+                                : { ...item, selected: item.ID === mainItemId };
+                            }
+
+                            // Toggle selection logic
+                            if (item.ID === mainItemId) {
+                              return {
+                                ...item,
+                                selected:
+                                  item.selected && selectedCount === 1
+                                    ? true
+                                    : !item.selected,
+                              };
+                            }
+
+                            return item;
                           });
+                        });
+                      }}
+                    >
+                      {mainItem.selected ? (
+                        <Image
+                          style={{ height: 20, width: 20 }}
+                          resizeMode="contain"
+                          source={{
+                            uri: 'https://cdn-icons-png.flaticon.com/128/61/61024.png',
+                          }}
+                        />
+                      ) : (
+                        <Image
+                          style={{ height: 20, width: 20 }}
+                          resizeMode="contain"
+                          source={{
+                            uri: 'https://cdn-icons-png.flaticon.com/128/25/25235.png',
+                          }}
+                        />
+                      )}
+                      <Text
+                        style={{
+                          color: '#000',
+                          marginLeft: '10%',
+                          fontSize: 13,
+                          fontWeight: '700',
+                        }}
+                      >
+                        {mainItem.Name}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
 
-                          }}>
-                          {mainItem.selected ? (
-                            <Image
-                              style={{height: 20, width: 20}}
-                              resizeMode="contain"
-                              source={{
-                                uri: 'https://cdn-icons-png.flaticon.com/128/61/61024.png',
-                              }}/>
-                          ) : (
-                            <Image
-                              style={{height: 20, width: 20}}
-                              resizeMode="contain"
-                              source={{
-                                uri: 'https://cdn-icons-png.flaticon.com/128/25/25235.png',
-                              }}/>
-                          )}
-                          <Text
-                            style={{
-                              color: '#000',
-                              marginLeft: '10%',
-                              fontSize: 13,
-                              fontWeight: '700',
-                            }}>
-                            {mainItem.Name}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  })}
                 </View>
-            </View>}
+            </View>})()}
             <View style={styles.modalViewOne}>
                 <Text
                   style={{
@@ -2642,7 +2696,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                       dispatch(actionSetLoading(true));
                       if (selectionID != '' || ReasonTypeId != '') {
                         if (EmergencyJobList == false) {
-                          StartJob(workNatureData?.filter(work=>work?.selected).map(work=>work.ID).join(","));
+                          StartJob(!IsBreakdown? (selectedJob?.IsWorking?selectedJob.WorkNatureID:workNatureData?.filter(work=>work?.selected).map(work=>work.ID).join(",")):workNatureData?.filter(work=>work?.selected).map(work=>work.ID).join(","));
                         } else {
                           StartEmergencyJob();
                         }
@@ -2666,13 +2720,26 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                   {EmergencyJobList == false ? (
                     <TouchableOpacity
                       style={styles.touch}
-                      disabled={!selectedJob.NoSafeRegulationInCorrect}
+                      disabled={
+                        // false
+                        !(
+                          IsBreakdown ? workNatureData.some(item => item.ID === 1 && item.selected) : (selectedJob?(selectedJob?.WorkType!==0?(workNatureData.some(item => item.ID === 1 && item.selected) || 
+                          (selectedJob?.NoSafeRegulationInCorrect 
+                            ? selectedJob?.WorkNatureID !== "" 
+                            : ["", "1",null].includes(selectedJob?.WorkNatureID ?? item?.WorkNatureID))):(workNatureData.some(item => item.ID === 1 && item.selected)|| selectedJob?.WorkType==0)): workNatureData.some(item => item.ID === 1 && item.selected) || !item?.IsSafeRegulationRequired)
+                        )
+                      }
                       onPress={() => {
+                        console.log(workNatureData.some(item => item.ID === 1 && item.selected) || 
+                        (selectedJob?.NoSafeRegulationInCorrect 
+                          ? selectedJob?.WorkNatureID !== "" 
+                          : ["", "1",null].includes(selectedJob?.WorkNatureID)))
                         setModal(true);
+                      setSelectionID(0)
                       }}>
                       <Text style={styles.touchText}>
                         {AppTextData.txt_QrCode}
-                      </Text>
+                      </Text> 
                     </TouchableOpacity>
                   ) : null}
                   <TouchableOpacity
@@ -2682,6 +2749,9 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                       setEmergencyJobList(false);
                       setIsBreakdown(false);
                       // setModalVisible(true)
+                    setWorkNatureDefault("selected")
+                      setSelectionID(0)
+                      setFromTop(false)
                     }}>
                     <Text style={styles.touchText}>
                       {AppTextData.txt_Cancel}
@@ -2707,7 +2777,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         SparePartsID: item.SparePartsID,
         UOMID: item.UOMID,
         Qty: newQty,
-        JOID: selectedJob.JOID,
+        JOID: selectedJob?.JOID,
         SEID: TechnicianID,
         Date: new Date().getTime(),
       };

@@ -38,7 +38,16 @@ const CheckListSafetyRegulationPage = ({navigation,route:{params}}) =>{
         return res.data;
       })
       .then((data) => {
-      //  setInternalWorkOrder({...defaultInternalWO,RefNo:data})
+      //  setInternalWorkOrder({...defaultInternalWO,RefNo:data}) const point = data.InspectionPoint;
+      const point = data.InspectionPoint;
+
+      if (
+        !point ||
+        (Array.isArray(point) && point.length === 0) ||
+        (typeof point === "object" && !Array.isArray(point) && Object.keys(point).length === 0)
+      ) {
+        return;
+      }
       setSafetyRegulationCheckList(data)
       })
       .catch((err) => {
@@ -127,10 +136,10 @@ const updateCheckBoxStatus=(statusFor,itemId)=>{
 
 const onSave = ()=>{
   //http://localhost:29189/api/ApkTechnician/SaveSafetyregulationchecklist
-  if(safetyRegulatoncheckList.InspectionPoint.some(point=>point.Status === 0)){
-    alert("Invalid data");
-    return;
-  }
+  // if(safetyRegulatoncheckList.InspectionPoint.some(point=>point.Status === 0)){
+  //   alert("Invalid data");
+  //   return;
+  // }
   
   dispatch(actionSetLoading(true))
     let bodyFormData = new FormData();
@@ -205,19 +214,19 @@ const onSave = ()=>{
             height:50,textAlignVertical:'center'}}>
             {AppTextData.txt_JO_Number}:{safetyRegulatoncheckList.JONO}
         </Text>
-        <View style={{flex:1,backgroundColor:'white',marginTop:5,padding:8}}>
+        <View style={{flex:1,backgroundColor:'white',marginVertical:5,padding:8}}>
             {safetyRegulatoncheckList.InspectionPoint.length>0&&<View style={{flexDirection:'row',
                 width:'40%',
                 position:'absolute',end:8,top:8,
                 justifyContent:'space-around'}}>
-                <Text style={styles.textCheckBoxHeader}>Not Relevant</Text>
-                <Text style={styles.textCheckBoxHeader}>Correct</Text>
-                <Text style={styles.textCheckBoxHeader}>Incorrect</Text>
+                <Text numberOfLines={2} style={styles.textCheckBoxHeader}>Not Relevant</Text>
+                <Text numberOfLines={2} style={styles.textCheckBoxHeader}>Correct</Text>
+                <Text numberOfLines={2} style={styles.textCheckBoxHeader}>Incorrect</Text>
 
             </View>}
-            {safetyRegulatoncheckList.InspectionPoint.length>0&&<View style={{flex:2}}>
+            {safetyRegulatoncheckList.InspectionPoint.length>0&&<View style={{flex:2,}}>
             <FlatList
-            style={{borderWidth:0,flexGrow:0}}
+            style={{borderWidth:0,flexGrow:0,marginTop:30}}
             data={safetyRegulatoncheckList.InspectionPoint}
             renderItem={({item,index})=>(
                                 <View
@@ -352,7 +361,8 @@ const onSave = ()=>{
                                               source={{ uri: item.Images }} 
                                               style={{marginStart:5,width:100,height:100,}}
                                               resizeMode='stretch'
-                                              />}
+                                              />
+                                            }
                                     />
                                     </View>
         </View>
@@ -389,7 +399,8 @@ const styles = StyleSheet.create({
         fontSize:10,
         marginHorizontal:2,
         fontWeight:'900',
-        color:'black'
+        color:'black',
+        flex:1
     }
 })
 export default CheckListSafetyRegulationPage;

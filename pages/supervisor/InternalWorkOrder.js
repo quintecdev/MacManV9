@@ -225,6 +225,46 @@ const InternalWorkOrder = ({route: {params}}) => {
       ;
 
   }
+
+  const getAssetDetailsByCode=(AssetCode)=>{
+    if(AssetCode){
+      dispatch(actionSetLoading(true))
+      requestWithEndUrl(`${API_SUPERVISOR}GetAssetDetailsByCode`,{AssetCode})
+      .then((res) => {
+        console.log('GetMaster', {res});
+
+        if (res.status != 200) {
+          
+          throw Error(res.statusText);
+        }
+        return res.data;
+      })
+      .then((data) => {
+        if (data) {
+          const { AssetRegID,
+            AssetCode,
+            AssetDescription} = data;
+          setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,AssetCode,AssetRegID,AssetDescription}))
+        } else alert("Invalid Data");
+      })
+      .catch(()=>{
+        dispatch(
+          actionSetAlertPopUpTwo({
+            title: AppTextData.txt_Alert,
+            body:
+              AppTextData.txt_Something_went_wrong ,
+            visible: true,
+            type: 'ok',
+          }),
+        );
+      })
+      .finally(()=>{
+        dispatch(actionSetLoading(false))
+      })
+    }
+  }
+
+
   return (
     <SafeAreaView style={{flex:1}}>
       <ScrollView
@@ -246,41 +286,7 @@ const InternalWorkOrder = ({route: {params}}) => {
         <TouchableOpacity
         style={{width:48,height:48,backgroundColor:CmmsColors.logoBottomGreen,marginStart:8,justifyContent:'center',alignItems:'center'}}
         onPress={()=>{
-          if(internalWorkOrder.AssetCode){
-          dispatch(actionSetLoading(true))
-          requestWithEndUrl(`${API_SUPERVISOR}GetAssetDetailsByCode`,{AssetCode:internalWorkOrder.AssetCode??""})
-          .then((res) => {
-            console.log('GetMaster', {res});
-    
-            if (res.status != 200) {
-              
-              throw Error(res.statusText);
-            }
-            return res.data;
-          })
-          .then((data) => {
-            if (data) {
-              const { AssetRegID,
-                AssetCode,
-                AssetDescription} = data;
-              setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,AssetCode,AssetRegID,AssetDescription}))
-            } else alert("Invalid Data");
-          })
-          .catch(()=>{
-            dispatch(
-              actionSetAlertPopUpTwo({
-                title: AppTextData.txt_Alert,
-                body:
-                  AppTextData.txt_Something_went_wrong ,
-                visible: true,
-                type: 'ok',
-              }),
-            );
-          })
-          .finally(()=>{
-            dispatch(actionSetLoading(false))
-          })
-        }
+          getAssetDetailsByCode(internalWorkOrder.AssetCode)
         }}
         >
           <Icon name="search" size={24} color="white" />
@@ -444,6 +450,7 @@ const InternalWorkOrder = ({route: {params}}) => {
         QrCodeData={({data}) => {
           // Qrcodefunction(data);
           console.log('Internal work order>>>>','QRcode: ', data);
+          getAssetDetailsByCode(data)
           setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,AssetCode:data}))
           setShowScanner(false)
         }}
