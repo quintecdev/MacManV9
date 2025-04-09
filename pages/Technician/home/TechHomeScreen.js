@@ -93,6 +93,7 @@ const Width = Dimensions.get('window').width;
 
 export default HomeScreen = ({navigation, route: {params, name}}) => {
   // console.log('cycle count==>>', EmergencyJoblistNotifactionBgStatus);
+  const initiated = useRef(false); // avoid repeated call of @InitialjobCheck
   const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
   const {CheckInternetConnection} = useSelector(
     (state) => state.IntetnetConnectionReducer,
@@ -557,76 +558,13 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   }
   //useEffect 2
   useEffect(() => {
-    if (jobDate != '') {
+    if (jobDate != '' && !initiated.current) {
       // checkAlreadyWorking(); //june 26 2023
+      
+      console.log("useeffect","InitialjobCheck")
       InitialjobCheck();
     }
   }, [jobDate,refresh]);
-
-  /**
-   * unused function from vbn
-   */
-  const checkAlreadyWorking = async () => {
-    const selectedTimemillies = parse(
-      jobDate,
-      'dd/MM/yyyy',
-      new Date(),
-    ).getTime();
-    // getJobListCnt(dispatch, selectedTimemillies, TechnicianID);
-    try {
-      const alreadyWorkingRes = await requestWithEndUrl(
-        `${API_TECHNICIAN}CheckAlreadyWorking`,
-        {SEID: TechnicianID},
-      );
-      const {IsWorking, TNO} = alreadyWorkingRes?.data;
-      // vbn initialy running work condition check
-      console.log(
-        'initial running work condition check---->>>1',
-        alreadyWorkingRes?.data,
-      );
-      // console.log(
-      //   'initial running work Is Working value check---->>>',
-      //   alreadyWorkingRes?.data.IsWorking.IsWorking + '+' + IsWorking,
-      // );
-      setIsheWorking(IsWorking); //checking the working status to enable and Disable HomeScreen Breakdown Button
-      if (IsWorking) {
-        // alert(`${AppTextData.txt_alr_wrk_in_job} ${TNO}`);
-        dispatch(
-          actionSetAlertPopUpTwo({
-            title: AppTextData.txt_Alert,
-            body: `${AppTextData.txt_alr_wrk_in_job} ${TNO}`,
-            visible: true,
-            type: 'ok',
-          }),
-        );
-        setReason(alreadyWorkingRes?.data?.Reason);
-        setJOIDDDD(alreadyWorkingRes?.data?.JOID);
-        setWorkId({
-          WorkID: alreadyWorkingRes?.data?.WorkID,
-          JobId: alreadyWorkingRes?.data?.JOID,
-          WorkType: alreadyWorkingRes?.data?.WorkType,
-        });
-        setSelectedJob(alreadyWorkingRes?.data);
-        SetAssetName(
-          alreadyWorkingRes?.data?.JOID == 0
-            ? ''
-            : alreadyWorkingRes?.data?.Asset,
-        );
-        setAssetCode(
-          alreadyWorkingRes?.data?.JOID == 0
-            ? ''
-            : alreadyWorkingRes?.data?.Code,
-        );
-        setAssetID(alreadyWorkingRes?.data?.AssetID);
-        setMaintananceJobType(alreadyWorkingRes?.data?.MaintenanceJobTypeID);
-      }
-    } catch (err) {
-      // ****15 dec****
-      // console.error({err});
-      // alert(AppTextData.txt_somthing_wrong_contact_admin);
-      // ******
-    }
-  };
 
   // useEffect3
   useEffect(() => {
@@ -1020,6 +958,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       .finally(()=>{
         dispatch(actionSetLoading(false))
         setSelectionID(0)
+        setReasonTypeId(0)
         setFromTop(false)
       });
     // } else {
@@ -1169,7 +1108,9 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         });
     } else {
       const params = {
-        AssetCode: data?.data,
+        AssetCode: 
+        // '3GAD2002',
+        data?.data,
         SEID: TechnicianID,
         JOID:
           workId?.JobId == 0 || selectedJob?.JOID == 0 || IsBreakdown == true
@@ -1248,6 +1189,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         .finally(()=>{
           dispatch(actionSetLoading(false))
         setSelectionID(0)
+        setReasonTypeId(0)
         setFromTop(false)
         })
         
@@ -1255,6 +1197,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   }
 
   async function InitialjobCheck(e,argFromTop=false) {
+    initiated.current = true;
     console.log('----InitialjobCheck----');
     console.log('Home page breakdown parameter is there????', e);
     dispatch(actionSetLoading(true));
@@ -1375,6 +1318,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       }
     }
     if(argFromTop && IsWorking)setFromTop(false)
+      initiated.current = false;
     // if(from==="break") setSelectedJob(selectedJob=>({...selectedJob,WorkNatureID:"1",NoSafeRegulationInCorrect:false}))
   }
 
@@ -2730,12 +2674,11 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                         )
                       }
                       onPress={() => {
-                        console.log(workNatureData.some(item => item.ID === 1 && item.selected) || 
-                        (selectedJob?.NoSafeRegulationInCorrect 
-                          ? selectedJob?.WorkNatureID !== "" 
-                          : ["", "1",null].includes(selectedJob?.WorkNatureID)))
+              
                         setModal(true);
                       setSelectionID(0)
+                      setReasonTypeId(0)
+
                       }}>
                       <Text style={styles.touchText}>
                         {AppTextData.txt_QrCode}
@@ -2751,6 +2694,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                       // setModalVisible(true)
                     setWorkNatureDefault("selected")
                       setSelectionID(0)
+                      setReasonTypeId(0);
                       setFromTop(false)
                     }}>
                     <Text style={styles.touchText}>
