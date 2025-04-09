@@ -466,7 +466,7 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
             dispatch(
               actionSetAlertPopUpTwo({
                 title: AppTextData.txt_Alert,
-                body: AppTextData.txt_somthing_wrong_try_again,
+                body: data.Message?.trim() ? data.Message : AppTextData.txt_somthing_wrong_try_again,
                 visible: true,
                 type: 'ok',
               }),
