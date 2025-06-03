@@ -1,7 +1,7 @@
 
 
 import {View, Text, ScrollView, FlatList, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, Button,Image, PermissionsAndroid, Modal, Pressable} from 'react-native';
-import React from 'react';
+import React,{useCallback, useRef} from 'react';
 import {useState, useEffect} from 'react';
 import {useSelector} from 'react-redux';
 import {useDispatch} from 'react-redux';
@@ -19,9 +19,10 @@ import { API_COMMON, API_SUPERVISOR } from '../../network/api_constants';
 import requestWithEndUrl from '../../network/request';
 import { actionSetLoading } from '../../action/ActionSettings';
 import RNFS from 'react-native-fs';
+import {debounce} from 'lodash';
 
 const InternalWorkOrder = ({route: {params}}) => {
-  const defaultInternalWO = {RefNo:0,Images:[],Damage:"Select Damage",Date:Date.now(),ID:0};
+  const defaultInternalWO = {RefNo:0,Images:[],Damage:"Select Damage",Date:Date.now(),ID:0,WICategory:"Select IWO Category"};
   const dispatch = useDispatch();
   const {loggedUser} = useSelector((state) => state.LoginReducer);
   const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
@@ -33,10 +34,12 @@ const InternalWorkOrder = ({route: {params}}) => {
   console.log('user Details==>>', loggedUser.TechnicianID);
  
   const [showScanner,setShowScanner] = useState(false);
-  const [eqCode,setEqCode] = useState("vvj");
   const [showDamageList,setShowDamageList] = useState(false);
   const [damageList,setDamageList] = useState([])
-  const [imagesToUpload,setImagesToUpload] = useState([]);
+  const [showSuggestion,setShowSuggestion] = useState(false)
+  const [suggestionList,setSuggestionList] = useState([])
+   const isPressed = useRef(false);
+   const damageOrIWOCats = useRef(1);//1-damage,2-IWOCats
 
   const getLastRefNo = ()=>{
     dispatch(actionSetLoading(true));
@@ -68,6 +71,47 @@ const InternalWorkOrder = ({route: {params}}) => {
   useEffect(()=>{
     getLastRefNo()
   },[])
+
+  useEffect(()=>{
+    console.log("useEffect-debounce-assetcode",internalWorkOrder.AssetCode)
+      !isPressed.current?debouncedAssetCodeChange(internalWorkOrder.AssetCode):isPressed.current=false
+
+  },[internalWorkOrder.AssetCode])
+
+  useEffect(()=>{
+    console.log("JIJU","suggestion list length",suggestionList.length)
+    setShowSuggestion(suggestionList.length>0)
+  },[suggestionList.length])
+
+   // Debounced function to handle AssetCode change
+  const debouncedAssetCodeChange = useCallback(
+    debounce((code) => {
+      console.log("Debounced AssetCode:", code);
+      // Add your logic here, like validation or API call
+      // setSuggestionList(["abc","abcd","dab","abcfdgfdgfdgfdgfdg fgfdgfgdfgfdg","abcd","dab","abc","abcd","dab"])
+      // http://localhost:29189/api/ApkSupervisor/GetAssetForSearch?AssetCode=rop2030
+      if(code?.length>1)
+      requestWithEndUrl(`${API_SUPERVISOR}GetAssetForSearch`, {
+      AssetCode:code
+    })
+      .then((res) => {
+        console.log('GetWorkOrderInternalDetails', {res});
+        if (res.status != 200) {
+          throw Error(res.statusText);
+        }
+        return res.data;
+      })
+      .then((data) => {
+        setSuggestionList(data);       
+      })
+      .catch(err=>{
+        console.log({err})
+      })
+      else setSuggestionList([])
+    }, 500), // 500ms debounce
+    []
+  );
+
   const checkForCameraRollPermission = async () => {
     console.log('CAMERA', 'start');
     try {
@@ -148,7 +192,9 @@ const InternalWorkOrder = ({route: {params}}) => {
         return res.data;
       })
       .then((data) => {
+                  isPressed.current = true
         setInternalWorkOrder(data.ID !== 0 ? data : { ...defaultInternalWO, RefNo: data.RefNo });
+        console.log("JIJU_PRVS",{data})
       })
       .catch((err) => {
         console.log('GetWorkOrderInternalDetails error', err);  
@@ -277,12 +323,55 @@ const InternalWorkOrder = ({route: {params}}) => {
       </View>
      <View style={{flexDirection:'row',alignItems:'center',marginTop:8}}>
         <Text style={{fontWeight:'bold',color:'black'}}>Eq.Code: </Text>
+        <View style={{flex:1}}>
         <TextInput
         style={{backgroundColor:'white',flex:1}}
         value={internalWorkOrder.AssetCode}
-        onChangeText={text=>setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,AssetCode:text}))}
+        onChangeText={text=>{
+          console.log("JIJU","Assetcode-ontextchange",text)
+          setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,AssetCode:text}))}}
 
         />
+        {showSuggestion && (
+        <View style={{
+          backgroundColor: 'white',
+          borderWidth: 1,
+          borderColor: '#ccc',
+          borderTopWidth: 0,
+          maxHeight: 250,
+          position:'absolute',
+          zIndex: 1,
+          width:'100%',
+          top:52
+        }}>
+          <FlatList
+            data={suggestionList}
+            keyExtractor={(item,index) => item.AssetRegID?.toString()}
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={() => {
+                  isPressed.current = true
+                   getAssetDetailsByCode(item.AssetCode)
+                    setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,AssetCode:item.AssetCode}))
+                    setSuggestionList([])
+                }}
+                style={({ pressed }) => [
+                  {
+                    backgroundColor: pressed ? '#f0f0f0' : 'white'
+                  }
+                ]}
+              >
+                <Text style={{
+                  padding: 10,
+                  borderBottomWidth: 1,
+                  borderBottomColor: '#eee',
+                }}>{item.AssetCode} {`\n${item.AssetDescription}`}</Text>
+              </Pressable>
+            )}
+          />
+        </View>
+      )}
+     </View>
         <TouchableOpacity
         style={{width:48,height:48,backgroundColor:CmmsColors.logoBottomGreen,marginStart:8,justifyContent:'center',alignItems:'center'}}
         onPress={()=>{
@@ -306,6 +395,7 @@ const InternalWorkOrder = ({route: {params}}) => {
         <TouchableOpacity style={{flexDirection:'row',flex:1,alignItems:'center',backgroundColor:'white',padding:8}}
         onPress={()=>{
           //http://185.250.36.197:2021/api/Common/GetMaster?FormID=Problems%20/%20Issues%20Type&BranchID=0&PeriodID=0&OL=ol
+          damageOrIWOCats.current = 1
     requestWithEndUrl(`${API_COMMON}GetMaster`, {
       FormID: 'Problems / Issues Type',
       BranchID: 0,
@@ -349,6 +439,55 @@ const InternalWorkOrder = ({route: {params}}) => {
          <Icon  name="chevron-down" size={18} color="grey" />
          </TouchableOpacity>
       </View>
+      <View style={{flexDirection:'row',alignItems:'center',marginTop:8}}>
+        <Text style={{fontWeight:'bold',color:'black'}}>Internal W/O Category: </Text>
+        <TouchableOpacity style={{flexDirection:'row',flex:1,alignItems:'center',backgroundColor:'white',padding:8}}
+        onPress={()=>{
+          damageOrIWOCats.current = 2;
+          //http://207.180.228.148:2021//api/Common/GetMaster?FormID=INTERNALWORKORDERCATEGORY&BranchID=0&PeriodID=0&OL=ol
+    requestWithEndUrl(`${API_COMMON}GetMaster`, {
+      FormID: 'INTERNALWORKORDERCATEGORY',
+      BranchID: 0,
+      PeriodID: 0,
+      OL: 'ol',
+    })
+      .then((res) => {
+        console.log('GetMaster', {res});
+
+        if (res.status != 200) {
+          
+          throw Error(res.statusText);
+        }
+        return res.data;
+      })
+      .then((data) => {
+        if (data.length > 0) {
+          setDamageList(data)
+          setShowDamageList(showDamageList=>!showDamageList)
+        } else{
+          alert("No damage found")
+        }
+      })
+      .catch((err) => {
+        console.log('GetMaster error', err);
+        dispatch(
+          actionSetAlertPopUpTwo({
+            title: AppTextData.txt_Alert,
+            body: AppTextData.txt_somthing_wrong_try_again,
+            visible: true,
+            type: 'ok',
+          }),
+        );
+      });
+    }
+  }
+        >
+        <Text
+        style={{backgroundColor:'white',flex:1,height:30,justifyContent:'space-between',textAlignVertical:'center'}}
+        >{internalWorkOrder.WICategory}</Text>
+         <Icon  name="chevron-down" size={18} color="grey" />
+         </TouchableOpacity>
+      </View>
       <TextInput
         style={{backgroundColor:'white',flex:1,marginTop:10,}}
         multiline
@@ -358,7 +497,7 @@ const InternalWorkOrder = ({route: {params}}) => {
         onChangeText={text=>setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,Issue:text}))}
         />
         <View
-        style={{flexDirection:'row',justifyContent:'space-evenly',marginTop:10}}
+        style={{flexDirection:'row',justifyContent:'space-evenly',marginTop:50,}}
         >
           <Button
           title='Previous'
@@ -458,7 +597,7 @@ const InternalWorkOrder = ({route: {params}}) => {
       />
       <Dialog
       visible={showDamageList}
-      title='List of Damages'
+      title={`List of ${damageOrIWOCats.current===1?'Damages':'IWO Categories' }`}
       >
         <FlatList
         style={{marginBottom:20}}
@@ -466,7 +605,7 @@ const InternalWorkOrder = ({route: {params}}) => {
         renderItem={({item})=><TouchableOpacity style={{padding:4}}
         onPress={()=>{
           console.log({item})
-          setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,Damage:item.Name,DamageID:item.ID})) 
+          setInternalWorkOrder(internalWorkOrder=>damageOrIWOCats.current===1?{...internalWorkOrder,Damage:item.Name,DamageID:item.ID}:{...internalWorkOrder,WICategory:item.Name,WICategoryID:item.ID}) 
         setShowDamageList(false)}}
         ><Text>{item.Name}</Text></TouchableOpacity>}
         /> 

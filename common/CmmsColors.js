@@ -111,7 +111,7 @@ const LOCATION_COLORS = {
 /* Exports
 ============================================================================= */
 
-module.exports = {
+  module.exports = {
   ...THEME_COLORS, // pass through all theme colors (named and by-purpose)
 
   colorWithAlpha(name: string = "blue", opacity: number = 1) {

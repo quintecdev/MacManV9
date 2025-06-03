@@ -211,7 +211,7 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
         );
         setAssetRegID(response.data.AssetRegID);
         SetJobOrderReport(response.data); //this state is using for the dropdown value
-        dispatch(actionSetLoading(false));
+        
         dispatch(
           actionSetJobOrderReport(
             response.data,
@@ -227,7 +227,8 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
       })
       .catch(function (error) {
         console.log('JobOrderReport Erro: ', error);
-      });
+      })
+      .finally(()=>dispatch(actionSetLoading(false)));
   };
   // useEffect(()=>{
   // 	console.log("SUMA")
@@ -354,23 +355,7 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
     console.log('validation function-->>');
     console.log('check asset type===>>>>', jobOrderReport.AssetType);
     if (JobOrderReportData?.WorkType != 0 && jobOrderReport?.AssetType == 1) {
-      console.error(
-        'value==>> Damage: ' +
-          valueDamage +
-          ' Reason: ' +
-          valueReason +
-          ' Object : ' +
-          valueObject,
-      );
-      console.log(
-        'jor state value==>>' +
-          'Cause ID=>' +
-          JobOrderReportData.CauseListID +
-          'complaint ID=>' +
-          JobOrderReportData.ComplaintTypeID +
-          'Object ID=>' +
-          JobOrderReportData.ObjectID,
-      );
+      if(JobOrderReportData.IsSelfAssigned) return true;
       console.log('inside the validation for damage, cause and reason');
       if (
         JobOrderReportData.CauseListID == 0 ||
@@ -1041,7 +1026,7 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
                 />
               </View>
               {/* WorkType==0 is the PM job */}
-              {JobOrderReportData.WorkType == 0 ? null : (
+              {JobOrderReportData.WorkType == 0 || JobOrderReportData.IsSelfAssigned ? null : (
                 <View style={{marginTop: '2%'}}>
                   <View
                     style={{

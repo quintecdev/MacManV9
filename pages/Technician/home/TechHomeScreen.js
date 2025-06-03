@@ -18,13 +18,9 @@ import {
   ScrollView,
   Pressable,
 } from 'react-native';
-// import DatePicker from 'react-native-datepicker'
-// import DatePicker from '@react-native-community/datetimepicker'
-import BottomSheet from 'react-native-simple-bottom-sheet';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Timer from '../components/Timer';
 import useTimer from '../hook/useTimer';
-import {Dialog} from 'react-native-simple-dialogs';
 const screenWidth = Dimensions.get('window').width;
 import {PieChart} from 'react-native-charts-wrapper';
 import CmmsColors from '../../../common/CmmsColors';
@@ -50,7 +46,6 @@ import {
   actionSetJobDate,
   actionSetIsStandByPermission,
 } from '../../../action/ActionVersion';
-import {actionSetInternetConnection} from '../../../action/ActionInternetConnection';
 import {
   actionSetAlertPopUp,
   actionSetAlertPopUpTwo,
@@ -87,6 +82,8 @@ import Alerts from '../../components/Alert/Alerts';
 import {useNetInfo} from '@react-native-community/netinfo';
 import EmergencyJobListModal from '../components/EmergencyJobListModal';
 import FadeView from '../../components/fadeView/FadeView';
+import RefreshButton from '../../supervisor/Components/RefreshButton';
+import { Dialog } from 'react-native-simple-dialogs';
 
 const Height = Dimensions.get('window').height;
 const Width = Dimensions.get('window').width;
@@ -112,6 +109,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   const {EmergencyJoblistNotifactionBgStatus} = useSelector(
     (state) => state.CurrentPageReducer,
   );
+  console.log({EmergencyJoblistNotifactionBgStatus})
   const uRoutes = useRoute();
   const {
     loggedUser: {
@@ -238,6 +236,9 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   const [StandBy, setStandBy] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); //Bottom Drawer PopUp
   const [showModal, setShowModal] = useState(false); //Reason PopUp
+  const [showSelfModal, setShowSelModal] = useState(false); //IsSelfAssigned PopUp
+  const [selfAssignedActvityList,setSelfAssignedActivityList] = useState([])
+  const selectedSelfActivity = useRef(null)
   const [popUpcontent, setPopupContent] = useState({
     visible: false,
     title: '',
@@ -306,6 +307,10 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
               onPress={() => {
                 setIsBreakdown(false);
                 console.error('EmergencyJobList==>', EmergencyJobList);
+                if(EmergencyJoblistNotifactionBgStatus.IsSelfAssigned){
+                  InitialjobCheck(9)
+                  return
+                }
                 if (IsStandbyPermission == true) {
                   //use to check the initial job check to start the Mislenious job
                   InitialjobCheck(4);
@@ -451,6 +456,10 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       },
     });
   });
+
+  useEffect(()=>{
+    setShowSelModal(selfAssignedActvityList.length>0)
+  },[selfAssignedActvityList.length])
 
   useEffect(() => {
     {
@@ -1046,13 +1055,76 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     dispatch(actionSetLoading(true));
     console.log('work id>>>', workId);
     console.log('inside QR code function data');
-    // try {
-    if (Mislenious == true || StandBy == true) {
-      console.error('StandBy api call started==>>');
-      const param = {
+    const param = {
         AssetCode: data?.data,
         SEID: TechnicianID,
       };
+    // try {
+      console.log({param})
+    if(EmergencyJoblistNotifactionBgStatus.IsSelfAssigned && selectedSelfActivity.current){
+        param.ActivityID=selectedSelfActivity.current.ID
+        requestWithEndUrl(
+        `${API_TECHNICIAN}ScanMachineCodeForSelfAssignedJobs`,
+        param,
+        'POST',
+      )
+        .then((res) => {
+          console.log('qr code scan api response->>>>>>>', res.data);
+          if (res.status != 200) {
+            throw Error(res.statusText);
+          }
+          return res.data;
+        })
+        .then((data) => {
+          console.error('StandBy api cal 200==>>');
+          dispatch(actionSetLoading(false));
+          console.log('SMC Qr code api response data----->>>>>', data);
+          if (data.isSucess) {
+            clearTimer();
+            setModal(false);
+            console.log('---Qr7----');
+            RefreshCall(3);
+          } else {
+            setModal(false);
+            setStandBy(false);
+            console.log('---Qr8----');
+            dispatch(
+              actionSetAlertPopUpTwo({
+                title: AppTextData.txt_Alert,
+                body: statusDetails(data.Message),
+                visible: true,
+                type: 'ok',
+              }),
+            );
+            console.log('scan issuccess==0 or false', data);
+          }
+        })
+        .catch((err) => {
+          console.error('Standby qr code scan api catch==>>', err);
+          dispatch(actionSetLoading(false));
+          setModal(false);
+          setMislenious(false);
+          setStandBy(false);
+          setisScanfailed(true);
+          dispatch(
+            actionSetAlertPopUpTwo({
+              title: AppTextData.txt_Alert,
+              body: AppTextData.txt_somthing_wrong_try_again,
+              visible: true,
+              type: 'ok',
+            }),
+          );
+        })
+        .finally(()=>{
+          selectedSelfActivity.current = null
+          setShowSelModal(false)
+        });
+        return
+      }
+    if (Mislenious == true || StandBy == true) {
+      console.error('StandBy api call started==>>');
+      
+      
       console.log('params for MIS Qrcode scanning->>>>', param);
       requestWithEndUrl(
         `${API_TECHNICIAN}ScanMachineCodeForMiscellaneous`,
@@ -1240,6 +1312,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         getJoblist(1);
       }
     } else {
+      console.log("JIJU",e)
       if (IsWorking) {
         dispatch(
           actionSetAlertPopUpTwo({
@@ -1311,6 +1384,28 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
               setStandBy(true);
               setModal(true);
               break;
+            case 9:
+              //http://207.180.228.148:2021//api/Common/GetMasterwithOtherID?FormID=ISSELFASSIGNEDACTIVITY&BranchID=0&PeriodID=0&OL=ol&OtherID=126
+                  dispatch(actionSetLoading(true))
+                  requestWithEndUrl(`${API_COMMON}GetMasterwithOtherID`,{FormID:'ISSELFASSIGNEDACTIVITY',BranchID:0,PeriodID:0,OL:'ol',OtherID:TechnicianID})
+                  .then((res) => {
+                    console.log('GetMasterwithOtherID-ISSELFASSIGNEDACTIVITY', {res});
+                    if (res.status != 200) {
+                      throw Error(res.statusText);
+                    }
+                    return res.data;
+                  })
+                  .then((data) => {
+                    setShowSelModal(true)
+                    setSelfAssignedActivityList(data)
+                  })
+                  .catch(err=>{
+                    console.error("GetMasterwithOtherID-ISSELFASSIGNEDACTIVITY",err);
+                    setSelfAssignedActivityList([])
+
+                  })
+                  .finally(()=>dispatch(actionSetLoading(false)))
+              break;  
             default:
               break;
           }
@@ -1743,7 +1838,21 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         onDateChange={(date) => dispatch(actionSetJobDate(date))}
         text={`${AppTextData.txt_Job_Oders}(${jobOrderList.length})`}
       />
+      <View style={{flexDirection: 'row', justifyContent: 'center'}}>
       <StatusLabelView jobOrderList={jobOrderList} />
+      <RefreshButton
+                  title={'↻'}
+                  width={75}
+                  color={'white'}
+                  backgroundColor={'#2F5A0C'}
+                  fontWeight={'bold'}
+                  fontSize={21}
+                  onPress={() => {
+                   
+                    dispatch(actionSetRefreshing());
+                  }}
+                />
+                </View>
       {jobOrderList.length > 0 && (
         <FlatList
           scrollEventThrottle={16}
@@ -2129,8 +2238,10 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                     </>
                   )}
                 
-                  {selectedJob?.WorkType==0?(selectedJob?.IsCheckListAvaliable &&
-                  selectedJob?.ReasonTypeID == 0):selectedJob?.IsSafeRegulationRequired ? (
+                  {(selectedJob?.WorkType === 0 &&
+  selectedJob?.IsCheckListAvaliable &&
+  selectedJob?.ReasonTypeID === 0) ||
+ selectedJob?.IsSafeRegulationRequired ?  (
                     // Reason == 'Job Order Performance'
                     // preventive
                     <TouchableOpacity
@@ -2666,12 +2777,12 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                       style={styles.touch}
                       disabled={
                         // false
-                        !(
+                        EmergencyJoblistNotifactionBgStatus.IsSafeRegulationRequired?!(
                           IsBreakdown ? workNatureData.some(item => item.ID === 1 && item.selected) : (selectedJob?(selectedJob?.WorkType!==0?(workNatureData.some(item => item.ID === 1 && item.selected) || 
                           (selectedJob?.NoSafeRegulationInCorrect 
                             ? selectedJob?.WorkNatureID !== "" 
                             : ["", "1",null].includes(selectedJob?.WorkNatureID ?? item?.WorkNatureID))):(workNatureData.some(item => item.ID === 1 && item.selected)|| selectedJob?.WorkType==0)): workNatureData.some(item => item.ID === 1 && item.selected) || !item?.IsSafeRegulationRequired)
-                        )
+                        ):false
                       }
                       onPress={() => {
               
@@ -2707,6 +2818,28 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
           </ImageBackground>
         </View>
       </Modal>
+      <Dialog
+        animationType="slide"
+        visible={showSelfModal}
+        title='Self Assigned Activities'
+        onTouchOutside={()=>setShowSelModal(false)}
+        onRequestClose={() => {
+          setShowSelModal(false);
+        }}>
+          <FlatList
+          data={selfAssignedActvityList}
+          renderItem={({item,index})=><TouchableOpacity style={{padding:8}}
+          onPress={async()=>{
+            selectedSelfActivity.current = item
+            setModal(true)
+
+          }}
+          ><Text >{item.Name}</Text></TouchableOpacity>}
+          />
+          <TouchableOpacity style={{alignSelf:'flex-end',padding:5}} onPress={()=>setShowSelModal(false)}>
+            <Text style={{color:CmmsColors.actionText,fontWeight:'900',fontSize:18}}>Cancel</Text>
+          </TouchableOpacity>
+        </Dialog>
     </View>
   );
 
