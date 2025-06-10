@@ -97,6 +97,7 @@ import Alerts from '../pages/components/Alert/Alerts';
 import InternalWorkOrder from '../pages/supervisor/InternalWorkOrder';
 import CheckListSafetyRegulationPage from '../pages/check-list/CheckListSafetyRegulationPage';
 // console.log('device model===>>>>', DeviceInfo.getBuildNumber());
+import BackgroundService from 'react-native-background-actions';
 
 const screenWidth = Dimensions.get('window').width;
 const Stack = createStackNavigator();
@@ -151,6 +152,10 @@ export default () => {
   const [intervel, setIntervel] = useState(5);
   const [taskDesc, settaskDesc] = useState('');
   const [TimeGap, setTimeGap] = useState(0);
+  const [intervalId, setIntervalId] = useState(null);
+  const {loginStatus} = useSelector((state) => state.LoginReducer);
+  
+  
   // const [TimeGap, setTimeGap] = useReducer(reducer, 0);
 
   const {jobOrderList} = useSelector((state) => state.RealTimeDataReducer);
@@ -196,6 +201,68 @@ export default () => {
       // }, 10000);
     }
   }, [loggedUser]);
+
+  useEffect(() => {
+      console.log('timer update from the useeffect==>>', TimeGap);
+      TimerCheck();
+    }, [TimeGap]);
+
+    async function TimerCheck() {
+    // alert('one minutes');
+    console.log('function TimerCheck==>>');
+    const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
+    console.log(
+      'timer check function==>>',
+      User,
+      'userType==>',
+      User?.UserType,
+    );
+    if (User?.UserType == 1 || !User) {
+      console.log('Stopeddddddd');
+      clearInterval(intervalId);
+      setIntervalId(null);
+    } else {
+      console.log("TIMER-SUPERVISOR")
+      if (
+        EmergencyJoblistNotifactionBgStatus.BDNotification == true &&
+        appState.current == 'active'
+      ) {
+      console.log("TIMER-SUPERVISOR",EmergencyJoblistNotifactionBgStatus.BDNotification,TimeGap)
+
+        if (TimeGap % 60 == 0) {
+          // TimerCheck(TimeGap / 60);
+      console.log("TIMER-SUPERVISOR","TimeGap % 60")
+
+          AsyncStorage.getItem(ASK.ASK_NOTIFICATION_TIMER)
+            .then((res) => {
+              if (res) {
+                const NOTIFICATION = JSON.parse(res);
+                console.log(
+                  'notification in the notifcation async storage==>>',
+                  NOTIFICATION,
+                );
+                const Time = NOTIFICATION?.Timer;
+                console.log('time modulus==>>', (TimeGap / 60) % Time);
+                // console.log('time for the Notification time==>>', Time);
+                if (
+                  NOTIFICATION.Permission == true &&
+                  (TimeGap / 60) % Time == 0
+                  //&& User.UserType == 1
+                ) {
+                  // if ((TimeGap / 60) % Time == 0) {
+                  // alert('successfully completed TimerCheck function');
+                  EmergencyJoblistNotificationCount();
+                  // }
+                }
+              }
+            })
+            .catch((err) => {
+              console.error('notification error==>>', err);
+            });
+        }
+      }
+    }
+  }
   // useEffect(()=>{
   //   // const unsubscribe = messaging().onMessage(async remoteMessage => {
   //   //   console.log(TAG,'Message handled in the foreground!', remoteMessage);
@@ -226,31 +293,32 @@ export default () => {
   //   });
   // };
 
-  const configureBackgroundAction = () => {
-    const backgroundAction = async () => {
-      // await apiCall();
-      await CheckingAppVersions();
-      return {taskId: 'myTaskId', stopOnTerminate: false};
-    };
+  // old -code unused
+  // const configureBackgroundAction = () => {
+  //   const backgroundAction = async () => {
+  //     // await apiCall();
+  //     await CheckingAppVersions();
+  //     return {taskId: 'myTaskId', stopOnTerminate: false};
+  //   };
 
-    const options = {
-      taskName: 'My Task',
-      taskTitle: 'My Task Title',
-      taskDesc: 'My Task Description',
-      taskIcon: {
-        name: 'ic_launcher',
-        type: 'mipmap',
-      },
-      color: '#ffffff',
-      parameters: {
-        delay: 60 * 1000, // 1 minute delay in milliseconds
-      },
-    };
+  //   const options = {
+  //     taskName: 'My Task',
+  //     taskTitle: 'My Task Title',
+  //     taskDesc: 'My Task Description',
+  //     taskIcon: {
+  //       name: 'ic_launcher',
+  //       type: 'mipmap',
+  //     },
+  //     color: '#ffffff',
+  //     parameters: {
+  //       delay: 60 * 1000, // 1 minute delay in milliseconds
+  //     },
+  //   };
 
-    BackgroundActions.start(backgroundAction, options).then(() =>
-      console.log('Background action started'),
-    );
-  };
+  //   BackgroundActions.start(backgroundAction, options).then(() =>
+  //     console.log('Background action started'),
+  //   );
+  // };
 
   async function CheckingAppVersions() {
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
@@ -327,6 +395,8 @@ export default () => {
       console.log('cardDetailfetch error', error);
     }
   }
+
+  //copy from BGTask
   const options = {
     taskName: 'Example',
     taskTitle: 'Mac-Man',
@@ -342,23 +412,46 @@ export default () => {
     },
   };
 
+  const sleep = () =>
+    new Promise((resolve) => setTimeout(() => resolve(), 10000));
+  
+  //copy from BGTask
+   const veryIntensiveTask = async (taskDataArguments) => {
+    // Example of an infinite loop task
+    const {delay} = taskDataArguments;
+    console.log("veryIntensiveTask")
+    await new Promise(async (resolve) => {
+      console.log("BG-isrunning",BackgroundService.isRunning())
+      for (let i = 0; BackgroundService.isRunning(); i++) {
+        console.log(i);
+        if (i % 8 == 0) {
+          CheckingAppVersions();
+        }
+        await sleep();
+      }
+    });
+  };
+
+  //copy from BGTask
   async function _handleAppStateChange(nextAppState) {
+    const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
     console.log('function name==>> NavigationContainer handleAppStateChange');
 
     // console.log("_handleAppStateChange",{nextAppState,appState:appState.current,routelenght:navigationRef?.current.getRootState().index})
     if (nextAppState === 'inactive' || nextAppState === 'background') {
-      // await BackgroundActions.start(veryIntensiveTask, options);
-      // configureBackgroundAction();
-      //1
+      User.UserType == 2 &&
+        (await BackgroundService.start(veryIntensiveTask, options));
       console.log('app is in background');
     } else if (
       appState.current.match(/inactive|background/) &&
       nextAppState === 'active'
     ) {
-      // await BackgroundActions.stop();
-      //2
+      if (User.UserType == 2) {
+        await BackgroundService.stop();
+
+        dispatch(actionSetEmergencyJoblistNotificationCountUpdate());
+      }
       ChecklistNotificationCount();
-      dispatch(actionSetEmergencyJoblistNotificationCountUpdate());
       console.log('App has come to the foreground!', {loggedUser});
       // messaging().noremoveAllDeliveredNotifications()
       if (!loggedUser) {
@@ -379,17 +472,6 @@ export default () => {
             dispatch(actionSetLoading(false));
             const currentPage = navigationRef?.current?.getCurrentRoute()?.name;
             console.log('current page=====>', currentPage);
-            // navigationRef.current?.dispatch(resetAction)
-            // if(currentPage!= 'Login')
-            // navigationRef.current?.dispatch(
-            //   CommonActions.reset({
-            //     index: 0,
-            //     routes: [
-            //       { name: 'Login' },
-
-            //     ],
-            //   })
-            // );
           });
       }
     }
@@ -397,6 +479,63 @@ export default () => {
     setAppStateVisible(appState.current);
     return false;
   }
+
+  //old - code
+  // async function _handleAppStateChange(nextAppState) {
+  //   console.log('function name==>> NavigationContainer handleAppStateChange');
+
+  //   // console.log("_handleAppStateChange",{nextAppState,appState:appState.current,routelenght:navigationRef?.current.getRootState().index})
+  //   if (nextAppState === 'inactive' || nextAppState === 'background') {
+  //     // await BackgroundActions.start(veryIntensiveTask, options);
+  //     // configureBackgroundAction();
+  //     //1
+  //     console.log('app is in background');
+  //   } else if (
+  //     appState.current.match(/inactive|background/) &&
+  //     nextAppState === 'active'
+  //   ) {
+  //     // await BackgroundActions.stop();
+  //     //2
+  //     ChecklistNotificationCount();
+  //     dispatch(actionSetEmergencyJoblistNotificationCountUpdate());
+  //     console.log('App has come to the foreground!', {loggedUser});
+  //     // messaging().noremoveAllDeliveredNotifications()
+  //     if (!loggedUser) {
+  //       dispatch(actionSetLoading(true));
+  //       AsyncStorage.getItem(ASK.ASK_USER)
+  //         .then((res) => {
+  //           console.log('_handleAppStateChange', 'ASK_USER', {res});
+  //           if (res) {
+  //             console.log('login expired 1');
+  //             const loggedUser = JSON.parse(res);
+  //             dispatch(actionSetLoginData(loggedUser));
+  //             dispatch(actionSetLoading(false));
+  //           } else throw Error('Login Expired');
+  //         })
+  //         .catch((err) => {
+  //           console.log('login expired 2');
+  //           console.log('_handleAppStateChange_err: ', {err});
+  //           dispatch(actionSetLoading(false));
+  //           const currentPage = navigationRef?.current?.getCurrentRoute()?.name;
+  //           console.log('current page=====>', currentPage);
+  //           // navigationRef.current?.dispatch(resetAction)
+  //           // if(currentPage!= 'Login')
+  //           // navigationRef.current?.dispatch(
+  //           //   CommonActions.reset({
+  //           //     index: 0,
+  //           //     routes: [
+  //           //       { name: 'Login' },
+
+  //           //     ],
+  //           //   })
+  //           // );
+  //         });
+  //     }
+  //   }
+  //   appState.current = nextAppState;
+  //   setAppStateVisible(appState.current);
+  //   return false;
+  // }
 
   // useFocusEffect(
   //   React.useCallback(() => {
@@ -485,6 +624,8 @@ export default () => {
     ChecklistNotificationCount();
   }, [CheckListNotificationVisit]);
 
+ 
+
   useEffect(() => {
     console.error('time gap from the useEffect==>>', TimeGap);
     console.log('current status of the application==>', appState);
@@ -500,47 +641,17 @@ export default () => {
     // }
   }, [EmergencyJoblistNotifactionCountUpdate]);
 
-  useEffect(() => {
-    console.log('timer update from the useeffect==>>', TimeGap);
-    if (
-      EmergencyJoblistNotifactionBgStatus.BDNotification == true &&
-      appState.current == 'active'
-    ) {
-      if (TimeGap % 60 == 0) {
-        TimerCheck(TimeGap / 60);
-      }
-    }
-  }, [TimeGap]);
-
-  async function TimerCheck(e) {
-    // alert('one minutes');
-    console.log('function TimerCheck==>>', e);
-    const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
-    AsyncStorage.getItem(ASK.ASK_NOTIFICATION_TIMER)
-      .then((res) => {
-        if (res) {
-          const NOTIFICATION = JSON.parse(res);
-          console.log(
-            'notification in the notifcation async storage==>>',
-            NOTIFICATION,
-          );
-          const Time = NOTIFICATION?.Timer;
-          // console.log('time for the Notification time==>>', Time);
-          if (
-            NOTIFICATION.Permission == true
-            //&& User.UserType == 1
-          ) {
-            if (e % Time == 0) {
-              // alert('successfully completed TimerCheck function');
-              EmergencyJoblistNotificationCount();
-            }
-          }
-        }
-      })
-      .catch((err) => {
-        console.error('notification error==>>', err);
-      });
-  }
+  // useEffect(() => {
+  //   console.log('timer update from the useeffect==>>', TimeGap);
+  //   if (
+  //     EmergencyJoblistNotifactionBgStatus.BDNotification == true &&
+  //     appState.current == 'active'
+  //   ) {
+  //     if (TimeGap % 60 == 0) {
+  //       TimerCheck(TimeGap / 60);
+  //     }
+  //   }
+  // }, [TimeGap]);
 
   useEffect(() => {
     console.log('app appStateVisible state==>>', appStateVisible);
@@ -563,43 +674,21 @@ export default () => {
     // }
   }, []);
 
+    useEffect(() => {
+      SetTimers();
+    }, [loginStatus == true]);
+
   async function SetTimers() {
-    // console.log('set Timer function');
-    // const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
-    // AsyncStorage.getItem(ASK.ASK_NOTIFICATION_TIMER)
-    //   .then((res) => {
-    //     if (res) {
-    //       const NOTIFICATION = JSON.parse(res);
-    //       console.log(
-    //         'notification in the notifcation async storage==>>',
-    //         NOTIFICATION,
-    //       );
-    // const Time = NOTIFICATION?.Timer
-    //   ? NOTIFICATION?.Timer * 60000
-    //   : 300000;
-    // console.log('time for the Notification time==>>', Time);
-    // if (NOTIFICATION.Permission == true && User.UserType == 1) {
-    // const interval =
-    // setInterval(() => {
-    //   setTimeGap(dispatch({type: 'Increment'}));
-    //   // if (
-    //   //   EmergencyJoblistNotifactionBgStatus.BDNotification == true &&
-    //   //   appState.current == 'active'
-    //   // ) {
-    //   //   EmergencyJoblistNotificationCount();
-    //   // }
-    // }, 1000);
-    // return () => clearInterval(interval);
-    const interval = setInterval(() => {
-      setTimeGap((seconds) => seconds + 1);
-    }, 1000);
-    return () => clearInterval(interval);
-    //     }
-    //   }
-    // })
-    // .catch((err) => {
-    //   console.error('notification error==>>', err);
-    // });
+    const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
+    if (User.UserType == 2) {
+      console.log('timer has startedddd');
+      const intervals = setInterval(() => {
+        console.log("setInterval")
+        setTimeGap((seconds) => seconds + 1);
+      }, 1000);
+      setIntervalId(intervals);
+      return () => clearInterval(intervals);
+    }
   }
 
   async function ChecklistNotificationCount() {
