@@ -84,6 +84,7 @@ import EmergencyJobListModal from '../components/EmergencyJobListModal';
 import FadeView from '../../components/fadeView/FadeView';
 import RefreshButton from '../../supervisor/Components/RefreshButton';
 import { Dialog } from 'react-native-simple-dialogs';
+import { actionSetJobListCnt } from '../../../action/ActionRealTimeData';
 
 const Height = Dimensions.get('window').height;
 const Width = Dimensions.get('window').width;
@@ -648,7 +649,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
           remoteMessage.data.EmergencyJobListCnt,
         );
         const lJobListCnt = remoteMessage.data.EmergencyJobListCnt;
-        // dispatch(actionSetJobListCnt(lJobListCnt));
+        dispatch(actionSetJobListCnt(lJobListCnt));
         if (fromNotificationOpened && lJobListCnt != 0) {
           UserData();
         }
@@ -975,24 +976,25 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     // }
   }
 
-  async function StartEmergencyJob() {
+  async function StartEmergencyJob(WorkNatureID="") {
     //Start an Emergency Job List Directly from the HomePage(bell icon)
     try {
       console.log('Home page breakdown parameter is there????');
       const params = {
-        AssetCode: EmergencyJoblistselectedJob?.Code,
+        AssetCode: EmergencyJoblistSelectedJob?.Code,
         SEID: TechnicianID,
-        WorkID: EmergencyJoblistselectedJob?.WorkID,
+        WorkID: EmergencyJoblistSelectedJob?.WorkID,
         ReasonID: selectionID,
       };
       console.log('params for StartCustodianMachineCode api call==>>', params);
       const alreadyWorkingRes = await requestWithEndUrl(
         `${API_TECHNICIAN}StartCustodianMachineCode`,
         {
-          AssetCode: EmergencyJoblistselectedJob?.Code,
+          AssetCode: EmergencyJoblistSelectedJob?.Code,
           SEID: TechnicianID,
-          WorkID: EmergencyJoblistselectedJob?.WorkID,
+          WorkID: EmergencyJoblistSelectedJob?.WorkID,
           ReasonID: selectionID,
+          WorkNatureID
         },
         'POST',
       );
@@ -1726,6 +1728,10 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                 {
                   text: AppTextData.txt_Yes,
                   onPress: () => {
+                    //vvj
+                    setIsBreakdown(true)
+                setFromTop(true)
+
                     setEmergencyJoblistSelectedJob(e);
                     InitialjobCheck(5);
                   },
@@ -2753,7 +2759,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                         if (EmergencyJobList == false) {
                           StartJob(!IsBreakdown? (selectedJob?.IsWorking?selectedJob.WorkNatureID:workNatureData?.filter(work=>work?.selected).map(work=>work.ID).join(",")):workNatureData?.filter(work=>work?.selected).map(work=>work.ID).join(","));
                         } else {
-                          StartEmergencyJob();
+                          StartEmergencyJob(workNatureData?.filter(work=>work?.selected).map(work=>work.ID).join(","));
                         }
                       } else {
                         dispatch(actionSetLoading(false));
@@ -2777,7 +2783,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                       style={styles.touch}
                       disabled={
                         // false
-                        EmergencyJoblistNotifactionBgStatus.IsSafeRegulationRequired?!(
+                        EmergencyJoblistNotifactionBgStatus.IsSafetyRegulationRequired?!(
                           IsBreakdown ? workNatureData.some(item => item.ID === 1 && item.selected) : (selectedJob?(selectedJob?.WorkType!==0?(workNatureData.some(item => item.ID === 1 && item.selected) || 
                           (selectedJob?.NoSafeRegulationInCorrect 
                             ? selectedJob?.WorkNatureID !== "" 
