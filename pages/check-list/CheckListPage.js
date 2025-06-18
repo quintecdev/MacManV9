@@ -757,6 +757,16 @@ else {
                           </CmmsText>
                         </TouchableOpacity>:null}
                       </View>
+                      {item.Images?<TouchableOpacity 
+                                                        style={{alignSelf:"flex-end",marginStart:10,padding:4}}
+                                                        onPress={()=>{
+                                                          console.log("image icon")
+                                                          navigation.navigate("FullScreenImageView",{imageUrl:item.Images})
+                                                          }
+                                                        }
+                                                        >
+                                                          <Icon name="picture-o" size={24} color="grey" />
+                                                        </TouchableOpacity>:null}
                     </View>
                   )}
                 />

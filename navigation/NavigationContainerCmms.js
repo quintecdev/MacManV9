@@ -98,6 +98,7 @@ import InternalWorkOrder from '../pages/supervisor/InternalWorkOrder';
 import CheckListSafetyRegulationPage from '../pages/check-list/CheckListSafetyRegulationPage';
 // console.log('device model===>>>>', DeviceInfo.getBuildNumber());
 import BackgroundService from 'react-native-background-actions';
+import FullScreenImageView from '../pages/check-list/ImageViewPage';
 
 const screenWidth = Dimensions.get('window').width;
 const Stack = createStackNavigator();
@@ -881,7 +882,7 @@ export default () => {
     });
 
     const SelectedLanguage = await AsyncStorage.getItem(ASK.ASK_LANGUAGE);
-    console.error(
+    console.log(
       'selected language data from the Async in nav container===>>',
       SelectedLanguage,
       'lang from the redux==>>',
@@ -890,7 +891,7 @@ export default () => {
     const params = {
       Language: selectedLng.Languagevalue,
     };
-    console.error('params for apptextDatacall==>>', params);
+    console.log('params for apptextDatacall==>>', params);
     requestWithEndUrl(`${API_TECHNICIAN}getMacManMobileAppTextData`, params)
       .then((res) => {
         console.log('getMacManMobileAppTextData', {res});
@@ -1603,6 +1604,24 @@ export default () => {
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
+              })}
+            />
+
+            <Stack.Screen
+              name="FullScreenImageView"
+              component={FullScreenImageView}
+              options={({route, navigation}) => ({
+                headerTransparent: true,
+                title: null,
+                // headerTitle: props => <Image
+                //   style={{ height: 100, width: 140, alignSelf: 'center' }}
+                //   source={require('../assets/logo/ic_logo.png')}
+                // />,
+                // headerLeft: null,
+                // headerStyle: {
+                //   backgroundColor: CmmsColors.darkRed,
+                //   height: 130
+                // },
               })}
             />
           </Stack.Navigator>

@@ -17,6 +17,7 @@ import {
   ImageBackground,
   ScrollView,
   Pressable,
+  Vibration,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Timer from '../components/Timer';
@@ -88,6 +89,27 @@ import { actionSetJobListCnt } from '../../../action/ActionRealTimeData';
 
 const Height = Dimensions.get('window').height;
 const Width = Dimensions.get('window').width;
+var Sound = require('react-native-sound');
+Sound.setCategory('playback');
+var NotificationSound = new Sound(
+  'emergencynotification.wav',
+  Sound.MAIN_BUNDLE,
+  (error) => {
+    if (error) {
+      console.log('failed to load the sound', error);
+      return;
+    }
+    // loaded successfully
+    // Play the sound with an onEnd callback
+    // NotificationSound.play((success) => {
+    //   if (success) {
+    //     console.log('successfully finished playing');
+    //   } else {
+    //     console.log('playback failed due to audio decoding errors');
+    //   }
+    // });
+  },
+);
 
 export default HomeScreen = ({navigation, route: {params, name}}) => {
   // console.log('cycle count==>>', EmergencyJoblistNotifactionBgStatus);
@@ -650,6 +672,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         );
         const lJobListCnt = remoteMessage.data.EmergencyJobListCnt;
         dispatch(actionSetJobListCnt(lJobListCnt));
+        NotificationSound.play();
+        Vibration.vibrate(1000);
         if (fromNotificationOpened && lJobListCnt != 0) {
           UserData();
         }

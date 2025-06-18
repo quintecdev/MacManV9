@@ -62,7 +62,7 @@ export default ({navigation}) => {
   function CheckingAppVersion() {
     requestWithEndUrl(`${API_SUPERVISOR}GetApkVersion`)
       .then((res) => {
-        console.log('GetReasons', {res});
+        console.log('GetApkVersion', {res});
         if (res.status != 200) {
           throw Error(res.statusText);
         }
@@ -103,7 +103,7 @@ export default ({navigation}) => {
         }
       })
       .catch((err) => {
-        console.error('URL_GetReasons', {err});
+        console.error('URL_GetApkVersion', {err});
       });
   }
 
