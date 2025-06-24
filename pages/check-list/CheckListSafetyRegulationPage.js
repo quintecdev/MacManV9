@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView,TouchableOpacity,Text,View, TextInput, StyleSheet, Image, PermissionsAndroid, KeyboardAvoidingView } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CmmsColors from "../../common/CmmsColors";
-import { FlatList } from "react-native-gesture-handler";
+import { FlatList, ScrollView } from "react-native-gesture-handler";
 import { CmmsText, CText } from "../../common/components/CmmsText";
 import { useDispatch, useSelector } from "react-redux";
 import { launchCamera } from "react-native-image-picker";
@@ -10,10 +10,192 @@ import { actionSetAlertPopUpTwo } from "../../action/ActionAlertPopUp";
 import { actionSetLoading } from "../../action/ActionSettings";
 import { API_TECHNICIAN } from "../../network/api_constants";
 import requestWithEndUrl from "../../network/request";
+import { color } from "react-native-reanimated";
 
 const CheckListSafetyRegulationPage = ({navigation,route:{params}}) =>{
   console.log("CheckListSafetyRegulationPage",{params})
-  const [safetyRegulatoncheckList,setSafetyRegulationCheckList] = useState()
+  const [safetyRegulatoncheckList,setSafetyRegulationCheckList] = useState(
+  //   {
+  //   "ID": 1,
+  //   "JOID": 828612,
+  //   "JONO": "809668",
+  //   "Comments": "Test",
+  //   "SEID": 0,
+  //   "Images": [
+  //       {
+  //           "ID": 1,
+  //           "Images": "http://207.180.228.148:2021/Images/SafetyRegulationCheckList/17494635699890_1749463550141.jpg"
+  //       }
+  //   ],
+  //   "InspectionPointGroups": [
+  //       {
+  //           "GroupID": 2,
+  //           "Group": "Work at Height",
+  //           "InspectionPoint": [
+  //               {
+  //                   "GroupID": 2,
+  //                   "ID": 1,
+  //                   "InspectionPoints": "Recognize potential hazards like fragile surfaces, unstable ground, weather conditions, and the presence of other workers",
+  //                   "Remarks": "R1",
+  //                   "Status": 1
+  //               },
+  //               {
+  //                   "GroupID": 2,
+  //                   "ID": 2,
+  //                   "InspectionPoints": "Conduct a thorough risk assessment to evaluate potential hazards and implement appropriate control measures",
+  //                   "Remarks": "R2",
+  //                   "Status": 2
+  //               },
+  //               {
+  //                   "GroupID": 2,
+  //                   "ID": 3,
+  //                   "InspectionPoints": "Prioritize eliminating the need for working at height whenever possible, or use alternative methods like extendable tools or drones",
+  //                   "Remarks": "R3",
+  //                   "Status": 1
+  //               },
+  //               {
+  //                   "GroupID": 2,
+  //                   "ID": 4,
+  //                   "InspectionPoints": "Use proper fall protection equipment, including harnesses, lanyards, and anchor points. Ensure these are inspected regularly and used correctly. ",
+  //                   "Remarks": "R4",
+  //                   "Status": 2
+  //               },
+  //               {
+  //                   "GroupID": 2,
+  //                   "ID": 5,
+  //                   "InspectionPoints": "When using ladders, ensure they are the right type for the job, properly set up, and used safely",
+  //                   "Remarks": "R5",
+  //                   "Status": 2
+  //               }
+  //           ]
+  //       },
+  //       {
+  //           "GroupID": 3,
+  //           "Group": "Work at Height",
+  //           "InspectionPoint": [
+  //               {
+  //                   "GroupID": 3,
+  //                   "ID": 1,
+  //                   "InspectionPoints": "Recognize potential hazards like fragile surfaces, unstable ground, weather conditions, and the presence of other workers",
+  //                   "Remarks": "R1",
+  //                   "Status": 1
+  //               },
+  //               {
+  //                   "GroupID": 3,
+  //                   "ID": 2,
+  //                   "InspectionPoints": "Conduct a thorough risk assessment to evaluate potential hazards and implement appropriate control measures",
+  //                   "Remarks": "R2",
+  //                   "Status": 2
+  //               },
+  //               {
+  //                   "GroupID": 3,
+  //                   "ID": 3,
+  //                   "InspectionPoints": "Prioritize eliminating the need for working at height whenever possible, or use alternative methods like extendable tools or drones",
+  //                   "Remarks": "R3",
+  //                   "Status": 1
+  //               },
+  //               {
+  //                   "GroupID": 3,
+  //                   "ID": 4,
+  //                   "InspectionPoints": "Use proper fall protection equipment, including harnesses, lanyards, and anchor points. Ensure these are inspected regularly and used correctly. ",
+  //                   "Remarks": "R4",
+  //                   "Status": 2
+  //               },
+  //               {
+  //                   "GroupID": 3,
+  //                   "ID": 5,
+  //                   "InspectionPoints": "When using ladders, ensure they are the right type for the job, properly set up, and used safely",
+  //                   "Remarks": "R5",
+  //                   "Status": 2
+  //               }
+  //           ]
+  //       },
+  //       {
+  //           "GroupID": 4,
+  //           "Group": "Work at Height",
+  //           "InspectionPoint": [
+  //               {
+  //                   "GroupID": 4,
+  //                   "ID": 1,
+  //                   "InspectionPoints": "Recognize potential hazards like fragile surfaces, unstable ground, weather conditions, and the presence of other workers",
+  //                   "Remarks": "R1",
+  //                   "Status": 1
+  //               },
+  //               {
+  //                   "GroupID": 4,
+  //                   "ID": 2,
+  //                   "InspectionPoints": "Conduct a thorough risk assessment to evaluate potential hazards and implement appropriate control measures",
+  //                   "Remarks": "R2",
+  //                   "Status": 2
+  //               },
+  //               {
+  //                   "GroupID": 4,
+  //                   "ID": 3,
+  //                   "InspectionPoints": "Prioritize eliminating the need for working at height whenever possible, or use alternative methods like extendable tools or drones",
+  //                   "Remarks": "R3",
+  //                   "Status": 1
+  //               },
+  //               {
+  //                   "GroupID": 4,
+  //                   "ID": 4,
+  //                   "InspectionPoints": "Use proper fall protection equipment, including harnesses, lanyards, and anchor points. Ensure these are inspected regularly and used correctly. ",
+  //                   "Remarks": "R4",
+  //                   "Status": 2
+  //               },
+  //               {
+  //                   "GroupID": 4,
+  //                   "ID": 5,
+  //                   "InspectionPoints": "When using ladders, ensure they are the right type for the job, properly set up, and used safely",
+  //                   "Remarks": "R5",
+  //                   "Status": 2
+  //               }
+  //           ]
+  //       },
+  //       {
+  //           "GroupID": 5,
+  //           "Group": "Alex Height",
+  //           "InspectionPoint": [
+  //               {
+  //                   "GroupID": 5,
+  //                   "ID": 1,
+  //                   "InspectionPoints": "Recognize potential hazards like fragile surfaces, unstable ground, weather conditions, and the presence of other workers",
+  //                   "Remarks": "R1",
+  //                   "Status": 1
+  //               },
+  //               {
+  //                   "GroupID": 5,
+  //                   "ID": 2,
+  //                   "InspectionPoints": "Conduct a thorough risk assessment to evaluate potential hazards and implement appropriate control measures",
+  //                   "Remarks": "R2",
+  //                   "Status": 2
+  //               },
+  //               {
+  //                   "GroupID": 5,
+  //                   "ID": 3,
+  //                   "InspectionPoints": "Prioritize eliminating the need for working at height whenever possible, or use alternative methods like extendable tools or drones",
+  //                   "Remarks": "R3",
+  //                   "Status": 1
+  //               },
+  //               {
+  //                   "GroupID": 5,
+  //                   "ID": 4,
+  //                   "InspectionPoints": "Use proper fall protection equipment, including harnesses, lanyards, and anchor points. Ensure these are inspected regularly and used correctly. ",
+  //                   "Remarks": "R4",
+  //                   "Status": 2
+  //               },
+  //               {
+  //                   "GroupID": 5,
+  //                   "ID": 5,
+  //                   "InspectionPoints": "When using ladders, ensure they are the right type for the job, properly set up, and used safely",
+  //                   "Remarks": "R5",
+  //                   "Status": 2
+  //               }
+  //           ]
+  //       }
+  //   ],
+  //   "QRCodeScanned": true
+  // }
+)
       const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
       const {
           loggedUser: {TechnicianID, TechnicianName},
@@ -39,15 +221,15 @@ const CheckListSafetyRegulationPage = ({navigation,route:{params}}) =>{
       })
       .then((data) => {
       //  setInternalWorkOrder({...defaultInternalWO,RefNo:data}) const point = data.InspectionPoint;
-      const point = data.InspectionPoint;
+      // const point = data.InspectionPoint;
 
-      if (
-        !point ||
-        (Array.isArray(point) && point.length === 0) ||
-        (typeof point === "object" && !Array.isArray(point) && Object.keys(point).length === 0)
-      ) {
-        return;
-      }
+      // if (
+      //   !point ||
+      //   (Array.isArray(point) && point.length === 0) ||
+      //   (typeof point === "object" && !Array.isArray(point) && Object.keys(point).length === 0)
+      // ) {
+      //   return;
+      // }
       setSafetyRegulationCheckList(data)
       })
       .catch((err) => {
@@ -122,17 +304,38 @@ const CheckListSafetyRegulationPage = ({navigation,route:{params}}) =>{
             console.error('camera_error: ', err);
           }
         };
-const updateCheckBoxStatus=(statusFor,itemId)=>{
-  setSafetyRegulationCheckList(safetyRegulatoncheckList=>({...safetyRegulatoncheckList,InspectionPoint:safetyRegulatoncheckList.InspectionPoint.map((inspectionPoint) =>
-    inspectionPoint.ID === itemId ? { ...inspectionPoint, 
-      Status: inspectionPoint.Status === statusFor
-        ? 0 // If Status is 1, set it to 0
-        : inspectionPoint.Status !== statusFor
-        ? statusFor// If Status is NOT 1, set it to 1
-        : inspectionPoint.Status
-                                    } : inspectionPoint
-  )}))
-}
+// const updateCheckBoxStatus=(statusFor,itemId)=>{
+//   setSafetyRegulationCheckList(safetyRegulatoncheckList=>({...safetyRegulatoncheckList,InspectionPoint:safetyRegulatoncheckList.InspectionPoint.map((inspectionPoint) =>
+//     inspectionPoint.ID === itemId ? { ...inspectionPoint, 
+//       Status: inspectionPoint.Status === statusFor
+//         ? 0 // If Status is 1, set it to 0
+//         : inspectionPoint.Status !== statusFor
+//         ? statusFor// If Status is NOT 1, set it to 1
+//         : inspectionPoint.Status
+//                                     } : inspectionPoint
+//   )}))
+// }
+
+const updateCheckBoxStatus = (statusFor, item) => {
+  setSafetyRegulationCheckList(prevList => ({
+    ...prevList,
+    InspectionPointGroups: prevList.InspectionPointGroups.map(group =>
+      group.GroupID === item.GroupID
+        ? {
+            ...group,
+            InspectionPoint: group.InspectionPoint.map(point =>
+              point.ID === item.ID
+                ? {
+                    ...point,
+                    Status: point.Status === statusFor ? 0 : statusFor
+                  }
+                : point
+            )
+          }
+        : group
+    )
+  }));
+};
 
 const onSave = ()=>{
   //http://localhost:29189/api/ApkTechnician/SaveSafetyregulationchecklist
@@ -153,7 +356,7 @@ const onSave = ()=>{
         bodyFormData.append('', {uri:imageUri,type: 'image/jpg',name:imageName});
       }
     });
-    console.log('SaveSafetyregulationchecklist',{safetyRegulatoncheckList})
+    console.log('SaveSafetyregulationchecklist',{safetyRegulatoncheckList:JSON.stringify(safetyRegulatoncheckList,"", 2)})
     requestWithEndUrl(
       `${API_TECHNICIAN}SaveSafetyregulationchecklist`,
       bodyFormData,
@@ -208,26 +411,34 @@ const onSave = ()=>{
     {safetyRegulatoncheckList&&<>
     <KeyboardAvoidingView 
        behavior={'height'}
-      style={{flex:1,padding:8}}>
+      style={{flex:1,paddingHorizontal:8}}>
         <Text style={{backgroundColor:'white',
             
             height:50,textAlignVertical:'center'}}>
             {AppTextData.txt_JO_Number}:{safetyRegulatoncheckList.JONO}
         </Text>
         <View style={{flex:1,backgroundColor:'white',marginVertical:5,padding:8}}>
-            {safetyRegulatoncheckList.InspectionPoint.length>0&&<View style={{flexDirection:'row',
+            <ScrollView style={{flex:1,marginBottom:8}} >
+            {
+            safetyRegulatoncheckList.InspectionPointGroups.map(inspectionGroup=>
+            inspectionGroup.InspectionPoint.length>0&&<>
+            <View style={{flexDirection:'row',
                 width:'40%',
-                position:'absolute',end:8,top:8,
+                // alignSelf:'flex-end',
+                marginTop:10,
+                position:'absolute',end:2,top:8,
                 justifyContent:'space-around'}}>
                 <Text numberOfLines={2} style={styles.textCheckBoxHeader}>Not Relevant</Text>
                 <Text numberOfLines={2} style={styles.textCheckBoxHeader}>Correct</Text>
                 <Text numberOfLines={2} style={styles.textCheckBoxHeader}>Incorrect</Text>
 
-            </View>}
-            {safetyRegulatoncheckList.InspectionPoint.length>0&&<View style={{flex:2,}}>
+            </View>
+           <View style={{flex:2,marginTop:20}}>
+            <Text style={{color:'black',fontSize:18}}>{inspectionGroup.Group}</Text>
+
             <FlatList
-            style={{borderWidth:0,flexGrow:0,marginTop:30}}
-            data={safetyRegulatoncheckList.InspectionPoint}
+            style={{borderWidth:0,flexGrow:0,}}
+            data={inspectionGroup.InspectionPoint}
             renderItem={({item,index})=>(
                                 <View
                                   style={{
@@ -257,9 +468,28 @@ const onSave = ()=>{
                                       // multiline={true}
                                     //   keyboardType={item.IsReading ? 'numeric':'default'}
                                       value={item.Remarks}
-                                      onChangeText={(text) =>setSafetyRegulationCheckList(safetyRegulatoncheckList=>({...safetyRegulatoncheckList,InspectionPoint:safetyRegulatoncheckList.InspectionPoint.map((inspectionPoint) =>
-                                        inspectionPoint.ID === item.ID ? { ...inspectionPoint, Remarks: text } : inspectionPoint
-                                      )}))}
+                                      // onChangeText={(text) =>setSafetyRegulationCheckList(safetyRegulatoncheckList=>({...safetyRegulatoncheckList,InspectionPoint:safetyRegulatoncheckList.InspectionPoint.map((inspectionPoint) =>
+                                      //   inspectionPoint.ID === item.ID ? { ...inspectionPoint, Remarks: text } : inspectionPoint
+                                      // )}))}
+                                      onChangeText={(text) => 
+                                        setSafetyRegulationCheckList(prevList => ({
+                                          ...prevList,
+                                          InspectionPointGroups: prevList.InspectionPointGroups.map(group => {
+                                            // Only update the group where GroupID matches
+                                            if (group.GroupID === item.GroupID) {
+                                              return {
+                                                ...group,
+                                                InspectionPoint: group.InspectionPoint.map(point =>
+                                                  point.ID === item.ID
+                                                    ? { ...point, Remarks: text }
+                                                    : point
+                                                )
+                                              };
+                                            }
+                                            return group;
+                                          })
+                                        }))
+                                      }
                                       //vbn lang
                                       // placeholder="Remarks"
                                       placeholder={AppTextData.txt_Remarks}
@@ -275,7 +505,7 @@ const onSave = ()=>{
                                         marginStart: 10,
                                       }}
                                       onPress={() => {
-                                        updateCheckBoxStatus(1,item.ID)
+                                        updateCheckBoxStatus(1,{ ID: item.ID, GroupID:inspectionGroup.GroupID })
                                       }}>
                                       <Icon
                                         name={
@@ -295,7 +525,7 @@ const onSave = ()=>{
 
                                       }}
                                       onPress={() => {
-                                        updateCheckBoxStatus(2,item.ID)
+                                          updateCheckBoxStatus(2,{ ID: item.ID, GroupID:inspectionGroup.GroupID })
                                       }}>
                                       <Icon
                                         name={
@@ -314,7 +544,7 @@ const onSave = ()=>{
                                         margin: 4,
                                       }}
                                       onPress={() => {
-                                        updateCheckBoxStatus(3,item.ID)
+                                          updateCheckBoxStatus(3,{ ID: item.ID, GroupID:inspectionGroup.GroupID })
                                       }}>
                                       <Icon
                                         name={
@@ -329,21 +559,21 @@ const onSave = ()=>{
                                 </View>
                               )}
             />
-            </View>}
-                          <View style={{flex:1}}>
+            </View></>)}
+            </ScrollView>
+                          <View >
                                 <TextInput
                                 multiline
                                       style={{
                                         borderWidth: 1,
                                         minHeight: 30,
-                                        maxHeight:150,
+                                        height:100,
                                         padding: 8,
                                         textAlignVertical: 'top',
                                         borderRadius: 5,
                                         marginTop: 5,
                                         textAlign: 'justify',
                                         
-                                        flex:1
                                       }}
                                       // multiline={true}
                                     //   keyboardType={item.IsReading ? 'numeric':'default'}
@@ -397,10 +627,11 @@ const onSave = ()=>{
 const styles = StyleSheet.create({
     textCheckBoxHeader:{
         fontSize:10,
-        marginHorizontal:2,
+        marginHorizontal:1,
         fontWeight:'900',
         color:'black',
-        flex:1
+        flex:1,
+        textAlign:'center'
     }
 })
 export default CheckListSafetyRegulationPage;
