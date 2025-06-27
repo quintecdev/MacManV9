@@ -226,7 +226,7 @@ export default () => {
 
   useEffect(() => {
       console.log('timer update from the useeffect==>>', TimeGap);
-      TimerCheck();
+      // TimerCheck();
     }, [TimeGap]);
 
     async function TimerCheck() {
@@ -706,7 +706,7 @@ export default () => {
   }, []);
 
     useEffect(() => {
-      SetTimers();
+      // SetTimers();
     }, [loginStatus == true]);
 
   async function SetTimers() {
