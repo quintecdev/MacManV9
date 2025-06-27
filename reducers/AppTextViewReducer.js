@@ -279,7 +279,15 @@ const initialState = {
 
     //12-02-2025
     txt_internal_workorder:'Internal Work Order',
-    txt_internal_wo_saved_successfully: 'Internal work order saved successfully'
+    txt_internal_wo_saved_successfully: 'Internal work order saved successfully',
+
+    //27-06-2025
+    txt_comments: 'Comments',
+    txt_Not_Relevant:'Not Relevant',
+    txt_Correct:'Correct',
+    txt_Incorrect:'Incorrect',
+    txt_Safety_Regulations:'Safety Regulations'
+
 
   },
 };

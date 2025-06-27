@@ -14,6 +14,8 @@ import { color } from "react-native-reanimated";
 
 const CheckListSafetyRegulationPage = ({navigation,route:{params}}) =>{
   console.log("CheckListSafetyRegulationPage",{params})
+  // const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
+  
   const [safetyRegulatoncheckList,setSafetyRegulationCheckList] = useState(
   //   {
   //   "ID": 1,
@@ -428,9 +430,9 @@ const onSave = ()=>{
                 marginTop:10,
                 position:'absolute',end:2,top:8,
                 justifyContent:'space-around'}}>
-                <Text numberOfLines={2} style={styles.textCheckBoxHeader}>Not Relevant</Text>
-                <Text numberOfLines={2} style={styles.textCheckBoxHeader}>Correct</Text>
-                <Text numberOfLines={2} style={styles.textCheckBoxHeader}>Incorrect</Text>
+                <Text numberOfLines={2} style={styles.textCheckBoxHeader}>{AppTextData.txt_Not_Relevant}</Text>
+                <Text numberOfLines={2} style={styles.textCheckBoxHeader}>{AppTextData.txt_Correct}</Text>
+                <Text numberOfLines={2} style={styles.textCheckBoxHeader}>{AppTextData.txt_Incorrect}</Text>
 
             </View>
            <View style={{flex:2,marginTop:20}}>
@@ -581,7 +583,7 @@ const onSave = ()=>{
                                       onChangeText={(text) => setSafetyRegulationCheckList(safetyRegulatoncheckList=>({...safetyRegulatoncheckList,Comments:text}))}
                                       //vbn lang
                                       // placeholder="Remarks"
-                                      placeholder={"Comments"}
+                                      placeholder={AppTextData.txt_comments}
                                     />
                                     <FlatList
                                     style={{marginTop:20,flexGrow:0,}}

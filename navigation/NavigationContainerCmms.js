@@ -1605,7 +1605,7 @@ export default () => {
               component={CheckListSafetyRegulationPage}
               options={({route: {params}, navigation}) => ({
                 
-                title: "CheckList (Safety Regulations)",
+                title: `${AppTextData.Checklist} (${AppTextData.txt_Safety_Regulations})`,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
