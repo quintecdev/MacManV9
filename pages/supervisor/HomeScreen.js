@@ -552,10 +552,10 @@ export default HomeScreen = ({navigation}) => {
       //       selectedDate: format(new Date(), 'dd/MM/yyyy'),
       //     });
       //   break;
-      case 'TYPE_EMERGENCY_JOB_LIST_CNT':
+      case 'TYPE_SUPEMERGENCY_JOB_LIST_CNT':
         //Firebase type to get the emergency joblist count
         console.log(
-          'TYPE_EMERGENCY_JOB_LIST_CNT',
+          'TYPE_SUPEMERGENCY_JOB_LIST_CNT',
           remoteMessage.data.EmergencyJobListCnt,
         );
         const lJobListCnt = remoteMessage.data.EmergencyJobListCnt;
