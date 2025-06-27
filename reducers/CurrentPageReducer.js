@@ -5,6 +5,7 @@ const initialState = {
   ChecklistNotifactionCount: 0,
   EmergencyJoblistNotifactionCount: 0,
   EmergencyJoblistNotifactionBgStatus: {},
+  EmergencyJobListToShow:false
 };
 
 export default (state = initialState, action) => {
@@ -31,6 +32,11 @@ export default (state = initialState, action) => {
         ...state,
         EmergencyJoblistNotifactionBgStatus:
           action.payload.EmergencyJoblistNotifactionBgStatus,
+      };
+    case actionsConstants.ACTION_SET_EMERGENCYJOBLIST_SHOW:
+      return {
+        ...state,
+        EmergencyJobListToShow:action.payload.showEmergencyJobList
       };
     default:
       return state;

@@ -34,6 +34,7 @@ import Alerts from '../../components/Alert/Alerts';
 import RefreshButton from '../Components/RefreshButton';
 import GetSpartsAndActivities from './job_assignment/component/GetSpartsAndActivities';
 import { ScrollView } from 'react-native';
+import { actionSetEmergencyJobListShow } from '../../../action/ActionCurrentPage';
 //coming from the Supr page(bell button in the header section)
 export default EmergencyJobOrders = ({navigation, route: {params}}) => {
   const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
@@ -47,7 +48,9 @@ export default EmergencyJobOrders = ({navigation, route: {params}}) => {
   const {jobDate, IsStandbyPermission} = useSelector(
     (state) => state.VersionReducer,
   );
-
+const {EmergencyJobListToShow} = useSelector(
+    (state) => state.CurrentPageReducer,
+  );
   console.log('EmergencyJobOrders', {TechList});
   const [eligibleTechList, setEligibleTechList] = useState(TechList);
   const width = Dimensions.get('window').width;
@@ -146,6 +149,13 @@ export default EmergencyJobOrders = ({navigation, route: {params}}) => {
       });
   }, [selectedJobId, refresh]);
 
+
+  useEffect(()=>{
+    dispatch(actionSetEmergencyJobListShow(true));
+    return ()=>{
+    dispatch(actionSetEmergencyJobListShow(false));
+    }
+  },[EmergencyJobListToShow])
   const GetGetMaster = () => {
     requestWithEndUrl(`${API_COMMON}GetMaster`, {
       FormID: 'Department',

@@ -22,3 +22,7 @@ export const actionSetEmergencyJoblistNotificationBgStatus = (
   type: actionsConstants.ACTION_SET_BREAKDOWN_NOTIFICATION_BG_STATUS,
   payload: {EmergencyJoblistNotifactionBgStatus},
 });
+export const actionSetEmergencyJobListShow = (showEmergencyJobList)=>({
+  type:actionsConstants.ACTION_SET_EMERGENCYJOBLIST_SHOW,
+  payload:{showEmergencyJobList}
+})

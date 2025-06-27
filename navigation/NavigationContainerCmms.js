@@ -170,6 +170,7 @@ export default () => {
   const {
     EmergencyJoblistNotifactionCount,
     EmergencyJoblistNotifactionBgStatus,
+    EmergencyJobListToShow
   } = useSelector((state) => state.CurrentPageReducer);
   const {AlertPopUp, AlertPopUpTwo} = useSelector((state) => {
     return state.AlertPopUpReducer;
@@ -200,8 +201,28 @@ export default () => {
       // setInterval(() => {
       CheckingAppVersion();
       // }, 10000);
+    }else{
+      if(NotificationSound.isPlaying)NotificationSound.stop()
     }
   }, [loggedUser]);
+
+  useEffect(()=>{
+     if(EmergencyJobListToShow){
+    setTimeout(() => {
+        console.log("modalvisible")
+        if(NotificationSound.isPlaying()) NotificationSound.stop();
+      }, 1000);
+      //     const intervalId = setInterval(() => {
+      //   console.log("Checking if sound is playing...");
+      //   if (NotificationSound && NotificationSound.isPlaying && NotificationSound.isPlaying()) {
+      //     NotificationSound.stop(() => {
+      //       console.log("Notification sound stopped.");
+      //     });
+      //     clearInterval(intervalId); 
+      //   }
+      // }, 1000);
+    }
+  },[EmergencyJobListToShow])
 
   useEffect(() => {
       console.log('timer update from the useeffect==>>', TimeGap);
@@ -341,6 +362,8 @@ export default () => {
         })
         .then((data) => {
           // setIntervel(data.NotificationInterval);
+          console.error('GetCutOffDate', {data});
+
           Checking(data.BDNotification);
         })
         .catch((err) => {
@@ -375,12 +398,16 @@ export default () => {
             EmergencyJoblistCount.data.BreakDownCount,
           ),
         );
-        console.log('NotificationCount.data.Count', EmergencyJoblistCount.data);
+        console.log('NotificationCount', EmergencyJoblistCount.data,{NotificationSound,EmergencyJobListToShow});
         if (EmergencyJoblistCount.data.BreakDownCount > 0) {
           // console.log('NotificationCount.data.Count2', NotificationCount?.data);
-          NotificationSound.play();
+          NotificationSound.setNumberOfLoops(-1);
+          console.log({appState})
+          if(!NotificationSound.isPlaying())NotificationSound.play();
           Vibration.vibrate(1000);
           // await BackgroundActions.stop();
+        }else{
+          if(NotificationSound.isPlaying())NotificationSound.stop();
         }
         //    if (TimeGap % 60 == 0) {
         //   TimerCheck(TimeGap / 60);
@@ -436,10 +463,12 @@ export default () => {
   //copy from BGTask
   async function _handleAppStateChange(nextAppState) {
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
-    console.log('function name==>> NavigationContainer handleAppStateChange');
+    console.log('function name==>> NavigationContainer handleAppStateChange',{nextAppState});
 
     // console.log("_handleAppStateChange",{nextAppState,appState:appState.current,routelenght:navigationRef?.current.getRootState().index})
     if (nextAppState === 'inactive' || nextAppState === 'background') {
+      console.log("handleAppStateChange",NotificationSound.isPlaying());
+      if(NotificationSound.isPlaying())NotificationSound.stop();
       User.UserType == 2 &&
         (await BackgroundService.start(veryIntensiveTask, options));
       console.log('app is in background');
@@ -639,6 +668,7 @@ export default () => {
     //   appState.current == 'active'
     // ) {
     EmergencyJoblistNotificationCount();
+   
     // }
   }, [EmergencyJoblistNotifactionCountUpdate]);
 
@@ -744,7 +774,8 @@ export default () => {
         ),
       );
       if (EmergencyJoblistCount.data.BreakDownCount > 0) {
-        NotificationSound.play();
+        NotificationSound.setNumberOfLoops(-1);
+        if(!NotificationSound.isPlaying())NotificationSound.play();
         Vibration.vibrate(1000);
       }
     } catch (error) {

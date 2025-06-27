@@ -18,6 +18,7 @@ import {
   ScrollView,
   Pressable,
   Vibration,
+  AppState,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Timer from '../components/Timer';
@@ -42,7 +43,7 @@ import {
   actionSetRefreshingPage,
 } from '../../../action/ActionSettings';
 
-import {actionSetEmergencyJoblistNotificationCount} from '../../../action/ActionCurrentPage';
+import {actionSetEmergencyJoblistNotificationCount, actionSetEmergencyJobListShow} from '../../../action/ActionCurrentPage';
 import {
   actionSetJobDate,
   actionSetIsStandByPermission,
@@ -129,7 +130,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   const {jobDate, IsStandbyPermission} = useSelector(
     (state) => state.VersionReducer,
   );
-  const {EmergencyJoblistNotifactionBgStatus} = useSelector(
+  const {EmergencyJoblistNotifactionBgStatus,EmergencyJobListToShow} = useSelector(
     (state) => state.CurrentPageReducer,
   );
   console.log({EmergencyJoblistNotifactionBgStatus})
@@ -158,7 +159,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   const [showJoStartingPopUp, setshowJoStartingPopUp] = useState(false);
   const [JobStopedWithoutSave, setJobStopedWithoutSave] = useState(false);
   const [EmergencyJobList, setEmergencyJobList] = useState(false);
-  const [EmergencyJobListShow, setEmergencyJobListShow] = useState(false);
+  // const [EmergencyJobListShow, setEmergencyJobListShow] = useState(false);
   const [EmergencyJoblistSelectedJob, setEmergencyJoblistSelectedJob] =
     useState({});
 
@@ -397,7 +398,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                   if (modalVisible == true) {
                     setModalVisible((modalVisible) => !modalVisible);
                   }
-                  setEmergencyJobListShow(true);
+                  // setEmergencyJobListShow(true);
+                  dispatch(actionSetEmergencyJobListShow(true))
                 }
                 // setVisibleBarcodeScanner(true);//commented by vbn(Qr code is already done by us)
                 // if(isPaused)
@@ -649,7 +651,9 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       if (modalVisible == true) {
         setModalVisible((modalVisible) => !modalVisible);
       }
-      setEmergencyJobListShow(true);
+      // setEmergencyJobListShow(true);
+       dispatch(actionSetEmergencyJobListShow(true))
+      
     }
   };
   //vbn firebase logout function
@@ -672,7 +676,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         );
         const lJobListCnt = remoteMessage.data.EmergencyJobListCnt;
         dispatch(actionSetJobListCnt(lJobListCnt));
-        NotificationSound.play();
+        NotificationSound.setNumberOfLoops(-1);
+        if(!NotificationSound.isPlaying())NotificationSound.play();
         Vibration.vibrate(1000);
         if (fromNotificationOpened && lJobListCnt != 0) {
           UserData();
@@ -860,15 +865,28 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
 
   useEffect(() => {
     //auto close alert if the Model is open
-    console.log('showmodal and ModelVisible state ');
+    console.log('showmodal and ModelVisible state ',{modalVisible});
     if (modalVisible == true) {
       dispatch(actionSetAlertPopUpTwo({visible: false}));
+      
     }
     // if (modalVisible == false && JobStopedWithoutSave == true) {
     //   console.log('it will change the setJobStopedWithoutSave== false');
     //   setJobStopedWithoutSave(false);
     // }
   }, [modalVisible]);
+
+  /**
+   * stop notification sound if already playing
+   */
+  useEffect(()=>{
+    if(EmergencyJobListToShow){
+    setTimeout(() => {
+        console.log("modalvisible")
+        if(NotificationSound.isPlaying()) NotificationSound.stop();
+      }, 1000);
+    }
+  },[EmergencyJobListToShow])
 
   useEffect(()=>{
     if(!fromTop)setIsBreakdown(selectionID==13)
@@ -888,6 +906,25 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       setShowModal(true);
       // }
     });
+  }
+
+  useEffect(()=>{
+    const eventListenerSubscription = AppState.addEventListener(
+          'change',
+          _handleAppStateChange,
+        );
+        return () => {
+          // on unmount
+          if(NotificationSound.isPlaying())NotificationSound.stop();
+          eventListenerSubscription?.remove();
+        };
+  },[])
+  async function _handleAppStateChange(nextAppState) {
+    console.log("TechHome","handleAppStateChange",{nextAppState})
+    if (nextAppState === 'inactive' || nextAppState === 'background') {
+      console.log("handleAppStateChange",NotificationSound.isPlaying());
+      if(NotificationSound.isPlaying())NotificationSound.stop();
+    }
   }
 
   function StartJob(WorkNatureID="") {
@@ -1024,7 +1061,9 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       );
       console.log('StartCustodianMachineCode');
       setShowModal(false);
-      setEmergencyJobListShow(false); //disable the Emergency Joblist PopUp
+      // setEmergencyJobListShow(false); //disable the Emergency Joblist PopUp
+                  dispatch(actionSetEmergencyJobListShow(false));
+
       setModalVisible(false);
       setEmergencyJobList(false);
       setEmergencyJoblistSelectedJob();
@@ -1051,7 +1090,9 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
       //   console.log('timer');
       setEmergencyJobList(false);
       // }, 100);
-      setEmergencyJobListShow(false);
+      // setEmergencyJobListShow(false);
+        dispatch(actionSetEmergencyJobListShow(false));
+
       setModalVisible(false);
       setEmergencyJoblistSelectedJob();
       console.log('Error in StartCustodianMachineCode', error);
@@ -1677,8 +1718,10 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         console.log('inside the logout -->>>>', ASK.ASK_USER);
         if (data.isSucess == true) {
           dispatch(actionSetJobDate(''));
+          dispatch(actionSetEmergencyJobListShow(false));
           console.log('login expired 3'); // AsyncStorage.removeItem(ASK.ASK_USER);
           // resetNavigation(navigation, 'Login');
+          if(NotificationSound.isPlaying())NotificationSound.stop();
           navigation.replace('Login');
           // AsyncStorage.clear();
 
@@ -1730,11 +1773,12 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         reactivate={isScanfailed}
       />
 
-      {EmergencyJobListShow && (
+      {EmergencyJobListToShow && (
         <EmergencyJobListModal
-          visible={EmergencyJobListShow}
+          visible={EmergencyJobListToShow}
           cancel={() => {
-            setEmergencyJobListShow(false);
+            // setEmergencyJobListShow(false);
+                  dispatch(actionSetEmergencyJobListShow(false))
             dispatch(actionSetEmergencyJoblistNotificationCountUpdate());
           }}
           OutputData={(e) => {

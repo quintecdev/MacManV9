@@ -39,4 +39,5 @@ export default {
   ACTION_SET_EMERGENCY_JOBLIST_COUNT_UPDATE:
     'set_emergency_joblist_count_update',
   ACTION_SET_LOGIN_STATUS: 'set_login_status',
+  ACTION_SET_EMERGENCYJOBLIST_SHOW:'set_emergencyjoblist_show'
 };
