@@ -8,6 +8,8 @@ import {
   FlatList,
   StyleSheet,
   ScrollView,
+  Image,
+  TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
 import {compareAsc, format} from 'date-fns';
@@ -295,6 +297,31 @@ export default TodayJobOrderIssued = ({navigation, route: {params}}) => {
                 </>
               )}
             </View>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={jobOrderIssued.Image}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({item, index}) => {
+                //{"id":1,"AttachmentUrl":Image/JOCheckList/sample.jpg"}
+                console.log('jobOrderIssued-Image', {item});
+                return (
+                  <TouchableOpacity
+                    onPress={()=>{
+                      navigation.navigate("FullScreenImageView",{imageUrl:item.ImageUrl})
+                    }}
+                  >
+                  <Image
+                    style={{width: 100, height: 100, marginEnd: 5}}
+                    source={{
+                      uri:item.ImageUrl
+                    }}
+                    defaultSource={require('../../../assets/placeholders/no_image.png')}
+                  />
+                  </TouchableOpacity>
+                );
+              }}/>
+                            
           </ScrollView>
         </View>
       )}
