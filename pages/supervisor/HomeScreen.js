@@ -87,6 +87,28 @@ export const description = {
   fontFamily: 'sans-serif-condensed',
 };
 
+var Sound = require('react-native-sound');
+Sound.setCategory('playback');
+var NotificationSound = new Sound(
+  'emergencynotification.wav',
+  Sound.MAIN_BUNDLE,
+  (error) => {
+    if (error) {
+      console.log('failed to load the sound', error);
+      return;
+    }
+    // loaded successfully
+    // Play the sound with an onEnd callback
+    // NotificationSound.play((success) => {
+    //   if (success) {
+    //     console.log('successfully finished playing');
+    //   } else {
+    //     console.log('playback failed due to audio decoding errors');
+    //   }
+    // });
+  },
+);
+
 export default HomeScreen = ({navigation}) => {
   const {loggedUser} = useSelector((state) => state.LoginReducer);
   // console.log("Home", TechnicianID)
@@ -94,7 +116,7 @@ export default HomeScreen = ({navigation}) => {
   const {jobListCnt, chartData, jobOrderList} = useSelector(
     (state) => state.RealTimeDataReducer,
   );
-  const {ChecklistNotifactionCount} = useSelector(
+  const {ChecklistNotifactionCount,EmergencyJobListToShow} = useSelector(
     (state) => state.CurrentPageReducer,
   );
   const {CheckListNotificationVisit} = useSelector(
@@ -292,6 +314,7 @@ export default HomeScreen = ({navigation}) => {
                               // dispatch(actionSetJobDate(''));
                               // // dispatch(actionSetLoginData(null));
                               // resetNavigation(navigation, 'Login');
+                              if(NotificationSound.isPlaying())NotificationSound.stop();
                               navigation.reset({
                                 index: 0,
                                 routes: [{name: 'Login'}],
@@ -362,6 +385,38 @@ export default HomeScreen = ({navigation}) => {
       // backgroundMessageHandler;
     };
   }, [TechList]);
+
+  /**
+     * stop notification sound if already playing
+     */
+    useEffect(()=>{
+      if(EmergencyJobListToShow){
+      setTimeout(() => {
+          console.log("modalvisible")
+          if(NotificationSound.isPlaying()) NotificationSound.stop();
+        }, 1000);
+      }
+    },[EmergencyJobListToShow])
+
+    useEffect(()=>{
+        const eventListenerSubscription = AppState.addEventListener(
+              'change',
+              _handleAppStateChange,
+            );
+            return () => {
+              // on unmount
+              if(NotificationSound.isPlaying())NotificationSound.stop();
+              eventListenerSubscription?.remove();
+            };
+      },[])
+      async function _handleAppStateChange(nextAppState) {
+        console.log("Home","handleAppStateChange",{nextAppState})
+        if (nextAppState === 'inactive' || nextAppState === 'background') {
+          console.log("handleAppStateChange",NotificationSound.isPlaying());
+          if(NotificationSound.isPlaying())NotificationSound.stop();
+        }
+      }
+    
 
   useEffect(() => {
     if (jobDate != '') {
@@ -560,6 +615,9 @@ export default HomeScreen = ({navigation}) => {
         );
         const lJobListCnt = remoteMessage.data.EmergencyJobListCnt;
         dispatch(actionSetEmergencyJoblistNotificationCount(lJobListCnt));
+        NotificationSound.setNumberOfLoops(-1);
+        if(!NotificationSound.isPlaying())NotificationSound.play();
+        Vibration.vibrate(1000);
         // dispatch(actionSetJobListCnt(lJobListCnt));
         // if (fromNotificationOpened && lJobListCnt != 0) {
         //   navigation.navigate('EmergencyJobOrders');
