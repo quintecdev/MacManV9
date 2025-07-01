@@ -12,6 +12,7 @@ import {
   ImageBackground,
   processColor,
   Alert,
+  AppState,
 } from 'react-native';
 import BottomSheet from 'react-native-simple-bottom-sheet';
 import Icon from 'react-native-vector-icons/FontAwesome';

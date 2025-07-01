@@ -136,7 +136,7 @@ const InternalWorkOrder = ({route: {params}}) => {
             //  durationLimit:
           },
           ({assets, errorCode, didCancel}) => {
-            console.log('checkForCameraRollPermission', {errorCode, didCancel,AssetUri:assets[0].uri});
+            console.log('checkForCameraRollPermission', {errorCode, didCancel,AssetUri:assets?.[0]?.uri});
 
             if (!didCancel && !errorCode) {
               setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,Images:[...internalWorkOrder.Images,`file://${assets[0].uri}`]}))

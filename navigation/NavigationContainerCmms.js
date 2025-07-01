@@ -134,6 +134,8 @@ var NotificationSound = new Sound(
 //       return TimeGap;
 //   }
 // };
+
+let vibrationInterval;
 export default () => {
   console.log(TAG, 'default', {screenWidth});
   // const Navigtion = useNavigation();
@@ -202,7 +204,7 @@ export default () => {
       CheckingAppVersion();
       // }, 10000);
     }else{
-      if(NotificationSound.isPlaying)NotificationSound.stop()
+      stopNotificationSound();
     }
   }, [loggedUser]);
 
@@ -210,7 +212,7 @@ export default () => {
      if(EmergencyJobListToShow){
     setTimeout(() => {
         console.log("modalvisible")
-        if(NotificationSound.isPlaying()) NotificationSound.stop();
+        stopNotificationSound()
       }, 1000);
       //     const intervalId = setInterval(() => {
       //   console.log("Checking if sound is playing...");
@@ -228,6 +230,16 @@ export default () => {
       console.log('timer update from the useeffect==>>', TimeGap);
       // TimerCheck();
     }, [TimeGap]);
+
+    function stopNotificationSound(){
+    if(NotificationSound.isPlaying()) {
+      NotificationSound.stop();
+      if (vibrationInterval) {
+        clearInterval(vibrationInterval);
+        vibrationInterval = null;
+      }
+    }
+  }
 
     async function TimerCheck() {
     // alert('one minutes');
@@ -407,7 +419,8 @@ export default () => {
           Vibration.vibrate(1000);
           // await BackgroundActions.stop();
         }else{
-          if(NotificationSound.isPlaying())NotificationSound.stop();
+          // if(NotificationSound.isPlaying())NotificationSound.stop();
+          stopNotificationSound();
         }
         //    if (TimeGap % 60 == 0) {
         //   TimerCheck(TimeGap / 60);
@@ -468,7 +481,8 @@ export default () => {
     // console.log("_handleAppStateChange",{nextAppState,appState:appState.current,routelenght:navigationRef?.current.getRootState().index})
     if (nextAppState === 'inactive' || nextAppState === 'background') {
       console.log("handleAppStateChange",NotificationSound.isPlaying());
-      if(NotificationSound.isPlaying())NotificationSound.stop();
+      // if(NotificationSound.isPlaying())NotificationSound.stop();
+      stopNotificationSound();
       User.UserType == 2 &&
         (await BackgroundService.start(veryIntensiveTask, options));
       console.log('app is in background');
@@ -775,8 +789,15 @@ export default () => {
       );
       if (EmergencyJoblistCount.data.BreakDownCount > 0) {
         NotificationSound.setNumberOfLoops(-1);
-        if(!NotificationSound.isPlaying())NotificationSound.play();
-        Vibration.vibrate(1000);
+        if(!NotificationSound.isPlaying()){
+          NotificationSound.play();
+          if (!vibrationInterval) {
+                      Vibration.vibrate(1000);
+                      vibrationInterval = setInterval(() => {
+                        Vibration.vibrate(1000);
+                      }, 1000);
+                    }
+        }
       }
     } catch (error) {
       console.log('EmergencyJobListCount error', error);

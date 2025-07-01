@@ -111,7 +111,7 @@ var NotificationSound = new Sound(
     // });
   },
 );
-
+let vibrationInterval;
 export default HomeScreen = ({navigation, route: {params, name}}) => {
   // console.log('cycle count==>>', EmergencyJoblistNotifactionBgStatus);
   const initiated = useRef(false); // avoid repeated call of @InitialjobCheck
@@ -677,8 +677,16 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         const lJobListCnt = remoteMessage.data.EmergencyJobListCnt;
         dispatch(actionSetJobListCnt(lJobListCnt));
         NotificationSound.setNumberOfLoops(-1);
-        if(!NotificationSound.isPlaying())NotificationSound.play();
-        Vibration.vibrate(1000);
+        if(!NotificationSound.isPlaying()){
+          console.log("NotificationSound","not playing")
+          NotificationSound.play();
+          if (!vibrationInterval) {
+            Vibration.vibrate(1000);
+            vibrationInterval = setInterval(() => {
+              Vibration.vibrate(1000);
+            }, 1000);
+          }
+        }
         if (fromNotificationOpened && lJobListCnt != 0) {
           UserData();
         }
@@ -883,7 +891,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     if(EmergencyJobListToShow){
     setTimeout(() => {
         console.log("modalvisible")
-        if(NotificationSound.isPlaying()) NotificationSound.stop();
+        // if(NotificationSound.isPlaying()) NotificationSound.stop();
+        stopNotificationSound()
       }, 1000);
     }
   },[EmergencyJobListToShow])
@@ -891,6 +900,16 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   useEffect(()=>{
     if(!fromTop)setIsBreakdown(selectionID==13)
   },[selectionID,fromTop])
+
+  function stopNotificationSound(){
+    if(NotificationSound.isPlaying()) {
+      NotificationSound.stop();
+      if (vibrationInterval) {
+        clearInterval(vibrationInterval);
+        vibrationInterval = null;
+      }
+    }
+  }
   
   function getJoblist(Status) {
     dispatch(actionSetLoading(true));
@@ -915,7 +934,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         );
         return () => {
           // on unmount
-          if(NotificationSound.isPlaying())NotificationSound.stop();
+          // if(NotificationSound.isPlaying())NotificationSound.stop();
+          stopNotificationSound();
           eventListenerSubscription?.remove();
         };
   },[])
@@ -923,7 +943,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     console.log("TechHome","handleAppStateChange",{nextAppState})
     if (nextAppState === 'inactive' || nextAppState === 'background') {
       console.log("handleAppStateChange",NotificationSound.isPlaying());
-      if(NotificationSound.isPlaying())NotificationSound.stop();
+      // if(NotificationSound.isPlaying())NotificationSound.stop();
+      stopNotificationSound();
     }
   }
 
@@ -1721,7 +1742,8 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
           dispatch(actionSetEmergencyJobListShow(false));
           console.log('login expired 3'); // AsyncStorage.removeItem(ASK.ASK_USER);
           // resetNavigation(navigation, 'Login');
-          if(NotificationSound.isPlaying())NotificationSound.stop();
+          // if(NotificationSound.isPlaying())NotificationSound.stop();
+          stopNotificationSound();
           navigation.replace('Login');
           // AsyncStorage.clear();
 
