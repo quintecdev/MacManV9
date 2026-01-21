@@ -262,7 +262,7 @@ export default () => {
 
   useEffect(() => {
     //on mount
-    console.error('Login check useEffect===>>');
+    // console.error('Login check useEffect===>>');
     const eventListenerSubscription = AppState.addEventListener(
       'change',
       _handleAppStateChange,

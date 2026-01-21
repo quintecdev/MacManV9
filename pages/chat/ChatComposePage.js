@@ -31,7 +31,7 @@ import ic_logo from '../../assets/logo/ic_logo.png';
 import {actionSetLoading} from '../../action/ActionSettings';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import RNGRP from 'react-native-get-real-path';
-import PhotoEditor from 'react-native-photo-editor';
+// import PhotoEditor from 'react-native-photo-editor';
 import {AudioRecorder, AudioUtils} from 'react-native-audio';
 // let audioPath = AudioUtils.DocumentDirectoryPath + '/test.aac';
 
@@ -223,26 +223,26 @@ export default ({route, navigation}) => {
       dispatch(actionSetLoading(true));
       RNGRP.getRealPathFromURI(imageURI.assets[0].uri).then((path) => {
         dispatch(actionSetLoading(false));
-        PhotoEditor.Edit({
-          path: path,
+        // PhotoEditor.Edit({
+          // path: path,
           // RNFS.readFile(path, 'base64').then(imageBase64 =>
           //   this.props.actions.sendImageAsBase64(imageBase64)
           // )
-          onDone: (imagePath) => {
-            console.log('photoedit_ondone: ', {imagePath});
+                // onDone: (imagePath) => {
+                //   console.log('photoedit_ondone: ', {imagePath});
             setEdittedImg(
-              Platform.OS === 'android' ? `file://${imagePath}` : imagePath,
+              Platform.OS === 'android' ? `file://${path}` : imagePath,
             );
-          },
-          hiddenControls: [
-            // 'clear',
-            // 'crop', 'draw',
-            'save',
-            // 'share',
-            'sticker',
-            // 'text'
-          ],
-        });
+          // },
+          // hiddenControls: [
+          //   // 'clear',
+          //   // 'crop', 'draw',
+          //   'save',
+          //   // 'share',
+          //   'sticker',
+          //   // 'text'
+          // ],
+        // });
       });
     }
   }, [imageURI]);

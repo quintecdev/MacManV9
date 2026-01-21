@@ -57,7 +57,7 @@ import DynamicSearchBar from './components/DynamicSearchBar';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import AssetInfoPopUp from '../components/AssetInfoPopUp';
-import PhotoEditor from 'react-native-photo-editor';
+// import PhotoEditor from 'react-native-photo-editor';
 import RNGRP from 'react-native-get-real-path';
 import Alerts from '../components/Alert/Alerts';
 
@@ -162,16 +162,16 @@ console.log('machineminmax value from the state-->>',machineMinMaxValue)
             if (!didCancel && !errorCode) {
               //setnewAttachmentBasedOnFormDataImage(assets[0],'CR')
               RNGRP.getRealPathFromURI(assets[0].uri).then((path) => {
-                PhotoEditor.Edit({
-                  path: path,
+                // PhotoEditor.Edit({
+                //   path: path,
                   // RNFS.readFile(path, 'base64').then(imageBase64 =>
                   //   this.props.actions.sendImageAsBase64(imageBase64)
                   // )
-                  onDone: (imagePath) => {
+                  // onDone: (imagePath) => {
                     setnewAttachmentBasedOnFormDataImage(assets[0], 'GR');
-                  },
-                  hiddenControls: ['save'],
-                });
+                //   },
+                //   hiddenControls: ['save'],
+                // });
               });
             }
           },
@@ -208,16 +208,16 @@ console.log('machineminmax value from the state-->>',machineMinMaxValue)
           });
           if (!didCancel && !errorCode) {
             RNGRP.getRealPathFromURI(assets[0].uri).then((path) => {
-              PhotoEditor.Edit({
-                path: path,
+              // PhotoEditor.Edit({
+                // path: path,
                 // RNFS.readFile(path, 'base64').then(imageBase64 =>
                 //   this.props.actions.sendImageAsBase64(imageBase64)
                 // )
-                onDone: (imagePath) => {
+                // onDone: (imagePath) => {
                   setnewAttachmentBasedOnFormDataImage(assets[0], 'GR');
-                },
-                hiddenControls: ['save'],
-              });
+                // },
+                // hiddenControls: ['save'],
+              // });
             });
           }
           //   setnewAttachmentFileList(newAttachmentFileList=>[...newAttachmentFileList,img.assets[0]])

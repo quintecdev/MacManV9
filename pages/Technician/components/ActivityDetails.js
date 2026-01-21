@@ -34,7 +34,7 @@ export default ActivityDetails = ({navigation, route: {params}}) => {
     JobOrderReportData = {AdditionalActivityDtls: params.ActivityList || []};
   } else {
     JobOrderReportData = useSelector((state) => {
-      console.log({JobOrderReportReducer_state: state.JobOrderReportReducer});
+      // console.log({JobOrderReportReducer_state: state.JobOrderReportReducer});
       return state.JobOrderReportReducer.JobOrderReportData;
     });
   }

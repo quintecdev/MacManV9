@@ -111,7 +111,7 @@ export default TechnicianDetails = ({navigation, route: {params}}) => {
         return res.data;
       })
       .then((data) => {
-        console.log('GetJOScheduleByDate from the sup account=>', data);
+        // console.log('GetJOScheduleByDate from the sup account=>', data);
         setJobOrderList(data);
       })
       .catch((err) => {

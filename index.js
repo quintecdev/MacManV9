@@ -3,6 +3,7 @@ import {AppRegistry} from 'react-native';
 import App from './App';
 import {name as appName} from './app.json';
 import messaging from '@react-native-firebase/messaging';
+import {checkAndRequestNotificationPermission} from './pages/components/notification/notification';
 const TAG = "CMMS_INDEX"
  // Register background handler
  import { Platform } from "react-native"
@@ -38,6 +39,11 @@ if (!__DEV__ && Platform.OS !== "android") {
 //     // }
    }
    );
+
+// Request notification permission on app start
+checkAndRequestNotificationPermission().then(granted => {
+  console.log(TAG, 'Notification permission granted:', granted);
+});
   
 AppRegistry.registerComponent(appName, () => App);
 // AppRegistry.registerheadlesstask('RNFirebaseBackgroundMessage',()=>

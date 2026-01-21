@@ -12,7 +12,7 @@ import CmmsColors from '../../common/CmmsColors';
 import { actionSetAlertPopUpTwo } from '../../action/ActionAlertPopUp';
 import { launchCamera } from 'react-native-image-picker';
 import RNGRP from 'react-native-get-real-path';
-import PhotoEditor from 'react-native-photo-editor';
+// import PhotoEditor from 'react-native-photo-editor';
 import { Dialog } from 'react-native-simple-dialogs';
 import {parse, format} from 'date-fns';
 import { API_COMMON, API_SUPERVISOR } from '../../network/api_constants';
@@ -45,7 +45,7 @@ const InternalWorkOrder = ({route: {params}}) => {
     dispatch(actionSetLoading(true));
     requestWithEndUrl(`${API_COMMON}GetCode`,{FormID:'WOI',TransMode:'GET',BranchID:0,PeriodID:0})
   .then((res) => {
-    console.log('GetCode', {res});
+    // console.log('GetCode', {res});
     if (res.status != 200) {
       throw Error(res.statusText);
     }
@@ -55,7 +55,7 @@ const InternalWorkOrder = ({route: {params}}) => {
    setInternalWorkOrder({...defaultInternalWO,RefNo:data})
   })
   .catch((err) => {
-    console.log('GetCode error', err);
+    // console.log('GetCode error', err);
     dispatch(
       actionSetAlertPopUpTwo({
         title: AppTextData.txt_Alert,
@@ -137,9 +137,23 @@ const InternalWorkOrder = ({route: {params}}) => {
           },
           ({assets, errorCode, didCancel}) => {
             console.log('checkForCameraRollPermission', {errorCode, didCancel,AssetUri:assets?.[0]?.uri});
+ const uri = assets?.[0]?.uri;
 
+    console.log('Camera result:', uri);
             if (!didCancel && !errorCode) {
-              setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,Images:[...internalWorkOrder.Images,`file://${assets[0].uri}`]}))
+              if (uri) {
+                setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,Images:[...internalWorkOrder.Images,uri]}))
+              } else {
+                console.error('Camera error: URI is undefined');
+                dispatch(
+                  actionSetAlertPopUpTwo({
+                    title: AppTextData.txt_Alert,
+                    body: 'Failed to capture image. Please try again.',
+                    visible: true,
+                    type: 'ok',
+                  }),
+                );
+              }
 
               // RNGRP.getRealPathFromURI(assets[0].uri).then((path) => {
               //   console.log({path})
@@ -344,9 +358,10 @@ const InternalWorkOrder = ({route: {params}}) => {
           width:'100%',
           top:52
         }}>
+
           <FlatList
-            data={suggestionList}
-            keyExtractor={(item,index) => item.AssetRegID?.toString()}
+            data={suggestionList??[]}
+            keyExtractor={(item,index) => item.AssetRegID?.toString()+index.toString()}
             renderItem={({ item }) => (
               <Pressable
                 onPress={() => {

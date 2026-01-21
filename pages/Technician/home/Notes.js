@@ -27,7 +27,7 @@ import {
   actionSetAlertPopUp,
   actionSetAlertPopUpTwo,
 } from '../../../action/ActionAlertPopUp';
-import PhotoEditor from 'react-native-photo-editor';
+// import PhotoEditor from 'react-native-photo-editor';
 import RNFS from 'react-native-fs';
 import RNGRP from 'react-native-get-real-path';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
@@ -62,15 +62,55 @@ export default Notes = ({navigation, route: {params}}) => {
         buttonNegative: 'Cancel',
         buttonPositive: 'OK',
       });
-      const result = await launchCamera(
-        {
-          saveToPhotos: true,
-          mediaType: 'photo',
-          includeBase64: false,
-        },
-        setImage,
-      );
-      console.log('CAMERA RESULT AFTER CLICK==>>>', result);
+launchCamera(
+          {
+            quality: 0.5,
+            maxHeight: 800,
+            maxWidth: 600,
+            saveToPhotos: false,
+            mediaType: 'photo', //'photo' | 'video' | 'mixed'
+            includeBase64: false,
+            //  durationLimit:
+          },
+          ({assets, errorCode, didCancel}) => {
+            console.log('checkForCameraRollPermission', {errorCode, didCancel,AssetUri:assets?.[0]?.uri});
+ const uri = assets?.[0]?.uri;
+
+    console.log('Camera result:', uri);
+            if (!didCancel && !errorCode) {
+              if (uri) {
+                setImage(uri);
+              } else {
+                console.error('Camera error: URI is undefined');
+                dispatch(
+                  actionSetAlertPopUpTwo({
+                    title: AppTextData.txt_Alert,
+                    body: 'Failed to capture image. Please try again.',
+                    visible: true,
+                    type: 'ok',
+                  }),
+                );
+              }
+
+              // RNGRP.getRealPathFromURI(assets[0].uri).then((path) => {
+              //   console.log({path})
+              //   PhotoEditor.Edit({
+              //     path: path,
+              //     // RNFS.readFile(path, 'base64').then(imageBase64 =>
+              //     //   this.props.actions.sendImageAsBase64(imageBase64)
+              //     // )
+              //     onDone: (imagePath) => {
+              //       console.log({imagePath})
+              //       setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,Images:[...internalWorkOrder.Images,`file://${imagePath}`]}))
+              //       // setImagesToUpload(imagesToUpload=>[...imagesToUpload,assets])
+              //     },
+              //     hiddenControls: ['save'],
+              //   });
+              // });
+            }
+          },
+        );
+
     } catch (err) {
       console.error('camera_error: ', err);
     }
@@ -135,7 +175,7 @@ export default Notes = ({navigation, route: {params}}) => {
     }
   }, [isNotesAsText]);
 
-  function getImageList() {
+  async function getImageList() {
     dispatch(actionSetLoading(true));
     requestWithEndUrl(`${API_TECHNICIAN}GetImageOfJOBySE`, {
       JOID: params.JOID,
@@ -150,9 +190,9 @@ export default Notes = ({navigation, route: {params}}) => {
         return res.data;
       })
       .then((data) => {
-        dispatch(actionSetLoading(false));
         setImageList(data);
         data.length > 0 && setSelectedImg(data[data.length - 1].ImageUrl);
+          dispatch(actionSetLoading(false));
       })
       .catch((err) => {
         dispatch(actionSetLoading(false));
@@ -163,18 +203,19 @@ export default Notes = ({navigation, route: {params}}) => {
 
   useEffect(() => {
     console.log('photo:', {imageURI});
-    if (imageURI && imageURI.assets) {
-      console.log('photo:', imageURI.assets[0].uri);
-      dispatch(actionSetLoading(true));
-      RNGRP.getRealPathFromURI(imageURI.assets[0].uri).then((path) => {
-        dispatch(actionSetLoading(false));
-        PhotoEditor.Edit({
-          path: path,
+    if (imageURI != null  ) {
+      var imagePath=imageURI;
+      // console.log('photo:', imageURI.assets[0].uri);
+      // dispatch(actionSetLoading(true));
+      // RNGRP.getRealPathFromURI(imageURI.assets[0].uri).then((imagePath) => {
+        // dispatch(actionSetLoading(false));
+        // PhotoEditor.Edit({
+        //   path: path,
           // RNFS.readFile(path, 'base64').then(imageBase64 =>
           //   this.props.actions.sendImageAsBase64(imageBase64)
           // )
-          onDone: (imagePath) => {
-            console.log('photoedit_ondone: ', {imagePath});
+          // onDone: (imagePath) => {
+            // console.log('photoedit_ondone: ', {imagePath});
 
             dispatch(actionSetLoading(true));
             let bodyFormData = new FormData();
@@ -185,11 +226,11 @@ export default Notes = ({navigation, route: {params}}) => {
               'JODetails',
               JSON.stringify({JOID: params.JOID, SEID: TechnicianID}),
             );
-            let imgUri =
-              Platform.OS === 'android' ? `file://${imagePath}` : imagePath;
-            console.log('image uri==>>', imgUri);
+            // let imgUri =
+            //   Platform.OS === 'android' ? `file://${imagePath}` : imagePath;
+            console.log('image uri==>>', imagePath);
             var photo = {
-              uri: imgUri, //this.state.uri[0].uri, == image path file:///storage/emulated/0/Pictures/1511787860629.jpg
+              uri: imagePath, //this.state.uri[0].uri, == image path file:///storage/emulated/0/Pictures/1511787860629.jpg
               type: 'image/jpg',
               name: 'photo.jpg',
               // size: newImageFile.size
@@ -212,12 +253,12 @@ export default Notes = ({navigation, route: {params}}) => {
                 }
                 return res.data;
               })
-              .then((data) => {
+              .then(async (data) => {
                 console.log({data});
-                dispatch(actionSetLoading(false));
+                // dispatch(actionSetLoading(false));
                 if (data.isSucess) {
                   // setImageList(imageList=>[...imageList,{}])
-                  getImageList();
+                 await getImageList();
                   //   alert(data.Message); //vvvv
                   dispatch(
                     actionSetAlertPopUpTwo({
@@ -242,10 +283,10 @@ export default Notes = ({navigation, route: {params}}) => {
                   }),
                 );
               });
-          },
-          hiddenControls: ['save'],
-        });
-      });
+        //   },
+        //   hiddenControls: ['save'],
+        // });
+      // });
     }
   }, [imageURI]);
 
@@ -260,7 +301,7 @@ export default Notes = ({navigation, route: {params}}) => {
       SEID: params?.IsSuperVisor == 1 ? params?.SEID : TechnicianID,
     })
       .then((res) => {
-        console.log('SaveNoteInJobTime', {res});
+        // console.log('SaveNoteInJobTime', {res});
 
         if (res.status != 200) {
           throw Error(res.statusText);
@@ -367,7 +408,7 @@ export default Notes = ({navigation, route: {params}}) => {
                 'POST',
               )
                 .then((res) => {
-                  console.log('SaveNoteInJobTime', {res});
+                  // console.log('SaveNoteInJobTime', {res});
 
                   if (res.status != 200) {
                     throw Error(res.statusText);
@@ -490,6 +531,7 @@ export default Notes = ({navigation, route: {params}}) => {
           }}>
           <Icon name="camera" size={18} color="white" />
         </TouchableOpacity>
+        {params?.isPmJob != 0 && 
         <TouchableOpacity
          style={{
             borderRadius: 25,
@@ -510,7 +552,7 @@ export default Notes = ({navigation, route: {params}}) => {
                   )
           }}>
           <Icon name="paperclip" size={18} color="white" />
-        </TouchableOpacity>
+        </TouchableOpacity>}
         </View>
       </View>
     );

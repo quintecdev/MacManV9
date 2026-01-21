@@ -5,7 +5,7 @@ import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
-import ui.photoeditor.RNPhotoEditorPackage;
+// import ui.photoeditor.RNPhotoEditorPackage;
 // import com.RNFetchBlob.RNFetchBlobPackage;
 import com.rssignaturecapture.RSSignatureCapturePackage;
 import com.github.wuxudong.rncharts.MPAndroidChartPackage;

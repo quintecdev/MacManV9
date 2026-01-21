@@ -137,7 +137,7 @@ var NotificationSound = new Sound(
 
 let vibrationInterval;
 export default () => {
-  console.log(TAG, 'default', {screenWidth});
+  // console.log(TAG, 'default', {screenWidth});
   // const Navigtion = useNavigation();
   const navigationRef = useRef();
   // const route = useRoute();
@@ -227,7 +227,7 @@ export default () => {
   },[EmergencyJobListToShow])
 
   useEffect(() => {
-      console.log('timer update from the useeffect==>>', TimeGap);
+      // console.log('timer update from the useeffect==>>', TimeGap);
       // TimerCheck();
     }, [TimeGap]);
 
@@ -243,40 +243,39 @@ export default () => {
 
     async function TimerCheck() {
     // alert('one minutes');
-    console.log('function TimerCheck==>>');
+    // console.log('function TimerCheck==>>');
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
-    console.log(
-      'timer check function==>>',
-      User,
-      'userType==>',
-      User?.UserType,
-    );
+    // console.log(
+    //   'timer check function==>>',
+    //   User,
+    //   'userType==>',
+    //   User?.UserType,
+    // );
     if (User?.UserType == 1 || !User) {
-      console.log('Stopeddddddd');
+      // console.log('Stopeddddddd');
       clearInterval(intervalId);
       setIntervalId(null);
     } else {
-      console.log("TIMER-SUPERVISOR")
+      // console.log("TIMER-SUPERVISOR")
       if (
         EmergencyJoblistNotifactionBgStatus.BDNotification == true &&
         appState.current == 'active'
       ) {
-      console.log("TIMER-SUPERVISOR",EmergencyJoblistNotifactionBgStatus.BDNotification,TimeGap)
+      // console.log("TIMER-SUPERVISOR",EmergencyJoblistNotifactionBgStatus.BDNotification,TimeGap)
 
         if (TimeGap % 60 == 0) {
           // TimerCheck(TimeGap / 60);
-      console.log("TIMER-SUPERVISOR","TimeGap % 60")
-
+      // console.log("TIMER-SUPERVISOR","TimeGap % 60")
           AsyncStorage.getItem(ASK.ASK_NOTIFICATION_TIMER)
             .then((res) => {
               if (res) {
                 const NOTIFICATION = JSON.parse(res);
-                console.log(
-                  'notification in the notifcation async storage==>>',
-                  NOTIFICATION,
-                );
+                // console.log(
+                //   'notification in the notifcation async storage==>>',
+                //   NOTIFICATION,
+                // );
                 const Time = NOTIFICATION?.Timer;
-                console.log('time modulus==>>', (TimeGap / 60) % Time);
+                // // console.log('time modulus==>>', (TimeGap / 60) % Time);
                 // console.log('time for the Notification time==>>', Time);
                 if (
                   NOTIFICATION.Permission == true &&
@@ -374,7 +373,7 @@ export default () => {
         })
         .then((data) => {
           // setIntervel(data.NotificationInterval);
-          console.error('GetCutOffDate', {data});
+          // console.error('GetCutOffDate', {data});
 
           Checking(data.BDNotification);
         })
@@ -385,9 +384,9 @@ export default () => {
   }
   async function Checking(e) {
     // const {delay} = taskDataArguments;
-    console.log('function ==>>Checking', e);
+    // console.log('function ==>>Checking', e);
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
-    console.error('user Details from the async storage==>>', User.TechnicianID);
+    // console.error('user Details from the async storage==>>', User.TechnicianID);
     try {
       if (e == true) {
         const params = {SEID: User.TechnicianID, Date: Date.now()};
@@ -410,11 +409,11 @@ export default () => {
             EmergencyJoblistCount.data.BreakDownCount,
           ),
         );
-        console.log('NotificationCount', EmergencyJoblistCount.data,{NotificationSound,EmergencyJobListToShow});
+        // console.log('NotificationCount', EmergencyJoblistCount.data,{NotificationSound,EmergencyJobListToShow});
         if (EmergencyJoblistCount.data.BreakDownCount > 0) {
           // console.log('NotificationCount.data.Count2', NotificationCount?.data);
           NotificationSound.setNumberOfLoops(-1);
-          console.log({appState})
+          // console.log({appState})
           if(!NotificationSound.isPlaying())NotificationSound.play();
           Vibration.vibrate(1000);
           // await BackgroundActions.stop();
@@ -429,7 +428,7 @@ export default () => {
         //   SetTimers();
         // }
       } else if (e == false) {
-        console.log('else part Checking');
+        // console.log('else part Checking');
         await BackgroundActions.stop();
       }
     } catch (error) {
@@ -460,11 +459,11 @@ export default () => {
    const veryIntensiveTask = async (taskDataArguments) => {
     // Example of an infinite loop task
     const {delay} = taskDataArguments;
-    console.log("veryIntensiveTask")
+    // console.log("veryIntensiveTask")
     await new Promise(async (resolve) => {
-      console.log("BG-isrunning",BackgroundService.isRunning())
+      // console.log("BG-isrunning",BackgroundService.isRunning())
       for (let i = 0; BackgroundService.isRunning(); i++) {
-        console.log(i);
+        // console.log(i);
         if (i % 8 == 0) {
           CheckingAppVersions();
         }
@@ -476,16 +475,16 @@ export default () => {
   //copy from BGTask
   async function _handleAppStateChange(nextAppState) {
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
-    console.log('function name==>> NavigationContainer handleAppStateChange',{nextAppState});
+    // console.log('function name==>> NavigationContainer handleAppStateChange',{nextAppState});
 
     // console.log("_handleAppStateChange",{nextAppState,appState:appState.current,routelenght:navigationRef?.current.getRootState().index})
     if (nextAppState === 'inactive' || nextAppState === 'background') {
-      console.log("handleAppStateChange",NotificationSound.isPlaying());
+      // // console.log("handleAppStateChange",NotificationSound.isPlaying());
       // if(NotificationSound.isPlaying())NotificationSound.stop();
       stopNotificationSound();
       User.UserType == 2 &&
         (await BackgroundService.start(veryIntensiveTask, options));
-      console.log('app is in background');
+      // console.log('app is in background');
     } else if (
       appState.current.match(/inactive|background/) &&
       nextAppState === 'active'
@@ -496,26 +495,26 @@ export default () => {
         dispatch(actionSetEmergencyJoblistNotificationCountUpdate());
       }
       ChecklistNotificationCount();
-      console.log('App has come to the foreground!', {loggedUser});
+      // console.log('App has come to the foreground!', {loggedUser});
       // messaging().noremoveAllDeliveredNotifications()
       if (!loggedUser) {
         dispatch(actionSetLoading(true));
         AsyncStorage.getItem(ASK.ASK_USER)
           .then((res) => {
-            console.log('_handleAppStateChange', 'ASK_USER', {res});
+            // console.log('_handleAppStateChange', 'ASK_USER', {res});
             if (res) {
-              console.log('login expired 1');
+              // console.log('login expired 1');
               const loggedUser = JSON.parse(res);
               dispatch(actionSetLoginData(loggedUser));
               dispatch(actionSetLoading(false));
             } else throw Error('Login Expired');
           })
           .catch((err) => {
-            console.log('login expired 2');
+            // console.log('login expired 2');
             console.log('_handleAppStateChange_err: ', {err});
             dispatch(actionSetLoading(false));
             const currentPage = navigationRef?.current?.getCurrentRoute()?.name;
-            console.log('current page=====>', currentPage);
+            // console.log('current page=====>', currentPage);
           });
       }
     }
@@ -595,7 +594,7 @@ export default () => {
 
   useEffect(() => {
     //on mount
-    console.error('Login check useEffect===>>');
+    // console.error('Login check useEffect===>>');
     const eventListenerSubscription = AppState.addEventListener(
       'change',
       _handleAppStateChange,
@@ -671,8 +670,8 @@ export default () => {
  
 
   useEffect(() => {
-    console.error('time gap from the useEffect==>>', TimeGap);
-    console.log('current status of the application==>', appState);
+    // console.error('time gap from the useEffect==>>', TimeGap);
+    // console.log('current status of the application==>', appState);
     // console.log(
     //   'EmergencyJoblistNotifactionBgStatus>>>>',
     //   EmergencyJoblistNotifactionBgStatus,
@@ -699,8 +698,8 @@ export default () => {
   // }, [TimeGap]);
 
   useEffect(() => {
-    console.log('app appStateVisible state==>>', appStateVisible);
-    console.log('app appState state==>>', appState);
+    // console.log('app appStateVisible state==>>', appStateVisible);
+    // console.log('app appState state==>>', appState);
     // const NOTIFICATION = JSON.parse(
     //   await AsyncStorage.getItem(ASK.ASK_NOTIFICATION_TIMER),
     // );
@@ -711,7 +710,7 @@ export default () => {
     // }, 30000);
     // return () => clearInterval(interval);
     // if (appState.current == 'active') {
-    console.log('app visible state==>>', appStateVisible);
+    // console.log('app visible state==>>', appStateVisible);
     if (loggedUser?.TechnicianID != '') {
       // SetTimers();
       //3
@@ -726,9 +725,9 @@ export default () => {
   async function SetTimers() {
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
     if (User.UserType == 2) {
-      console.log('timer has startedddd');
+      // console.log('timer has startedddd');
       const intervals = setInterval(() => {
-        console.log("setInterval")
+        // console.log("setInterval")
         setTimeGap((seconds) => seconds + 1);
       }, 1000);
       setIntervalId(intervals);
@@ -737,9 +736,9 @@ export default () => {
   }
 
   async function ChecklistNotificationCount() {
-    console.log('function ==>>ChecklistNotificationCount');
+    // console.log('function ==>>ChecklistNotificationCount');
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
-    console.error('user Details from the async storage==>>', User.TechnicianID);
+    // console.error('user Details from the async storage==>>', User.TechnicianID);
     try {
       const NotificationCount = await requestWithEndUrl(
         `${API_SUPERVISOR}GetCheckListAbnormalityJobsCount`,
@@ -765,23 +764,23 @@ export default () => {
   }
   async function EmergencyJoblistNotificationCount() {
     // function to get the EmergencyJoblistNotificationCount in both Sup and Emp homepage
-    console.error('function ==>>EmergencyJoblistNotificationCount');
+    // console.error('function ==>>EmergencyJoblistNotificationCount');
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
 
     try {
       const params = {SEID: User.TechnicianID, Date: Date.now()};
-      console.log(
-        'params for api call EmergencyJoblistNotificationCount function',
-        params,
-      );
+      // console.log(
+      //   'params for api call EmergencyJoblistNotificationCount function',
+      //   params,
+      // );
       const EmergencyJoblistCount = await requestWithEndUrl(
         `${API_SUPERVISOR}EmergencyJobListCount`,
         {SEID: User.TechnicianID, Date: Date.now()},
       );
-      console.log(
-        'emergency joblist count-->>',
-        EmergencyJoblistCount.data.BreakDownCount,
-      );
+      // console.log(
+      //   'emergency joblist count-->>',
+      //   EmergencyJoblistCount.data.BreakDownCount,
+      // );
       dispatch(
         actionSetEmergencyJoblistNotificationCount(
           EmergencyJoblistCount.data.BreakDownCount,
@@ -815,11 +814,11 @@ export default () => {
   //   }
   // }
   async function CheckingAppVersion() {
-    console.log(
-      'checking GetCutOffDate from Nav',
-      'params==>',
-      loggedUser?.TechnicianID,
-    );
+    // console.log(
+    //   'checking GetCutOffDate from Nav',
+    //   'params==>',
+    //   loggedUser?.TechnicianID,
+    // );
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
     requestWithEndUrl(`${API_SUPERVISOR}GetCutOffDate`, {
       UserID: loggedUser?.TechnicianID,
@@ -912,13 +911,13 @@ export default () => {
 
   async function GetAppTextData() {
     AsyncStorage.getItem(ASK.ASK_LANGUAGE).then((res) => {
-      console.log('Language Details RESPONSE===>>>', {res});
+      // console.log('Language Details RESPONSE===>>>', {res});
       if (res != null) {
         const SelectedLanguage = JSON.parse(res);
-        console.log(
-          'Language Details from the AsyncStorage FROM LOGIN SCREEN>>>',
-          SelectedLanguage.Language,
-        );
+        // console.log(
+        //   'Language Details from the AsyncStorage FROM LOGIN SCREEN>>>',
+        //   SelectedLanguage.Language,
+        // );
         dispatch(actionSetSelectedLng(SelectedLanguage));
         // setLangauge(SelectedLanguage);
       } else {
@@ -934,26 +933,26 @@ export default () => {
     });
 
     const SelectedLanguage = await AsyncStorage.getItem(ASK.ASK_LANGUAGE);
-    console.log(
-      'selected language data from the Async in nav container===>>',
-      SelectedLanguage,
-      'lang from the redux==>>',
-      selectedLng.Languagevalue,
-    );
+    // console.log(
+    //   'selected language data from the Async in nav container===>>',
+    //   SelectedLanguage,
+    //   'lang from the redux==>>',
+    //   selectedLng.Languagevalue,
+    // );
     const params = {
       Language: selectedLng.Languagevalue,
     };
-    console.log('params for apptextDatacall==>>', params);
+    // console.log('params for apptextDatacall==>>', params);
     requestWithEndUrl(`${API_TECHNICIAN}getMacManMobileAppTextData`, params)
       .then((res) => {
-        console.log('getMacManMobileAppTextData', {res});
+        // console.log('getMacManMobileAppTextData', {res});
         if (res.status != 200) {
           throw Error(res.statusText);
         }
         return res.data;
       })
       .then((data) => {
-        console.log('getMacManMobileAppTextData', {data});
+        // console.log('getMacManMobileAppTextData', {data});
         // actionSetRefreshing(true)
         dispatch(actionSetAppTextData(data));
       })
@@ -976,26 +975,26 @@ export default () => {
   }
 
   function updateTokenInDb(exstAsToken, token) {
-    console.log('function name==>> NavigationContainer updateTokenInDb');
+    // console.log('function name==>> NavigationContainer updateTokenInDb');
     requestWithEndUrl(`${API_TECHNICIAN}getExistingTokenInDb`, {
       TechnicianID: loggedUser.TechnicianID,
     })
       .then((res) => {
-        console.log('getExistingTokenInDb', {res});
+        // console.log('getExistingTokenInDb', {res});
         if (res.status != 200) {
           throw Error(res.statusText);
         }
         return res.data;
       })
       .then((data) => {
-        console.log('getExistingTokenInDb', {data});
+        // console.log('getExistingTokenInDb', {data});
         if (data == exstAsToken && token != data) {
           requestWithEndUrl(`${API_TECHNICIAN}refreshClientToken`, {
             TechnicianID: loggedUser.TechnicianID,
             Token: token,
           })
             .then((res) => {
-              console.log('refreshClientToken', {res});
+              // console.log('refreshClientToken', {res});
               if (res.status != 200) {
                 throw Error(res.statusText);
               }
@@ -1016,7 +1015,7 @@ export default () => {
     console.log('function name==>> NavigationContainer updateToken');
     const loggedUser = await AsyncStorage.getItem(ASK.ASK_USER);
     const exstAsToken = await AsyncStorage.getItem(ASK.ASK_TOKEN);
-    console.log('messaging', 'KEY_USER: ', loggedUser);
+    // console.log('messaging', 'KEY_USER: ', loggedUser);
     var parsedLoggedUser = null;
     if (loggedUser) {
       parsedLoggedUser = JSON.parse(loggedUser);
@@ -1062,8 +1061,8 @@ export default () => {
         body={AlertPopUpTwo?.body}
         visible={AlertPopUpTwo?.visible}
         onOk={() => {
-          dispatch(actionSetAlertPopUpTwo({visible: false})),
-            console.log('current value==>>', AlertPopUpTwo);
+          dispatch(actionSetAlertPopUpTwo({visible: false}))
+            // console.log('current value==>>', AlertPopUpTwo);
         }}
         type={AlertPopUpTwo.type}
       />

@@ -50,7 +50,7 @@ export default ({navigation, route: {params}}) => {
     };
   } else {
     JobOrderReportData = useSelector((state) => {
-      console.log({JobOrderReportReducer_state: state.JobOrderReportReducer});
+      // console.log({JobOrderReportReducer_state: state.JobOrderReportReducer});
       return state.JobOrderReportReducer.JobOrderReportData;
     });
   }

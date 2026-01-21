@@ -492,10 +492,10 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
         console.log('Language Details RESPONSE===>>>', {res});
         if (res != null) {
           const SelectedLanguage = JSON.parse(res);
-          console.log(
-            'Language Details from the AsyncStorage>>>',
-            SelectedLanguage.Language,
-          ); //vbn
+          // console.log(
+          //   'Language Details from the AsyncStorage>>>',
+          //   SelectedLanguage.Language,
+          // );
         }
       });
     }
@@ -2281,7 +2281,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                     style={styles.joActionBtn}
                     onPress={() => {
                       setModalVisible(false);
-                      navigation.navigate('Notes', {JOID: selectedJob?.JOID});
+                      navigation.navigate('Notes', {JOID: selectedJob?.JOID,isPmJob: selectedJob?.WorkType == 0 ? 0 : 1,});
                     }}>
                     <Image
                       style={{width: 39, height: 39}}
@@ -2333,7 +2333,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                       </TouchableOpacity>
                     </>
                   )}
-                
+              
                   {(selectedJob?.WorkType === 0 &&
   selectedJob?.IsCheckListAvaliable &&
   selectedJob?.ReasonTypeID === 0) ||
@@ -2651,7 +2651,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
             <View style={styles.modalView}>
             {(()=>{
               const currentJob = selectedJob??item;  
-              console.log('Current Job:', currentJob,"IsBreakdown",IsBreakdown,);
+              // console.log('Current Job:', currentJob,"IsBreakdown",IsBreakdown,);
             return (!IsBreakdown?(currentJob?.IsSafeRegulationRequired && !currentJob?.IsWorking):IsBreakdown && workNatureData.length>0 )&&<View style={styles.modalViewOne}>
                 <Text
                   style={{

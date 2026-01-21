@@ -57,10 +57,10 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
   console.log('JobOrderReport_page', params);
   const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
   const {JobOrderReportData} = useSelector((state) => {
-    console.log({JobOrderReportReducer_state: state.JobOrderReportReducer});
+    // console.log({JobOrderReportReducer_state: state.JobOrderReportReducer});
     return state.JobOrderReportReducer;
   });
-  console.log({JobOrderReportData});
+  // console.log({JobOrderReportData});
   const dispatch = useDispatch();
   // const [ jobOrderReport, SetJobOrderReport ] = useState({});
   const [visibleReviewDlg, setVisibleReviewDlg] = useState(false);

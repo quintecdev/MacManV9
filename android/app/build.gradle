@@ -1,9 +1,7 @@
 apply plugin: "com.android.application"
 project.ext.envConfigFiles = [
     debug: ".env",
-    dev:".env",
-    qa: ".env.qa",
-    thai: ".env.thai",
+    release: ".env",
 ]
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 apply plugin: "com.google.gms.google-services"
@@ -135,7 +133,7 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  */
 def enableHermes = project.ext.react.get("enableHermes", false)
 
-def keystorePropertiesFile = rootProject.file(".gradle/gradle.properties")
+def keystorePropertiesFile = rootProject.file("./gradle.properties")
 def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
@@ -156,27 +154,6 @@ android {
         multiDexEnabled true
     }
     
-    flavorDimensions "default"
-    productFlavors {
-        dev {
-            minSdkVersion rootProject.ext.minSdkVersion
-            applicationId 'com.quickbiscmms'
-            targetSdkVersion rootProject.ext.targetSdkVersion
-            resValue "string", "build_config_package", "com.quickbiscmms"
-        }
-        thai {
-            minSdkVersion rootProject.ext.minSdkVersion
-            applicationId 'com.quickbiscmms'
-            targetSdkVersion rootProject.ext.targetSdkVersion
-            resValue "string", "build_config_package", "com.quickbiscmms"
-        }
-        qa {
-            minSdkVersion rootProject.ext.minSdkVersion
-            applicationId 'com.quickbiscmms'
-            targetSdkVersion rootProject.ext.targetSdkVersion
-            resValue "string", "build_config_package", "com.quickbiscmms"
-        }
-    }
     splits {
         abi {
             reset()

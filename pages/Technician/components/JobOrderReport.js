@@ -66,7 +66,7 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
   const {loggedUser} = useSelector((state) => state.LoginReducer);
   const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
   const {JobOrderReportData} = useSelector((state) => {
-    console.log({JobOrderReportReducer_state: state.JobOrderReportReducer});
+    // console.log({JobOrderReportReducer_state: state.JobOrderReportReducer});
     return state.JobOrderReportReducer;
   });
   const {AlertPopUp, AlertPopUpTwo} = useSelector((state) => {
@@ -114,10 +114,10 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
     ).then((response) => {
       //vbn "actionSetJobOrderReportVisit" using to check the  user is in the JoborderReport Page
       dispatch(actionSetJobOrderReportVisit(true));
-      console.warn(
-        'object,complaint and cause list--->>> ' +
-          JSON.stringify(response.data),
-      );
+      // console.warn(
+      //   'object,complaint and cause list--->>> ' +
+      //     JSON.stringify(response.data),
+      // );
       // setDataObject(response.data[0]);
       object = response.data[0].map((item) => {
         return {
@@ -1325,6 +1325,7 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
                       JOID: JobOrderReportData.JOID,
                       SEID: params?.IsSuperVisor == 1 && params.SEID,
                       IsSuperVisor: params?.IsSuperVisor == 1 && 1,
+                      isPmJob: JobOrderReportData.WorkType == 0 ? 0 : 1,
                     })
                   }>
                   <Image

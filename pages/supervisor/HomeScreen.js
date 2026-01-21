@@ -527,7 +527,7 @@ export default HomeScreen = ({navigation}) => {
       SEID: loggedUser?.TechnicianID,
     })
       .then((res) => {
-        console.log('GetJOScheduleByDate', {res});
+        // console.log('GetJOScheduleByDate', {res});
         dispatch(actionSetLoading(false));
         if (res.status != 200) {
           throw Error(res.statusText);
