@@ -9,7 +9,7 @@ const initialState = {
 };
 
 export default (state = initialState, action) => {
-  console.log({action});
+  // console.log({action});
   switch (action.type) {
     case actionsConstants.ACTION_SET_JOB_ORDER_REPORT_VISIT:
       return {

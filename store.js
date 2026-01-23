@@ -12,6 +12,7 @@ import AlertPopUpReducer from './reducers/AlertPopUpReducer';
 import IntetnetConnectionReducer from './reducers/IntetnetConnectionReducer';
 import BottomDrawerOpenReducer from './reducers/BottomDrawerOpenReducer';
 import NotificationJobReducer from './reducers/NotificationJobReducer';
+import InteralWorkOrderNotification from './reducers/InteralWorkOrderNotification';
 
 const store = createStore(
   combineReducers({
@@ -28,6 +29,7 @@ const store = createStore(
     IntetnetConnectionReducer,
     BottomDrawerOpenReducer,
     NotificationJobReducer,
+    InteralWorkOrderNotification,
   }),
 );
 

@@ -7,7 +7,7 @@ const initialState = {
 };
 
 export default (state=initialState,action) =>{
-    console.log("RealTimeDataReducer",{state,action });
+    // console.log("RealTimeDataReducer",{state,action });
     switch(action.type){
         case actionsConstants.ACTION_SET_JOBLISTCNT:
             return{

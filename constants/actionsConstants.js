@@ -34,6 +34,7 @@ export default {
   ACTION_SET_IS_STAND_BY_PERMISSION: 'set_up_is_stand_by_permission',
   ACTION_SET_BOTTOM_DRAWER_OPEN: 'set_bottom_drawer_open',
   ACTION_SET_EMERGENCY_JOBLIST_COUNT: 'set_emergency_joblist_count',
+  ACTION_SET_INTERNAL_WORKORDER_COUNT: 'set_internal_workorder_count',
   ACTION_SET_BREAKDOWN_NOTIFICATION_BG_STATUS:
     'set_breakdown_notification_bg_status',
   ACTION_SET_EMERGENCY_JOBLIST_COUNT_UPDATE:

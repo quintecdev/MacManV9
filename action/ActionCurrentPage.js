@@ -26,3 +26,9 @@ export const actionSetEmergencyJobListShow = (showEmergencyJobList)=>({
   type:actionsConstants.ACTION_SET_EMERGENCYJOBLIST_SHOW,
   payload:{showEmergencyJobList}
 })
+export const actionSetInternalWorkOrderJobNotificationCount = (
+  InternalWorkOrderNotifactionCount,
+) => ({
+  type: actionsConstants.ACTION_SET_INTERNAL_WORKORDER_COUNT,
+  payload: {InternalWorkOrderNotifactionCount},
+});

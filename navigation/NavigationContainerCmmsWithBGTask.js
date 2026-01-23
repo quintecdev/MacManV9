@@ -175,16 +175,16 @@ export default () => {
     try {
       if (e == true) {
         const EmergencyJoblistCount = await requestWithEndUrl(
-          `${API_SUPERVISOR}EmergencyJobListCount`,
+          `${API_SUPERVISOR}JobListCount`,
           {SEID: User.TechnicianID, Date: Date.now()},
         );
         dispatch(
           actionSetEmergencyJoblistNotificationCount(
-            EmergencyJoblistCount.data.BreakDownCount,
+            EmergencyJoblistCount.data.BreakDown,
           ),
         );
         console.log('NotificationCount.data.Count', EmergencyJoblistCount.data);
-        if (EmergencyJoblistCount.data.BreakDownCount > 0) {
+        if (EmergencyJoblistCount.data.BreakDown > 0) {
           // console.log('NotificationCount.data.Count2', NotificationCount?.data);
           NotificationSound.play();
           Vibration.vibrate(1000);
@@ -425,20 +425,25 @@ export default () => {
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
     try {
       const EmergencyJoblistCount = await requestWithEndUrl(
-        `${API_SUPERVISOR}EmergencyJobListCount`,
+        `${API_SUPERVISOR}JobListCount`,
         {SEID: User?.TechnicianID, Date: Date.now()},
       );
       console.log(
         'emergency joblist count-->>',
-        EmergencyJoblistCount.data.BreakDownCount,
+        EmergencyJoblistCount.data.BreakDown,
       );
       dispatch(
         actionSetEmergencyJoblistNotificationCount(
-          EmergencyJoblistCount.data.BreakDownCount,
-        ),
-      );
+          EmergencyJoblistCount.data.BreakDown,
+        ),),
+        dispatch(
+                  actionSetInternalWorkOrderJobNotificationCount(
+                    EmergencyJoblistCount.data.WOInternal,
+                  ),
+              );
+      
       if (User?.UserType == 2) {
-        if (EmergencyJoblistCount.data.BreakDownCount > 0) {
+        if (EmergencyJoblistCount.data.BreakDown > 0) {
           NotificationSound.play();
           Vibration.vibrate(1000);
         }

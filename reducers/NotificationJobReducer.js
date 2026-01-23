@@ -5,7 +5,7 @@ const initialState = {
 };
 
 export default (state = initialState, action) => {
-  console.log({action});
+  // console.log({action});
   switch (action.type) {
     case actionsConstants.ACTION_SET_EMERGENCY_JOBLIST_COUNT_UPDATE:
       return {

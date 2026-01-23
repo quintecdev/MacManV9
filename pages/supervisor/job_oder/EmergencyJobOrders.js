@@ -75,22 +75,23 @@ const {EmergencyJobListToShow} = useSelector(
   }, []);
   useEffect(() => {
     dispatch(actionSetLoading(true));
-    console.log('EmergencyJobOrders params' + jobDate, {
-      params,
-    });
+    console.log('EmergencyJobOrders params' + JSON.stringify(params));
 
-    console.log('current date', dateTime);
+    console.log('params for the emergeny job list-->>',    {dateTime}, loggedUser.TechnicianID,);
     // const selectedTimemillies = parse(
     //   jobDate,
     //   'dd/MM/yyyy',
     //   new Date(),
     // ).getTime();
-    requestWithEndUrl(`${API_SUPERVISOR}EmergencyJobList`, {
+    
+    // EmergencyJobList api call updatated with JobList by Riaz on 22-06-2024
+    requestWithEndUrl(`${API_SUPERVISOR}JobList`, {
       Date: dateTime,
       SEID: loggedUser.TechnicianID,
+      TransMode:params.breakdown? 'BREAKDOWN':'WOINTERNAL'
     })
       .then((res) => {
-        console.log('EmergencyJobList', {res});
+        // console.log('EmergencyJobList', {res});
         dispatch(actionSetLoading(false));
 
         if (res.status != 200) {
@@ -99,16 +100,17 @@ const {EmergencyJobListToShow} = useSelector(
         return res.data;
       })
       .then((data) => {
-        console.log('EmergencyJobList', {data});
+        // console.log('EmergencyJobList from the breakdown page->>', {data});
         data.forEach((emgJo) => {
           emgJo.noLines = 1;
         });
 
-        console.log('EmergencyJobList', {data});
+        // console.log('EmergencyJobList', {data});
         setEmgJoList(data);
         // setSeenBy();
       })
       .catch((err) => {
+        console.log('EmergencyJobList in catch-->>', err);
         dispatch(actionSetLoading(false));
       });
   }, [refresh]);
@@ -134,14 +136,14 @@ const {EmergencyJobListToShow} = useSelector(
       SEID: loggedUser.TechnicianID,
     })
       .then((res) => {
-        console.log('GetAllTechnicians', {res});
+        // console.log('GetAllTechnicians', {res});
         if (res.status != 200) {
           throw Error(res.statusText);
         }
         return res.data;
       })
       .then((data) => {
-        console.log('GetAllTechnicians', data);
+        // console.log('GetAllTechnicians', data);
         setEligibleTechList(data.SEList);
       })
       .catch((err) => {
@@ -164,7 +166,7 @@ const {EmergencyJobListToShow} = useSelector(
       OL: '',
     })
       .then((res) => {
-        console.log('GetMaster', {res});
+        // console.log('GetMaster', {res});
 
         if (res.status != 200) {
           throw Error(res.statusText);
@@ -174,7 +176,7 @@ const {EmergencyJobListToShow} = useSelector(
       .then((data) => {
         if (data.length > 0) {
           setAssignModal(true);
-          console.log('GetMaster', {data});
+          // console.log('GetMaster', {data});
           setWorkCenter(data);
           // setEmgJoList(data);
         } else {
@@ -202,7 +204,7 @@ const {EmergencyJobListToShow} = useSelector(
   };
   function setSeenBy() {
     requestWithEndUrl(`${API_SUPERVISOR}SetSeenBy`, {}, 'POST').then((res) => {
-      console.log('SetSeenBy', {res});
+      // console.log('SetSeenBy', {res});
       if (res.status == 200) {
         dispatch(actionSetRefreshing(true));
       }
@@ -241,7 +243,7 @@ const {EmergencyJobListToShow} = useSelector(
               {
                 text: AppTextData.txt_Yes,
                 onPress: () => {
-                  console.log('Yes Pressed');
+                  // console.log('Yes Pressed');
                   ChangeWorkCenter(item);
                 },
               },
@@ -264,14 +266,14 @@ const {EmergencyJobListToShow} = useSelector(
   };
   const ChangeWorkCenter = (e) => {
     console.log('work center details from the modal button press==>>', e);
-    params = {
+    parameter = {
       WorkID: RightSwipedWork.WorkID,
       WorkType: RightSwipedWork.WorkType,
       DepartmentID: e.ID,
       SEID: loggedUser.TechnicianID,
     };
-    console.log('params for CustodianJobsUpdation api call==>>', params);
-    requestWithEndUrl(`${API_SUPERVISOR}CustodianJobsUpdation`, params, 'PUT')
+    console.log('params for CustodianJobsUpdation api call==>>', parameter);
+    requestWithEndUrl(`${API_SUPERVISOR}CustodianJobsUpdation`, parameter, 'PUT')
       .then((res) => {
         console.log('GetMaster', {res});
 
@@ -590,9 +592,7 @@ const {EmergencyJobListToShow} = useSelector(
                     {
                       text: AppTextData.txt_Yes,
                       onPress: () => {
-                        
-
-                        const params = {
+                        const parameter = {
                           WorkID: selectedJobId,
                           SEID: item.ServiceEngrID,
                           Date: dateTime,
@@ -600,16 +600,17 @@ const {EmergencyJobListToShow} = useSelector(
                         };
                         console.log(
                           'params for AssignEmergencyWork api cal==>>',
-                          params,
+                          parameter,
                         );
                         dispatch(actionSetLoading(true));
+                        // AssignEmergencyWork api replaced with AssignJob by Riaz on 22-06-2024
                         requestWithEndUrl(
-                          `${API_SUPERVISOR}AssignEmergencyWork`,
-                          params,
+                          `${API_SUPERVISOR}AssignJob`,
+                          parameter,
                           'POST',
                         )
                           .then((res) => {
-                            console.log('AssignEmergencyWork', res);
+                            // console.log('AssignEmergencyWork', res);
 
                             if (res.status != 200) {
                               throw Error(res.statusText);
@@ -617,10 +618,10 @@ const {EmergencyJobListToShow} = useSelector(
                             return res.data;
                           })
                           .then((data) => {
-                            console.log(
-                              'AssignEmergencyWork api response==>>',
-                              data,
-                            );
+                            // console.log(
+                            //   'AssignEmergencyWork api response==>>',
+                            //   data,
+                            // );
                             setEmgJoList(
                               emgJoList.filter(
                                 (emgJo) => emgJo.JOID != selectedJobId,

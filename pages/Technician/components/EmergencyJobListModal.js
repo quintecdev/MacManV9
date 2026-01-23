@@ -54,12 +54,13 @@ const EmergencyJobListModal = ({visible, cancel, OutputData}) => {
     const params = {
       SEID: loggedUser?.TechnicianID,
       Date: selectedTimemillies,
+      TransMode:'BREAKDOWN'
     };
     console.log(
       'params for GetCheckListAbnormalityJobsCount api call==>>',
       params,
     );
-    requestWithEndUrl(`${API_SUPERVISOR}EmergencyJobList`, params)
+    requestWithEndUrl(`${API_SUPERVISOR}JobList`, params)
       .then((res) => {
         if (res.status != 200) {
           throw Error(res.statusText);

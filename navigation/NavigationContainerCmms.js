@@ -58,6 +58,7 @@ import {
   actionSetSupCheckListNotification,
   actionSetEmergencyJoblistNotificationCount,
   actionSetEmergencyJoblistNotificationBgStatus,
+  actionSetInternalWorkOrderJobNotificationCount,
 } from '../action/ActionCurrentPage';
 import ErrorPage from '../pages/ErrorPage';
 import EmergencyJobOrders from '../pages/supervisor/job_oder/EmergencyJobOrders';
@@ -147,7 +148,7 @@ export default () => {
     return state.AppTextViewReducer;
   });
   const {loggedUser} = useSelector((state) => state.LoginReducer);
-  console.log({loggedUser});
+  // console.log({loggedUser});
   const {isLoading} = useSelector((state) => state.SettingsReducer);
   const [isError, setIsError] = useState(false);
   const [appStateVisible, setAppStateVisible] = useState(appState);
@@ -169,14 +170,18 @@ export default () => {
   const {EmergencyJoblistNotifactionCountUpdate} = useSelector(
     (state) => state.NotificationJobReducer,
   );
-  const {
+  const { 
     EmergencyJoblistNotifactionCount,
     EmergencyJoblistNotifactionBgStatus,
-    EmergencyJobListToShow
+    EmergencyJobListToShow,
+
   } = useSelector((state) => state.CurrentPageReducer);
   const {AlertPopUp, AlertPopUpTwo} = useSelector((state) => {
     return state.AlertPopUpReducer;
   });
+  const { InternalWorkOrderNotifactionCount } = useSelector(
+      (state) => state.InteralWorkOrderNotification,
+    );
   const InterNet = useNetInfo();
   const dispatch = useDispatch();
   var eventListenerSubscription;
@@ -395,22 +400,27 @@ export default () => {
           params,
         );
         const EmergencyJoblistCount = await requestWithEndUrl(
-          `${API_SUPERVISOR}EmergencyJobListCount`,
+          `${API_SUPERVISOR}JobListCount`,
           params,
         );
         // dispatch(
         //   actionSetEmergencyJoblistNotificationCount(
-        //     EmergencyJoblistCount.data.BreakDownCount,
+        //     EmergencyJoblistCount.data.BreakDown,
         //   ),
         // );
         // alert('successfully completed Checking function');
         dispatch(
           actionSetEmergencyJoblistNotificationCount(
-            EmergencyJoblistCount.data.BreakDownCount,
-          ),
+            EmergencyJoblistCount.data.BreakDown,
+          )),
+           dispatch(
+          actionSetInternalWorkOrderJobNotificationCount(
+            EmergencyJoblistCount.data.WOInternal,
+          ),  
+          console.log('EmergencyJoblistCount data', EmergencyJoblistCount.data)
         );
         // console.log('NotificationCount', EmergencyJoblistCount.data,{NotificationSound,EmergencyJobListToShow});
-        if (EmergencyJoblistCount.data.BreakDownCount > 0) {
+        if (EmergencyJoblistCount.data.BreakDown > 0) {
           // console.log('NotificationCount.data.Count2', NotificationCount?.data);
           NotificationSound.setNumberOfLoops(-1);
           // console.log({appState})
@@ -681,9 +691,8 @@ export default () => {
     //   appState.current == 'active'
     // ) {
     EmergencyJoblistNotificationCount();
-   
     // }
-  }, [EmergencyJoblistNotifactionCountUpdate]);
+  }, [EmergencyJoblistNotifactionCountUpdate,InternalWorkOrderNotifactionCount]);
 
   // useEffect(() => {
   //   console.log('timer update from the useeffect==>>', TimeGap);
@@ -774,19 +783,24 @@ export default () => {
       //   params,
       // );
       const EmergencyJoblistCount = await requestWithEndUrl(
-        `${API_SUPERVISOR}EmergencyJobListCount`,
+        `${API_SUPERVISOR}JobListCount`,
         {SEID: User.TechnicianID, Date: Date.now()},
       );
-      // console.log(
-      //   'emergency joblist count-->>',
-      //   EmergencyJoblistCount.data.BreakDownCount,
-      // );
+      console.log(
+        'emergency joblist count-->>',
+        EmergencyJoblistCount.data,
+      );
       dispatch(
         actionSetEmergencyJoblistNotificationCount(
-          EmergencyJoblistCount.data.BreakDownCount,
+          EmergencyJoblistCount.data.BreakDown,
         ),
       );
-      if (EmergencyJoblistCount.data.BreakDownCount > 0) {
+      dispatch(
+          actionSetInternalWorkOrderJobNotificationCount(
+            EmergencyJoblistCount.data.WOInternal,
+          ),
+      );
+      if (EmergencyJoblistCount.data.BreakDown > 0) {
         NotificationSound.setNumberOfLoops(-1);
         if(!NotificationSound.isPlaying()){
           NotificationSound.play();
@@ -962,7 +976,7 @@ export default () => {
       });
   }
   function setLangauge() {
-    console.log('');
+
     // console.log('set lang==>>>');
     // AsyncStorage.getItem('selectedLng')
     //   .then((data) => {

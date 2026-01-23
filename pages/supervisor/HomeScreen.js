@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect, useLayoutEffect} from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -16,52 +16,53 @@ import {
 } from 'react-native';
 import BottomSheet from 'react-native-simple-bottom-sheet';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {Dialog} from 'react-native-simple-dialogs';
-import {PieChart} from 'react-native-charts-wrapper';
+import { Dialog } from 'react-native-simple-dialogs';
+import { PieChart } from 'react-native-charts-wrapper';
 import {
   API_TECHNICIAN,
   API_SUPERVISOR,
   API_IMAGEPATH,
 } from '../../network/api_constants';
-import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
-import {parse, format} from 'date-fns';
-import {useSelector, useDispatch} from 'react-redux';
+import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures';
+import { parse, format } from 'date-fns';
+import { useSelector, useDispatch } from 'react-redux';
 import CmmsColors from '../../common/CmmsColors';
 import requestWithEndUrl from '../../network/request';
-import {actionSetTechList} from '../../action/ActionTechnician';
+import { actionSetTechList } from '../../action/ActionTechnician';
 import {
   actionSetLoading,
   actionSetRefreshing,
 } from '../../action/ActionSettings';
-import {actionSetJobDate} from '../../action/ActionVersion';
+import { actionSetJobDate } from '../../action/ActionVersion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DatePickerCmms from '../components/DatePickerCmms';
 import JobOderAssignment from './job_oder/job_assignment/JobOderAssignment';
 import JobOrderView from '../components/JobOrderView';
 import StatusLabelView from '../components/StatusLabelView';
-import {CmmsText} from '../../common/components/CmmsText';
+import { CmmsText } from '../../common/components/CmmsText';
 import {
   actionSetJobListCnt,
   actionSetChartData,
   actionSetJobOrderList,
 } from '../../action/ActionRealTimeData';
-import {actionSetSupCheckListNotificationVisit} from '../../action/ActionPageVisit';
-import {actionSetEmergencyJoblistNotificationCountUpdate} from '../../action/ActionNotificationJob';
-import {actionSetEmergencyJoblistNotificationCount} from '../../action/ActionCurrentPage';
+import { actionSetSupCheckListNotificationVisit } from '../../action/ActionPageVisit';
+import { actionSetEmergencyJoblistNotificationCountUpdate } from '../../action/ActionNotificationJob';
+import { actionSetEmergencyJoblistNotificationCount } from '../../action/ActionCurrentPage';
 import {
   actionSetJobOrderReportVisit,
   actionSetSupCheckListNotification,
 } from '../../action/ActionCurrentPage';
 import ASK from '../../constants/ASK';
-import {actionSetLoginData} from '../../action/ActionLogin';
-import {useFocusEffect} from '@react-navigation/native';
+import { actionSetLoginData } from '../../action/ActionLogin';
+import { useFocusEffect } from '@react-navigation/native';
 import resetNavigation from '../../navigation/resetNavigation';
-import messaging, {firebase} from '@react-native-firebase/messaging';
+import messaging, { firebase } from '@react-native-firebase/messaging';
 import getJobListCnt from '../getJobListCnt';
 import RefreshButton from './Components/RefreshButton';
 import EmergencyJobListModal from '../Technician/components/EmergencyJobListModal';
-import {NavigationAction} from '@react-navigation/native';
+import { NavigationAction } from '@react-navigation/native';
 import FadeView from '../components/fadeView/FadeView';
+import InteralWorkOrderNotification from '../../reducers/InteralWorkOrderNotification';
 const TAG = 'HomeScreen';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -110,17 +111,17 @@ var NotificationSound = new Sound(
   },
 );
 
-export default HomeScreen = ({navigation}) => {
-  const {loggedUser} = useSelector((state) => state.LoginReducer);
+export default HomeScreen = ({ navigation }) => {
+  const { loggedUser } = useSelector((state) => state.LoginReducer);
   // console.log("Home", TechnicianID)
-  const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
-  const {jobListCnt, chartData, jobOrderList} = useSelector(
+  const { AppTextData } = useSelector((state) => state.AppTextViewReducer);
+  const { jobListCnt, chartData, jobOrderList } = useSelector(
     (state) => state.RealTimeDataReducer,
   );
-  const {ChecklistNotifactionCount,EmergencyJobListToShow} = useSelector(
+  const { ChecklistNotifactionCount, EmergencyJobListToShow } = useSelector(
     (state) => state.CurrentPageReducer,
   );
-  const {CheckListNotificationVisit} = useSelector(
+  const { CheckListNotificationVisit } = useSelector(
     (state) => state.PageVisitReducer,
   );
   const [selectedDate, setSelectedDate] = useState(
@@ -131,13 +132,16 @@ export default HomeScreen = ({navigation}) => {
   const [noti, setNoti] = useState(0);
   const [selectedJobId, setSelectedJobId] = useState(0);
   // const [jobListCnt, setJobListCnt] = useState(0)
-  const {refresh} = useSelector((state) => state.SettingsReducer);
-  const {TechList} = useSelector((state) => state.TechnicianReducer);
-  const {EmergencyJoblistNotifactionCount} = useSelector(
+  const { refresh } = useSelector((state) => state.SettingsReducer);
+  const { TechList } = useSelector((state) => state.TechnicianReducer);
+  const { EmergencyJoblistNotifactionCount } = useSelector(
     (state) => state.CurrentPageReducer,
   );
-  const {EmergencyJoblistNotifactionBgStatus} = useSelector(
+  const { EmergencyJoblistNotifactionBgStatus } = useSelector(
     (state) => state.CurrentPageReducer,
+  );
+  const { InternalWorkOrderNotifactionCount } = useSelector(
+    (state) => state.InteralWorkOrderNotification,
   );
   // console.log('cycle count==>>', EmergencyJoblistNotifactionBgStatus);
   // console.log('home',{refresh})
@@ -172,7 +176,7 @@ export default HomeScreen = ({navigation}) => {
     ],
   };
 
-  const {jobDate} = useSelector((state) => state.VersionReducer);
+  const { jobDate } = useSelector((state) => state.VersionReducer);
   console.debug('data', chartData);
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -180,8 +184,36 @@ export default HomeScreen = ({navigation}) => {
         // console.log('home_props',props)
         return (
           <View
-            style={{flexDirection: 'row', marginEnd: 8, alignItems: 'center'}}>
-              <TouchableOpacity
+            style={{ flexDirection: 'row', marginEnd: 8, alignItems: 'center' }}>
+            <TouchableOpacity
+              style={{
+                width: 40,
+                height: 32,
+                justifyContent: 'center',
+                alignItems: 'center',
+                elevation: 5,
+                // padding: 4,
+                // marginEnd: 5,
+              }}
+              onPress={() => {
+                console.log('InternalWorkOrderNotifactionCount',InternalWorkOrderNotifactionCount)
+                // EmergencyJoblistNotifactionCount != 0 &&
+                navigation.navigate('EmergencyJobOrders', { jobDate: jobDate,breakdown:false});
+              }}>
+              <Icon name="circle" size={24} color="red" />
+              <CmmsText
+                style={{
+                  position: 'absolute',
+                  color: 'white',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                }}>
+                {InternalWorkOrderNotifactionCount??0}
+              </CmmsText>
+            </TouchableOpacity>
+
+            {/* internal work order */}
+            <TouchableOpacity
               style={{
                 paddingHorizontal: 4,
                 marginEnd: 6,
@@ -195,7 +227,7 @@ export default HomeScreen = ({navigation}) => {
                   ChecklistNotifactionCount,
                 );
               }}>
-              <Icon name='briefcase' color={'grey'} size={24}/>
+              <Icon name='briefcase' color={'grey'} size={24} />
             </TouchableOpacity>
             <TouchableOpacity
               style={{
@@ -215,7 +247,7 @@ export default HomeScreen = ({navigation}) => {
                   ChecklistNotifactionCount,
                 );
               }}>
-              <Text style={{color: 'white', fontSize: 12}}>
+              <Text style={{ color: 'white', fontSize: 12 }}>
                 {ChecklistNotifactionCount}
               </Text>
             </TouchableOpacity>
@@ -236,11 +268,10 @@ export default HomeScreen = ({navigation}) => {
                 alignItems: 'center',
                 elevation: 5,
                 padding: 4,
-                marginEnd: 5,
               }}
               onPress={() => {
                 // EmergencyJoblistNotifactionCount != 0 &&
-                  navigation.navigate('EmergencyJobOrders', {jobDate});
+                navigation.navigate('EmergencyJobOrders', { jobDate: jobDate,breakdown:true});
               }}>
               <Icon name="bell" size={24} color="grey" />
               <CmmsText
@@ -255,12 +286,12 @@ export default HomeScreen = ({navigation}) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={{padding: 4, marginEnd: 5}}
+              style={{ padding: 4}}
               onPress={() => navigation.navigate('JobOderAssignment')}>
               <Icon name="user-plus" size={24} color="grey" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={{padding: 4, marginEnd: 5}}
+              style={{ padding: 4, marginEnd: 5 }}
               onPress={() => {
                 // navigation.navigate('TSparePartsRequired');
                 navigation.navigate('CycleCount');
@@ -277,7 +308,7 @@ export default HomeScreen = ({navigation}) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={{padding: 4}}
+              style={{ padding: 4 }}
               onPress={() => {
                 // console.log('logout')
                 Alert.alert(
@@ -298,7 +329,7 @@ export default HomeScreen = ({navigation}) => {
                         // http://213.136.84.57:4545/api/ApkTechnician/LogOut
                         requestWithEndUrl(
                           `${API_TECHNICIAN}LogOut`,
-                          {TechnicianID: loggedUser?.TechnicianID},
+                          { TechnicianID: loggedUser?.TechnicianID },
                           'POST',
                         )
                           .then((res) => {
@@ -315,10 +346,10 @@ export default HomeScreen = ({navigation}) => {
                               // dispatch(actionSetJobDate(''));
                               // // dispatch(actionSetLoginData(null));
                               // resetNavigation(navigation, 'Login');
-                              if(NotificationSound.isPlaying())NotificationSound.stop();
+                              if (NotificationSound.isPlaying()) NotificationSound.stop();
                               navigation.reset({
                                 index: 0,
-                                routes: [{name: 'Login'}],
+                                routes: [{ name: 'Login' }],
                               });
                             }
                             // alert(data.Message);
@@ -326,13 +357,13 @@ export default HomeScreen = ({navigation}) => {
                           .catch((err) => {
                             dispatch(actionSetLoading(false));
                             alert(AppTextData.txt_somthing_wrong_try_again);
-                            console.error({err});
+                            console.error({ err });
                           });
                       },
                     },
                   ],
 
-                  {cancelable: false},
+                  { cancelable: false },
                 );
               }}>
               <Icon name="user-circle-o" size={24} color="grey" />
@@ -390,34 +421,34 @@ export default HomeScreen = ({navigation}) => {
   /**
      * stop notification sound if already playing
      */
-    useEffect(()=>{
-      if(EmergencyJobListToShow){
+  useEffect(() => {
+    if (EmergencyJobListToShow) {
       setTimeout(() => {
-          console.log("modalvisible")
-          if(NotificationSound.isPlaying()) NotificationSound.stop();
-        }, 1000);
-      }
-    },[EmergencyJobListToShow])
+        console.log("modalvisible")
+        if (NotificationSound.isPlaying()) NotificationSound.stop();
+      }, 1000);
+    }
+  }, [EmergencyJobListToShow])
 
-    useEffect(()=>{
-        const eventListenerSubscription = AppState.addEventListener(
-              'change',
-              _handleAppStateChange,
-            );
-            return () => {
-              // on unmount
-              if(NotificationSound.isPlaying())NotificationSound.stop();
-              eventListenerSubscription?.remove();
-            };
-      },[])
-      async function _handleAppStateChange(nextAppState) {
-        console.log("Home","handleAppStateChange",{nextAppState})
-        if (nextAppState === 'inactive' || nextAppState === 'background') {
-          console.log("handleAppStateChange",NotificationSound.isPlaying());
-          if(NotificationSound.isPlaying())NotificationSound.stop();
-        }
-      }
-    
+  useEffect(() => {
+    const eventListenerSubscription = AppState.addEventListener(
+      'change',
+      _handleAppStateChange,
+    );
+    return () => {
+      // on unmount
+      if (NotificationSound.isPlaying()) NotificationSound.stop();
+      eventListenerSubscription?.remove();
+    };
+  }, [])
+  async function _handleAppStateChange(nextAppState) {
+    console.log("Home", "handleAppStateChange", { nextAppState })
+    if (nextAppState === 'inactive' || nextAppState === 'background') {
+      console.log("handleAppStateChange", NotificationSound.isPlaying());
+      if (NotificationSound.isPlaying()) NotificationSound.stop();
+    }
+  }
+
 
   useEffect(() => {
     if (jobDate != '') {
@@ -573,7 +604,7 @@ export default HomeScreen = ({navigation}) => {
   const UserData = async () => {
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
     if (User.UserType == 2 && fromNotificationOpened) {
-      navigation.navigate('EmergencyJobOrders');
+      navigation.navigate('EmergencyJobOrders', { jobDate: jobDate,breakdown:true});
     }
   };
 
@@ -593,7 +624,7 @@ export default HomeScreen = ({navigation}) => {
         // navigation.replace('Login');
         navigation.reset({
           index: 0,
-          routes: [{name: 'Login'}],
+          routes: [{ name: 'Login' }],
         });
         break;
       // case 'TYPE_EMERGENCY_JOB_LIST_CNT':
@@ -617,7 +648,7 @@ export default HomeScreen = ({navigation}) => {
         const lJobListCnt = remoteMessage.data.EmergencyJobListCnt;
         dispatch(actionSetEmergencyJoblistNotificationCount(lJobListCnt));
         NotificationSound.setNumberOfLoops(-1);
-        if(!NotificationSound.isPlaying())NotificationSound.play();
+        if (!NotificationSound.isPlaying()) NotificationSound.play();
         Vibration.vibrate(1000);
         // dispatch(actionSetJobListCnt(lJobListCnt));
         // if (fromNotificationOpened && lJobListCnt != 0) {
@@ -701,7 +732,7 @@ export default HomeScreen = ({navigation}) => {
   //   }
   // }
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
       <EmergencyJobListModal
         visible={EmergencyJobListShow}
         cancel={() => setEmergencyJobListShow(false)}
@@ -761,7 +792,7 @@ export default HomeScreen = ({navigation}) => {
             legend={legend}
             // highlights={highlights}
 
-            extraOffsets={{top: 5, right: 8, bottom: 5}}
+            extraOffsets={{ top: 5, right: 8, bottom: 5 }}
             // entryLabelColor={processColor('green')}
             // entryLabelTextSize={14}
             // entryLabelFontFamily={'HelveticaNeue-Medium'}
@@ -780,7 +811,7 @@ export default HomeScreen = ({navigation}) => {
             // onSelect={this.handleSelect.bind(this)}
             onChange={(event) => console.log(event.nativeEvent)}
           />
-          <FadeView style={{backgroundColor: '#E9E9E9', paddingVertical: 4}}>
+          <FadeView style={{ backgroundColor: '#E9E9E9', paddingVertical: 4 }}>
             {/* <View style={{backgroundColor: '#E9E9E9', paddingVertical: 4}}> */}
             <Text
               style={{
@@ -796,7 +827,7 @@ export default HomeScreen = ({navigation}) => {
         </>
       )}
       <TouchableOpacity
-        style={{alignSelf: 'center'}}
+        style={{ alignSelf: 'center' }}
         onPress={() => {
           setVisibleGraph(!visibleGraph);
         }}>
@@ -813,8 +844,8 @@ export default HomeScreen = ({navigation}) => {
         onDateChange={(date) => dispatch(actionSetJobDate(date))}
         text={`${AppTextData.txt_Job_Oders}(${jobOrderList.length})`}
       />
-      <View style={{marginBottom: 90, flex: 1}}>
-        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+      <View style={{ marginBottom: 90, flex: 1 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
           <StatusLabelView jobOrderList={jobOrderList} />
           <RefreshButton
             title={'↻'}
@@ -834,7 +865,7 @@ export default HomeScreen = ({navigation}) => {
           showsVerticalScrollIndicator={false}
           data={jobOrderList}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({item, index}) => {
+          renderItem={({ item, index }) => {
             return (
               <GestureRecognizer
                 onSwipe={(direction, state) =>
@@ -861,13 +892,13 @@ export default HomeScreen = ({navigation}) => {
         />
       </View>
       {/* Workers bottom list */}
-      <View style={{position: 'absolute', bottom: 0}}>
+      <View style={{ position: 'absolute', bottom: 0 }}>
         <FlatList
-          style={{marginTop: 10}}
+          style={{ marginTop: 10 }}
           showsHorizontalScrollIndicator={false}
           horizontal
           data={TechList}
-          renderItem={({item, index}) => (
+          renderItem={({ item, index }) => (
             <TouchableOpacity
               style={{
                 width: 66,
@@ -889,17 +920,17 @@ export default HomeScreen = ({navigation}) => {
                   ServiceEngr: item.ServiceEngr,
                 });
               }}
-              // ListHeaderComponent={()=><View></View>}
+            // ListHeaderComponent={()=><View></View>}
             >
               <Image
-                style={{width: 48, height: 48}}
+                style={{ width: 48, height: 48 }}
                 // http://213.136.84.57:4545/Images/Employee/1608183007307e7.jpg
-                source={{uri: `${API_IMAGEPATH}${item.ImageURl}`}}
+                source={{ uri: `${API_IMAGEPATH}${item.ImageURl}` }}
                 resizeMode={'center'}
               />
               <CmmsText
                 numberOfLines={1}
-                style={{textAlign: 'center', fontSize: 10}}>
+                style={{ textAlign: 'center', fontSize: 10 }}>
                 {item.Code}
               </CmmsText>
               <CmmsText
@@ -923,7 +954,7 @@ export default HomeScreen = ({navigation}) => {
                 )} */}
                 {/* circle to indicate the job status */}
                 <Icon
-                  style={{marginTop: 5}}
+                  style={{ marginTop: 5 }}
                   name="circle"
                   size={10}
                   // color={item.SEStatus == 1 ? 'green' : CmmsColors.darkRed}
@@ -941,9 +972,8 @@ export default HomeScreen = ({navigation}) => {
                   fontSize: 8,
                   paddingHorizontal: 4,
                   backgroundColor: getDayStatBg(item.DayStatus),
-                }}>{`${item.NoOfJO}/${item.TotalAssignedHrs}${
-                item.CurrentJONO ? ' - ' : ''
-              }${item.CurrentJONO}`}</CmmsText>
+                }}>{`${item.NoOfJO}/${item.TotalAssignedHrs}${item.CurrentJONO ? ' - ' : ''
+                  }${item.CurrentJONO}`}</CmmsText>
             </TouchableOpacity>
           )}
         />

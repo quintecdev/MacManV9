@@ -54,7 +54,7 @@ import {
 } from '../../../action/ActionAlertPopUp';
 import {actionSetDrawer} from '../../../action/ActionBottomDrawer';
 const screenHeight = Dimensions.get('window').height;
-console.log({screenHeight});
+// console.log({screenHeight});
 import {RNCamera} from 'react-native-camera';
 import {description, HomeStyles, legend} from '../../supervisor/HomeScreen';
 import StatusLabelView from '../../components/StatusLabelView';
@@ -101,7 +101,7 @@ var NotificationSound = new Sound(
       return;
     }
     // loaded successfully
-    // Play the sound with an onEnd callback
+    // Play the sound with an onEnd callback/r
     // NotificationSound.play((success) => {
     //   if (success) {
     //     console.log('successfully finished playing');
@@ -2940,7 +2940,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   );
 
   function onAddSparePartsQty(item) {
-    console.log({isLoading});
+    // console.log({isLoading});
     if (!isLoading) {
       dispatch(actionSetLoading(true));
       //http://localhost:29189/api/ApkTechnician/UpdateSPQTY

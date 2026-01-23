@@ -7,7 +7,7 @@ const Technician = {
 }
 
 export default (state=Technician,action)=>{
-    console.log({action})
+    // console.log({action})
     switch(action.type){
         case actionsConstants.ACTION_SET_TECHNICIAN:
             return{

@@ -6,7 +6,7 @@ const initialState = {
 };
 
 export default (state = initialState, action) => {
-  console.log({action});
+  // console.log({action});
   switch (action.type) {
     case actionsConstants.ACTION_SET_CHECK_LIST_PAGE_NOTIFICATION_VISIT:
       return {

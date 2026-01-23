@@ -6,7 +6,7 @@ export default (dispatch, selectedTimemillies, SEID) => {
   // http://213.136.84.57:4545/api/ApkSupervisor/EmergencyJobListCount?Date=1614537000000
   requestWithEndUrl(
     `${!SEID ? API_SUPERVISOR : API_TECHNICIAN}${
-      !SEID ? 'EmergencyJobListCount' : 'TechEmergencyJobListCount'
+      !SEID ? 'JobListCount' : 'TechEmergencyJobListCount'
     }`,
     {Date: selectedTimemillies, SEID},
   )
