@@ -5,7 +5,7 @@ const initialState = {
 };
 
 export default (state=initialState,action) =>{
-    console.log("InteralWorkOrderNotificationReducer",{state,action });
+    // console.log("InteralWorkOrderNotificationReducer",{state,action });
     switch(action.type){
         case actionsConstants.ACTION_SET_INTERNAL_WORKORDER_COUNT:
             return{

@@ -133,7 +133,7 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
   const {EmergencyJoblistNotifactionBgStatus,EmergencyJobListToShow} = useSelector(
     (state) => state.CurrentPageReducer,
   );
-  console.log({EmergencyJoblistNotifactionBgStatus})
+  // console.log({EmergencyJoblistNotifactionBgStatus})
   const uRoutes = useRoute();
   const {
     loggedUser: {
@@ -1375,6 +1375,13 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
     console.log('222222');
     const {IsWorking, TNO} = alreadyWorkingRes?.data;
     // vbn initialy running work condition check
+    console.log(
+      '🔴 CHECK_ALREADY_WORKING API RESPONSE 🔴',
+      JSON.stringify(alreadyWorkingRes?.data, null, 2),
+      '\n🔴 NoSafeRegulationInCorrect:', alreadyWorkingRes?.data?.NoSafeRegulationInCorrect,
+      '\n🔴 WorkNatureID:', alreadyWorkingRes?.data?.WorkNatureID,
+      '\n🔴 IsSafeRegulationRequired:', alreadyWorkingRes?.data?.IsSafeRegulationRequired
+    );
     console.log(
       'initial running work condition check---->>>2',
       alreadyWorkingRes?.data,
@@ -2880,8 +2887,9 @@ export default HomeScreen = ({navigation, route: {params, name}}) => {
                             : ["", "1",null].includes(selectedJob?.WorkNatureID ?? item?.WorkNatureID))):(workNatureData.some(item => item.ID === 1 && item.selected)|| selectedJob?.WorkType==0)): workNatureData.some(item => item.ID === 1 && item.selected) || !item?.IsSafeRegulationRequired)
                         ):false
                       }
-                      onPress={() => {
-              
+                      onPress={async () => {
+            //  const data = await getSafetyRegulationChecklist({ JOID: selectedJob?.ID, WorkNatureID: selectedJob?.WorkNatureID, SEID: selectedJob?.SEID });
+            //  data?.IsSafeRegulationRequired
                         setModal(true);
                       setSelectionID(0)
                       setReasonTypeId(0)
