@@ -35,6 +35,8 @@ import RefreshButton from '../Components/RefreshButton';
 import GetSpartsAndActivities from './job_assignment/component/GetSpartsAndActivities';
 import { ScrollView } from 'react-native';
 import { actionSetEmergencyJobListShow } from '../../../action/ActionCurrentPage';
+import { NotificationCountUpdate } from '../../utils/commonService/commonService';
+import { Use } from 'react-native-svg';
 //coming from the Supr page(bell button in the header section)
 export default EmergencyJobOrders = ({navigation, route: {params}}) => {
   const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
@@ -308,6 +310,7 @@ const {EmergencyJobListToShow} = useSelector(
         );
       });
   };
+
   return (
   
     <KeyboardAvoidingView
@@ -397,6 +400,7 @@ const {EmergencyJobListToShow} = useSelector(
                 setRightSwipedWork(item);
               }}
               onSwipeLeft={() => {
+                console.log('swiped in the left side', item);
                 setLeftSwipe(true);
                 setLeftSwipData(item);
               }}>
@@ -597,6 +601,7 @@ const {EmergencyJobListToShow} = useSelector(
                           SEID: item.ServiceEngrID,
                           Date: dateTime,
                           Ehrs: time,
+                          UserID: loggedUser.TechnicianID,
                         };
                         console.log(
                           'params for AssignEmergencyWork api cal==>>',
@@ -617,7 +622,7 @@ const {EmergencyJobListToShow} = useSelector(
                             }
                             return res.data;
                           })
-                          .then((data) => {
+                          .then(async (data) => {
                             // console.log(
                             //   'AssignEmergencyWork api response==>>',
                             //   data,
@@ -632,6 +637,7 @@ const {EmergencyJobListToShow} = useSelector(
                             dispatch(actionSetLoading(false));
                             dispatch(actionSetRefreshing());
                             // alert(data.Message);
+                          //  await NotificationCountUpdate({ dispatch });
                             dispatch(
                               actionSetAlertPopUpTwo({
                                 title: AppTextData.txt_Alert,

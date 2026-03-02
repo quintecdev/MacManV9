@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -14,9 +14,9 @@ import {
   Dimensions,
   Vibration,
 } from 'react-native';
-import {useNetInfo} from '@react-native-community/netinfo';
+import { useNetInfo } from '@react-native-community/netinfo';
 import NetInfo from '@react-native-community/netinfo';
-import {useReducer} from 'react';
+import { useReducer } from 'react';
 import {
   NavigationContainer,
   useNavigation,
@@ -25,7 +25,7 @@ import {
   useFocusEffect,
   useRoute,
 } from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import TechHomeScreen from '../pages/Technician/home/TechHomeScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LoginScreen from '../pages/login/LoginScreen';
@@ -35,9 +35,9 @@ import JobOrderReport from '../pages/Technician/components/JobOrderReport';
 import AdditionalSpareParts from '../pages/Technician/components/AdditionalSpareParts';
 import ActivityDetails from '../pages/Technician/components/ActivityDetails';
 import requestWithEndUrl from '../network/request';
-import {API_SUPERVISOR, API_TECHNICIAN} from '../network/api_constants';
+import { API_SUPERVISOR, API_TECHNICIAN } from '../network/api_constants';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {useSelector, useDispatch} from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import CMMSSplashScreen from '../pages/CMMSSplashScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HomeScreen from '../pages/supervisor/HomeScreen';
@@ -47,13 +47,13 @@ import JobOderAssignment from '../pages/supervisor/job_oder/job_assignment/JobOd
 import TechnicianDetails from '../pages/supervisor/Technician/TechnicianDetails';
 import TSparepartsRequired from '../pages/supervisor/Technician/TSparePartsRequired';
 import ActivityListPage from '../pages/supervisor/job_oder/job_assignment/ActivityListPage';
-import {actionSetTech, actionSetTechList} from '../action/ActionTechnician';
+import { actionSetTech, actionSetTechList } from '../action/ActionTechnician';
 import {
   actionSetAppTextData,
   actionSetSelectedLng,
 } from '../action/ActionAppText';
-import {actionSetEmergencyJoblistNotificationCountUpdate} from '../action/ActionNotificationJob';
-import {actionSetLoading, actionSetRefreshing} from '../action/ActionSettings';
+import { actionSetEmergencyJoblistNotificationCountUpdate } from '../action/ActionNotificationJob';
+import { actionSetLoading, actionSetRefreshing } from '../action/ActionSettings';
 import {
   actionSetSupCheckListNotification,
   actionSetEmergencyJoblistNotificationCount,
@@ -62,24 +62,24 @@ import {
 } from '../action/ActionCurrentPage';
 import ErrorPage from '../pages/ErrorPage';
 import EmergencyJobOrders from '../pages/supervisor/job_oder/EmergencyJobOrders';
-import {SvgCss, SvgFromXml, SvgXml} from 'react-native-svg';
-import {xmlLogo} from '../common/SvgIcons';
+import { SvgCss, SvgFromXml, SvgXml } from 'react-native-svg';
+import { xmlLogo } from '../common/SvgIcons';
 import Notes from '../pages/Technician/home/Notes';
 import MHistory from '../pages/Technician/home/MHistory';
-import messaging, {firebase} from '@react-native-firebase/messaging';
+import messaging, { firebase } from '@react-native-firebase/messaging';
 import {
   actionSetChartData,
   actionSetJobListCnt,
   actionSetJobOrderList,
 } from '../action/ActionRealTimeData';
-import {actionSetLoginData} from '../action/ActionLogin';
+import { actionSetLoginData } from '../action/ActionLogin';
 import ASK from '../constants/ASK';
 import resetNavigation from './resetNavigation';
-import {parse, format} from 'date-fns';
+import { parse, format } from 'date-fns';
 import SplashScreen from 'react-native-splash-screen';
 import ChatComposePage from '../pages/chat/ChatComposePage';
 import ChatHistoryPage from '../pages/chat/ChatHistoryPage';
-import {withHeight} from '../common/utils';
+import { withHeight } from '../common/utils';
 import CheckListPage from '../pages/check-list/CheckListPage';
 // import QrCodeScanner from '../pages/QrCodeScanner/QrCodeScanner';
 import CheckListPageNotification from '../pages/supervisor/Technician/CheckListPageNotification';
@@ -91,7 +91,7 @@ import {
   actionSetJobDate,
   actionSetVersion,
 } from '../action/ActionVersion';
-import {actionSetAlertPopUpTwo} from '../action/ActionAlertPopUp';
+import { actionSetAlertPopUpTwo } from '../action/ActionAlertPopUp';
 import BackgroundActions from 'react-native-background-actions';
 import CycleCount from '../pages/supervisor/job_oder/CycleCount';
 import Alerts from '../pages/components/Alert/Alerts';
@@ -100,33 +100,17 @@ import CheckListSafetyRegulationPage from '../pages/check-list/CheckListSafetyRe
 // console.log('device model===>>>>', DeviceInfo.getBuildNumber());
 import BackgroundService from 'react-native-background-actions';
 import FullScreenImageView from '../pages/check-list/ImageViewPage';
+import { NotificationCountUpdate } from '../pages/utils/commonService/commonService';
+import imageList from '../pages/utils/imageList.js/imageList';
+import { appStyle } from '../pages/utils/theme/appStyle';
+import AlertSound from '../pages/utils/commonService/alertSound';
 
 const screenWidth = Dimensions.get('window').width;
 const Stack = createStackNavigator();
 const TAG = 'NavigationContainerCmms';
 // const [TaskName, SetTaskName] = useState('Checking for Emergency Jobs');
 // let Title = 'Checking for Emergency Jobs';
-var Sound = require('react-native-sound');
-Sound.setCategory('playback');
-var NotificationSound = new Sound(
-  'emergencynotification.wav',
-  Sound.MAIN_BUNDLE,
-  (error) => {
-    if (error) {
-      console.log('failed to load the sound', error);
-      return;
-    }
-    // loaded successfully
-    // Play the sound with an onEnd callback
-    // NotificationSound.play((success) => {
-    //   if (success) {
-    //     console.log('successfully finished playing');
-    //   } else {
-    //     console.log('playback failed due to audio decoding errors');
-    //   }
-    // });
-  },
-);
+
 // const reducer = (TimeGap, action) => {
 //   switch (action.type) {
 //     case 'Increment':
@@ -144,44 +128,44 @@ export default () => {
   // const route = useRoute();
   // console.log({route})
   const appState = useRef(AppState.currentState);
-  const {AppTextData, selectedLng} = useSelector((state) => {
+  const { AppTextData, selectedLng } = useSelector((state) => {
     return state.AppTextViewReducer;
   });
-  const {loggedUser} = useSelector((state) => state.LoginReducer);
+  const { loggedUser } = useSelector((state) => state.LoginReducer);
   // console.log({loggedUser});
-  const {isLoading} = useSelector((state) => state.SettingsReducer);
+  const { isLoading } = useSelector((state) => state.SettingsReducer);
   const [isError, setIsError] = useState(false);
   const [appStateVisible, setAppStateVisible] = useState(appState);
-  const [Language, SetLangauge] = useState({});
+  // const [Language, SetLangauge] = useState({});
   const [intervel, setIntervel] = useState(5);
   const [taskDesc, settaskDesc] = useState('');
   const [TimeGap, setTimeGap] = useState(0);
   const [intervalId, setIntervalId] = useState(null);
-  const {loginStatus} = useSelector((state) => state.LoginReducer);
-  
-  
+  const { loginStatus } = useSelector((state) => state.LoginReducer);
+
+
   // const [TimeGap, setTimeGap] = useReducer(reducer, 0);
 
-  const {jobOrderList} = useSelector((state) => state.RealTimeDataReducer);
-  const {TechList} = useSelector((state) => state.TechnicianReducer);
-  const {CheckListNotificationVisit} = useSelector(
+  const { jobOrderList } = useSelector((state) => state.RealTimeDataReducer);
+  const { TechList } = useSelector((state) => state.TechnicianReducer);
+  const { CheckListNotificationVisit } = useSelector(
     (state) => state.PageVisitReducer,
   );
-  const {EmergencyJoblistNotifactionCountUpdate} = useSelector(
+  const { EmergencyJoblistNotifactionCountUpdate } = useSelector(
     (state) => state.NotificationJobReducer,
   );
-  const { 
+  const {
     EmergencyJoblistNotifactionCount,
     EmergencyJoblistNotifactionBgStatus,
     EmergencyJobListToShow,
 
   } = useSelector((state) => state.CurrentPageReducer);
-  const {AlertPopUp, AlertPopUpTwo} = useSelector((state) => {
+  const { AlertPopUp, AlertPopUpTwo } = useSelector((state) => {
     return state.AlertPopUpReducer;
   });
   const { InternalWorkOrderNotifactionCount } = useSelector(
-      (state) => state.InteralWorkOrderNotification,
-    );
+    (state) => state.InteralWorkOrderNotification,
+  );
   const InterNet = useNetInfo();
   const dispatch = useDispatch();
   var eventListenerSubscription;
@@ -208,45 +192,45 @@ export default () => {
       // setInterval(() => {
       CheckingAppVersion();
       // }, 10000);
-    }else{
-      stopNotificationSound();
+    } else {
+      AlertSound.AlertSound.stop();
     }
   }, [loggedUser]);
 
-  useEffect(()=>{
-     if(EmergencyJobListToShow){
-    setTimeout(() => {
-        console.log("modalvisible")
-        stopNotificationSound()
+  useEffect(() => {
+     console.log("EmergencyJobListToShow --->>", EmergencyJobListToShow);
+    if (EmergencyJobListToShow) {
+      setTimeout(() => {
+        AlertSound.AlertSound.stop();
       }, 1000);
       //     const intervalId = setInterval(() => {
       //   console.log("Checking if sound is playing...");
-      //   if (NotificationSound && NotificationSound.isPlaying && NotificationSound.isPlaying()) {
-      //     NotificationSound.stop(() => {
+      //   if (AlertSound && AlertSound.isPlaying && AlertSound.isPlaying()) {
+      //     AlertSound.stop(() => {
       //       console.log("Notification sound stopped.");
       //     });
       //     clearInterval(intervalId); 
       //   }
       // }, 1000);
     }
-  },[EmergencyJobListToShow])
+  }, [EmergencyJobListToShow])
 
   useEffect(() => {
-      // console.log('timer update from the useeffect==>>', TimeGap);
-      // TimerCheck();
-    }, [TimeGap]);
+    // console.log('timer update from the useeffect==>>', TimeGap);
+    // TimerCheck();
+  }, [TimeGap]);
 
-    function stopNotificationSound(){
-    if(NotificationSound.isPlaying()) {
-      NotificationSound.stop();
-      if (vibrationInterval) {
-        clearInterval(vibrationInterval);
-        vibrationInterval = null;
-      }
-    }
-  }
+  //   function stopNotificationSound(){
+  //   if(AlertSound.isPlaying()) {
+  //     AlertSound.stop();
+  //     if (vibrationInterval) {
+  //       clearInterval(vibrationInterval);
+  //       vibrationInterval = null;
+  //     }
+  //   }
+  // }
 
-    async function TimerCheck() {
+  async function TimerCheck() {
     // alert('one minutes');
     // console.log('function TimerCheck==>>');
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
@@ -266,13 +250,13 @@ export default () => {
         EmergencyJoblistNotifactionBgStatus.BDNotification == true &&
         appState.current == 'active'
       ) {
-      // console.log("TIMER-SUPERVISOR",EmergencyJoblistNotifactionBgStatus.BDNotification,TimeGap)
+        // console.log("TIMER-SUPERVISOR",EmergencyJoblistNotifactionBgStatus.BDNotification,TimeGap)
 
         if (TimeGap % 60 == 0) {
           // TimerCheck(TimeGap / 60);
-      // console.log("TIMER-SUPERVISOR","TimeGap % 60")
+          // console.log("TIMER-SUPERVISOR","TimeGap % 60")
           AsyncStorage.getItem(ASK.ASK_NOTIFICATION_TIMER)
-            .then((res) => {
+            .then(async (res) => {
               if (res) {
                 const NOTIFICATION = JSON.parse(res);
                 // console.log(
@@ -289,7 +273,10 @@ export default () => {
                 ) {
                   // if ((TimeGap / 60) % Time == 0) {
                   // alert('successfully completed TimerCheck function');
-                  EmergencyJoblistNotificationCount();
+
+                  // this function moved to the common service file
+                  // EmergencyJoblistNotificationCount();
+                  await NotificationCountUpdate(dispatch);
                   // }
                 }
               }
@@ -383,7 +370,7 @@ export default () => {
           Checking(data.BDNotification);
         })
         .catch((err) => {
-          console.error('GetCutOffDate', {err});
+          console.error('GetCutOffDate', { err });
         });
     }
   }
@@ -394,43 +381,7 @@ export default () => {
     // console.error('user Details from the async storage==>>', User.TechnicianID);
     try {
       if (e == true) {
-        const params = {SEID: User.TechnicianID, Date: Date.now()};
-        console.log(
-          'params for api call EmergencyJoblistNotificationCount function',
-          params,
-        );
-        const EmergencyJoblistCount = await requestWithEndUrl(
-          `${API_SUPERVISOR}JobListCount`,
-          params,
-        );
-        // dispatch(
-        //   actionSetEmergencyJoblistNotificationCount(
-        //     EmergencyJoblistCount.data.BreakDown,
-        //   ),
-        // );
-        // alert('successfully completed Checking function');
-        dispatch(
-          actionSetEmergencyJoblistNotificationCount(
-            EmergencyJoblistCount.data.BreakDown,
-          )),
-           dispatch(
-          actionSetInternalWorkOrderJobNotificationCount(
-            EmergencyJoblistCount.data.WOInternal,
-          ),  
-          console.log('EmergencyJoblistCount data', EmergencyJoblistCount.data)
-        );
-        // console.log('NotificationCount', EmergencyJoblistCount.data,{NotificationSound,EmergencyJobListToShow});
-        if (EmergencyJoblistCount.data.BreakDown > 0) {
-          // console.log('NotificationCount.data.Count2', NotificationCount?.data);
-          NotificationSound.setNumberOfLoops(-1);
-          // console.log({appState})
-          if(!NotificationSound.isPlaying())NotificationSound.play();
-          Vibration.vibrate(1000);
-          // await BackgroundActions.stop();
-        }else{
-          // if(NotificationSound.isPlaying())NotificationSound.stop();
-          stopNotificationSound();
-        }
+        await NotificationCountUpdate(dispatch);
         //    if (TimeGap % 60 == 0) {
         //   TimerCheck(TimeGap / 60);
         // }
@@ -464,11 +415,11 @@ export default () => {
 
   const sleep = () =>
     new Promise((resolve) => setTimeout(() => resolve(), 10000));
-  
+
   //copy from BGTask
-   const veryIntensiveTask = async (taskDataArguments) => {
+  const veryIntensiveTask = async (taskDataArguments) => {
     // Example of an infinite loop task
-    const {delay} = taskDataArguments;
+    const { delay } = taskDataArguments;
     // console.log("veryIntensiveTask")
     await new Promise(async (resolve) => {
       // console.log("BG-isrunning",BackgroundService.isRunning())
@@ -489,9 +440,7 @@ export default () => {
 
     // console.log("_handleAppStateChange",{nextAppState,appState:appState.current,routelenght:navigationRef?.current.getRootState().index})
     if (nextAppState === 'inactive' || nextAppState === 'background') {
-      // // console.log("handleAppStateChange",NotificationSound.isPlaying());
-      // if(NotificationSound.isPlaying())NotificationSound.stop();
-      stopNotificationSound();
+      AlertSound.AlertSound.stop();
       User.UserType == 2 &&
         (await BackgroundService.start(veryIntensiveTask, options));
       // console.log('app is in background');
@@ -521,7 +470,7 @@ export default () => {
           })
           .catch((err) => {
             // console.log('login expired 2');
-            console.log('_handleAppStateChange_err: ', {err});
+            console.log('_handleAppStateChange_err: ', { err });
             dispatch(actionSetLoading(false));
             const currentPage = navigationRef?.current?.getCurrentRoute()?.name;
             // console.log('current page=====>', currentPage);
@@ -677,7 +626,7 @@ export default () => {
     ChecklistNotificationCount();
   }, [CheckListNotificationVisit]);
 
- 
+
 
   useEffect(() => {
     // console.error('time gap from the useEffect==>>', TimeGap);
@@ -690,9 +639,12 @@ export default () => {
     //   EmergencyJoblistNotifactionBgStatus.BDNotification == true &&
     //   appState.current == 'active'
     // ) {
-    EmergencyJoblistNotificationCount();
+    //
+    //EmergencyJoblistNotification function moved to common service file
+    // EmergencyJoblistNotificationCount();
+    NotificationCountUpdate(dispatch);
     // }
-  }, [EmergencyJoblistNotifactionCountUpdate,InternalWorkOrderNotifactionCount]);
+  }, [EmergencyJoblistNotifactionCountUpdate, InternalWorkOrderNotifactionCount]);
 
   // useEffect(() => {
   //   console.log('timer update from the useeffect==>>', TimeGap);
@@ -727,9 +679,9 @@ export default () => {
     // }
   }, []);
 
-    useEffect(() => {
-      // SetTimers();
-    }, [loginStatus == true]);
+  useEffect(() => {
+    // SetTimers();
+  }, [loginStatus == true]);
 
   async function SetTimers() {
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
@@ -751,7 +703,7 @@ export default () => {
     try {
       const NotificationCount = await requestWithEndUrl(
         `${API_SUPERVISOR}GetCheckListAbnormalityJobsCount`,
-        {SEID: User.TechnicianID},
+        { SEID: User.TechnicianID },
       );
       // const EmergencyJoblistCount = await requestWithEndUrl(
       //   `${API_SUPERVISOR}EmergencyJobListCount`,
@@ -771,51 +723,7 @@ export default () => {
       console.log('cardDetailfetch error', error);
     }
   }
-  async function EmergencyJoblistNotificationCount() {
-    // function to get the EmergencyJoblistNotificationCount in both Sup and Emp homepage
-    // console.error('function ==>>EmergencyJoblistNotificationCount');
-    const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
 
-    try {
-      const params = {SEID: User.TechnicianID, Date: Date.now()};
-      // console.log(
-      //   'params for api call EmergencyJoblistNotificationCount function',
-      //   params,
-      // );
-      const EmergencyJoblistCount = await requestWithEndUrl(
-        `${API_SUPERVISOR}JobListCount`,
-        {SEID: User.TechnicianID, Date: Date.now()},
-      );
-      console.log(
-        'emergency joblist count-->>',
-        EmergencyJoblistCount.data,
-      );
-      dispatch(
-        actionSetEmergencyJoblistNotificationCount(
-          EmergencyJoblistCount.data.BreakDown,
-        ),
-      );
-      dispatch(
-          actionSetInternalWorkOrderJobNotificationCount(
-            EmergencyJoblistCount.data.WOInternal,
-          ),
-      );
-      if (EmergencyJoblistCount.data.BreakDown > 0) {
-        NotificationSound.setNumberOfLoops(-1);
-        if(!NotificationSound.isPlaying()){
-          NotificationSound.play();
-          if (!vibrationInterval) {
-                      Vibration.vibrate(1000);
-                      vibrationInterval = setInterval(() => {
-                        Vibration.vibrate(1000);
-                      }, 1000);
-                    }
-        }
-      }
-    } catch (error) {
-      console.log('EmergencyJobListCount error', error);
-    }
-  }
   // async function CheckingAppVersion(){
   //   try{
   //      const NewAppVersion= await requestWithEndUrl(`${API_SUPERVISOR}GetApkVersion`);
@@ -828,17 +736,10 @@ export default () => {
   //   }
   // }
   async function CheckingAppVersion() {
-    // console.log(
-    //   'checking GetCutOffDate from Nav',
-    //   'params==>',
-    //   loggedUser?.TechnicianID,
-    // );
-    const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
     requestWithEndUrl(`${API_SUPERVISOR}GetCutOffDate`, {
       UserID: loggedUser?.TechnicianID,
     })
       .then((res) => {
-        // console.log('GetReasons', {res});
         if (res.status != 200) {
           throw Error(res.statusText);
         }
@@ -857,14 +758,14 @@ export default () => {
         );
       })
       .catch((err) => {
-        console.error('GetCutOffDate', {err});
+        console.error('GetCutOffDate', { err });
       });
   }
 
   useEffect(() => {
-    console.log('appstate change');
+    // console.log('appstate change');
     // console.log('NavigationContainer_page', 'useEffect', jobOrderList);
-    setLangauge();
+    // setLangauge();
     // messaging().onNotificationOpenedApp(async remoteMessage => {
     //   console.log('onNotificationOpenedApp', remoteMessage);
     //   switch(remoteMessage.data.type){
@@ -925,15 +826,9 @@ export default () => {
 
   async function GetAppTextData() {
     AsyncStorage.getItem(ASK.ASK_LANGUAGE).then((res) => {
-      // console.log('Language Details RESPONSE===>>>', {res});
       if (res != null) {
         const SelectedLanguage = JSON.parse(res);
-        // console.log(
-        //   'Language Details from the AsyncStorage FROM LOGIN SCREEN>>>',
-        //   SelectedLanguage.Language,
-        // );
         dispatch(actionSetSelectedLng(SelectedLanguage));
-        // setLangauge(SelectedLanguage);
       } else {
         AsyncStorage.setItem(
           ASK.ASK_LANGUAGE,
@@ -942,41 +837,27 @@ export default () => {
             Languagevalue: selectedLng.Languagevalue,
           }),
         );
-        // setLangauge(selectedLng);
       }
     });
-
-    const SelectedLanguage = await AsyncStorage.getItem(ASK.ASK_LANGUAGE);
-    // console.log(
-    //   'selected language data from the Async in nav container===>>',
-    //   SelectedLanguage,
-    //   'lang from the redux==>>',
-    //   selectedLng.Languagevalue,
-    // );
     const params = {
       Language: selectedLng.Languagevalue,
     };
-    // console.log('params for apptextDatacall==>>', params);
     requestWithEndUrl(`${API_TECHNICIAN}getMacManMobileAppTextData`, params)
       .then((res) => {
-        // console.log('getMacManMobileAppTextData', {res});
         if (res.status != 200) {
           throw Error(res.statusText);
         }
         return res.data;
       })
       .then((data) => {
-        // console.log('getMacManMobileAppTextData', {data});
-        // actionSetRefreshing(true)
         dispatch(actionSetAppTextData(data));
       })
       .catch((err) => {
-        console.error({err});
+        console.error({ err });
         // setIsError(true);// commented by vbn
       });
   }
-  function setLangauge() {
-
+  // function setLangauge() {
     // console.log('set lang==>>>');
     // AsyncStorage.getItem('selectedLng')
     //   .then((data) => {
@@ -986,7 +867,7 @@ export default () => {
     //   .catch((err) => {
     //     console.log('AsyncStorage_selectedLngValue: ', {err});
     //   });
-  }
+  // }
 
   function updateTokenInDb(exstAsToken, token) {
     // console.log('function name==>> NavigationContainer updateTokenInDb');
@@ -1014,14 +895,14 @@ export default () => {
               }
               return res.data;
             })
-            .then((data) => {})
+            .then((data) => { })
             .catch((err) => {
-              console.log('refreshClientToken', {err});
+              console.log('refreshClientToken', { err });
             });
         }
       })
       .catch((err) => {
-        console.log('getExistingTokenInDb', {err});
+        console.log('getExistingTokenInDb', { err });
       });
   }
 
@@ -1056,7 +937,7 @@ export default () => {
             updateTokenInDb(exstAsToken, token);
             // if(tokenInDb&&exstAsToken!=tokenInDb) requestWithEndUrl(`${API_SUPERVISOR}refreshClientToken`,{TechnicianID:loggedUser.TechnicianID,Token:token})
           }
-        } catch (err) {}
+        } catch (err) { }
 
         // return saveTokenToDatabase(token);
       })
@@ -1068,15 +949,15 @@ export default () => {
       <Spinner
         visible={isLoading}
         textContent={'Loading...'}
-        textStyle={{color: 'white'}}
+        textStyle={{ color: 'white' }}
       />
       <Alerts
         title={AlertPopUpTwo?.title}
         body={AlertPopUpTwo?.body}
         visible={AlertPopUpTwo?.visible}
         onOk={() => {
-          dispatch(actionSetAlertPopUpTwo({visible: false}))
-            // console.log('current value==>>', AlertPopUpTwo);
+          dispatch(actionSetAlertPopUpTwo({ visible: false }))
+          // console.log('current value==>>', AlertPopUpTwo);
         }}
         type={AlertPopUpTwo.type}
       />
@@ -1088,7 +969,7 @@ export default () => {
             <Stack.Screen
               name="splash"
               component={CMMSSplashScreen}
-              options={({route, navigation}) => ({
+              options={({ route, navigation }) => ({
                 headerTransparent: true,
                 title: null,
                 // headerTitle: props => <Image
@@ -1106,12 +987,12 @@ export default () => {
             <Stack.Screen
               name="ActivityDetails"
               component={ActivityDetails}
-              options={({route, navigation}) => ({
+              options={({ route, navigation }) => ({
                 title: AppTextData.txt_Activity_Details,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1129,12 +1010,12 @@ export default () => {
             <Stack.Screen
               name="AdditionalSpareParts"
               component={AdditionalSpareParts}
-              options={({route, navigation}) => ({
+              options={({ route, navigation }) => ({
                 title: AppTextData.txt_Additional_Spare_Parts,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1152,12 +1033,12 @@ export default () => {
             <Stack.Screen
               name="TodayJobOrderIssued"
               component={TodayJobOrderIssued}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 title: AppTextData.txt_Job_Oder,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1167,22 +1048,26 @@ export default () => {
             <Stack.Screen
               name="EmergencyJobOrders"
               component={EmergencyJobOrders}
-              options={({route: {params}, navigation}) => ({
-                title: AppTextData.txt_BreakDown_List,
-                headerTintColor: CmmsColors.logoBottomGreen,
-                headerBackImage: () => (
-                  <Image
-                    style={{height: 46, width: 28}}
-                    source={require('../assets/logo/macman-logo-large-C.png')}
-                  />
-                ),
-              })}
+              options={({ route: { params }, navigation }) => {
+                console.log('params in EmergencyJobOrders in from navigation==>>', params);
+                return ({
+                  title: !params.breakdown ? AppTextData.txt_internal_workorder : AppTextData.txt_BreakDown_List,
+                  headerTintColor: CmmsColors.logoBottomGreen,
+                  headerBackImage: () => (
+                    <Image
+                      style={{ height: 46, width: 28 }}
+                      source={require('../assets/logo/macman-logo-large-C.png')}
+                    />
+                  ),
+                })
+              }
+              }
             />
 
             <Stack.Screen
               name="Login"
               component={LoginScreen}
-              options={({route, navigation}) => {
+              options={({ route, navigation }) => {
                 // const headerHeight = useHeaderHeight()
 
                 return {
@@ -1220,7 +1105,7 @@ export default () => {
             <Stack.Screen
               name="TechHome"
               component={TechHomeScreen}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 title: null, //loggedUser?.TechnicianName,
                 // headerTintColor:CmmsColors.logoBottomGreen,
                 // headerStyle: {
@@ -1238,7 +1123,7 @@ export default () => {
                     // </TouchableOpacity>
 
                     <SvgXml
-                      style={{marginStart: 8}}
+                      style={{ marginStart: 8 }}
                       xml={xmlLogo}
                       width={screenWidth / 3}
                       height="100%"
@@ -1261,13 +1146,13 @@ export default () => {
             <Stack.Screen
               name="Notes"
               component={Notes}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 //vbn lang
                 title: AppTextData.txt_Notes,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1276,14 +1161,14 @@ export default () => {
             <Stack.Screen
               name="MHistory"
               component={MHistory}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 //vbn lang
                 title: AppTextData.txt_MHistory,
                 // title: 'Notes',
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1292,12 +1177,12 @@ export default () => {
             <Stack.Screen
               name="JobOrderReport"
               component={JobOrderReport}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 title: AppTextData.txt_Job_Order_Report,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1307,7 +1192,7 @@ export default () => {
             <Stack.Screen
               name="SupHome"
               component={HomeScreen}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 title: null,
                 // header:(props)=>{
                 //     <Image
@@ -1326,21 +1211,21 @@ export default () => {
                 //   marginStart: 50
                 // },
                 headerLeft: (props) => {
-                  // console.log(props);
                   return (
-                    // <Image
-                    //   style={{ height: 96, width: 96, }}
-                    //   source={require('../assets/logo/ic_logo_toolbar.png')}
-                    // />
+                    <Image
+                      style={appStyle.appIconC}
+                      source={imageList.macmanCLogo}
+                      resizeMode="contain"
+                    />
 
                     // </TouchableOpacity>
 
-                    <SvgXml
-                      style={{marginStart: 8}}
-                      xml={xmlLogo}
-                      width={screenWidth / 3}
-                      height="100%"
-                    />
+                    // <SvgXml
+                    //   style={{marginStart: 8}}
+                    //   xml={xmlLogo}
+                    //   width={screenWidth / 3}
+                    //   height="100%"
+                    // />
                   );
                 },
 
@@ -1447,12 +1332,12 @@ export default () => {
             <Stack.Screen
               name="SparepartsRequired"
               component={SparepartsRequired}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 title: AppTextData.txt_Spare_Parts_Required,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1461,12 +1346,12 @@ export default () => {
             <Stack.Screen
               name="TechnicianDetails"
               component={TechnicianDetails}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 title: params.ServiceEngr,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1475,14 +1360,14 @@ export default () => {
             <Stack.Screen
               name="JobOderAssignment"
               component={JobOderAssignment}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 title: AppTextData.txt_Job_Order_Assignment,
                 headerTitleAllowFontScaling: true,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 // headerLeft:
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1492,19 +1377,19 @@ export default () => {
             <Stack.Screen
               name="ActivityListPage"
               component={ActivityListPage}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 title: AppTextData.txt_Activities,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
                 headerRight: (props) => {
                   return (
                     <TouchableOpacity
-                      style={{paddingHorizontal: 16, paddingVertical: 4}}
+                      style={{ paddingHorizontal: 16, paddingVertical: 4 }}
                       onPress={() => {
                         navigation.goBack();
                       }}>
@@ -1522,12 +1407,12 @@ export default () => {
             <Stack.Screen
               name="TSparePartsRequired"
               component={TSparepartsRequired}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 title: AppTextData.txt_Spare_Parts_Required,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1537,7 +1422,7 @@ export default () => {
             <Stack.Screen
               name="ChatHistoryPage"
               component={ChatHistoryPage}
-              options={({route, navigation}) => ({
+              options={({ route, navigation }) => ({
                 //vbn lang title: 'Chats',
                 title: AppTextData.txt_Chat,
                 headerTintColor: CmmsColors.logoBottomGreen,
@@ -1560,7 +1445,7 @@ export default () => {
             <Stack.Screen
               name="ChatComposePage"
               component={ChatComposePage}
-              options={({route, navigation}) => ({
+              options={({ route, navigation }) => ({
                 title: route.params.chatReciever.Name,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 // headerBackImage:()=><Image
@@ -1582,14 +1467,14 @@ export default () => {
             <Stack.Screen
               name="CheckList"
               component={CheckListPage}
-              options={({route, navigation}) => ({
+              options={({ route, navigation }) => ({
                 //vbn lang
                 // title: 'Checklist',
                 title: AppTextData.Checklist,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1607,13 +1492,13 @@ export default () => {
             <Stack.Screen
               name="CheckListNotification"
               component={CheckListPageNotification}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 //vbn lang
                 title: AppTextData.txt_Checklist_Notification,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1622,13 +1507,13 @@ export default () => {
             <Stack.Screen
               name="InternalWorkOrder"
               component={InternalWorkOrder}
-              options={({route: {params}, navigation}) => ({
-                
+              options={({ route: { params }, navigation }) => ({
+
                 title: AppTextData.txt_internal_workorder,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1637,14 +1522,14 @@ export default () => {
             <Stack.Screen
               name="CheckListSafetyRegulationPage"
               component={CheckListSafetyRegulationPage}
-              options={({route: {params}, navigation}) => ({
-                
+              options={({ route: { params }, navigation }) => ({
+
                 title:
-                `${AppTextData.txt_Checklist} (${AppTextData.txt_Safety_Regulations})`,
+                  `${AppTextData.txt_Checklist} (${AppTextData.txt_Safety_Regulations})`,
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1653,7 +1538,7 @@ export default () => {
             <Stack.Screen
               name="VersionCheck"
               component={VersionCheck}
-              options={({route, navigation}) => ({
+              options={({ route, navigation }) => ({
                 headerTransparent: true,
                 title: null,
               })}
@@ -1661,12 +1546,12 @@ export default () => {
             <Stack.Screen
               name="CycleCount"
               component={CycleCount}
-              options={({route: {params}, navigation}) => ({
+              options={({ route: { params }, navigation }) => ({
                 title: 'Cycle Count',
                 headerTintColor: CmmsColors.logoBottomGreen,
                 headerBackImage: () => (
                   <Image
-                    style={{height: 46, width: 28}}
+                    style={{ height: 46, width: 28 }}
                     source={require('../assets/logo/macman-logo-large-C.png')}
                   />
                 ),
@@ -1676,7 +1561,7 @@ export default () => {
             <Stack.Screen
               name="FullScreenImageView"
               component={FullScreenImageView}
-              options={({route, navigation}) => ({
+              options={({ route, navigation }) => ({
                 headerTransparent: true,
                 title: null,
                 // headerTitle: props => <Image

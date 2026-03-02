@@ -47,7 +47,7 @@ import {
 } from '../../action/ActionRealTimeData';
 import { actionSetSupCheckListNotificationVisit } from '../../action/ActionPageVisit';
 import { actionSetEmergencyJoblistNotificationCountUpdate } from '../../action/ActionNotificationJob';
-import { actionSetEmergencyJoblistNotificationCount } from '../../action/ActionCurrentPage';
+import { actionSetEmergencyJoblistNotificationCount, actionSetInternalWorkOrderJobNotificationCount } from '../../action/ActionCurrentPage';
 import {
   actionSetJobOrderReportVisit,
   actionSetSupCheckListNotification,
@@ -63,6 +63,7 @@ import EmergencyJobListModal from '../Technician/components/EmergencyJobListModa
 import { NavigationAction } from '@react-navigation/native';
 import FadeView from '../components/fadeView/FadeView';
 import InteralWorkOrderNotification from '../../reducers/InteralWorkOrderNotification';
+import AlertSound, { AlertSoundFirst } from '../utils/commonService/alertSound';
 const TAG = 'HomeScreen';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -89,27 +90,27 @@ export const description = {
   fontFamily: 'sans-serif-condensed',
 };
 
-var Sound = require('react-native-sound');
-Sound.setCategory('playback');
-var NotificationSound = new Sound(
-  'emergencynotification.wav',
-  Sound.MAIN_BUNDLE,
-  (error) => {
-    if (error) {
-      console.log('failed to load the sound', error);
-      return;
-    }
-    // loaded successfully
-    // Play the sound with an onEnd callback
-    // NotificationSound.play((success) => {
-    //   if (success) {
-    //     console.log('successfully finished playing');
-    //   } else {
-    //     console.log('playback failed due to audio decoding errors');
-    //   }
-    // });
-  },
-);
+// var Sound = require('react-native-sound');
+// Sound.setCategory('playback');
+// var NotificationSound = new Sound(
+//   'emergencynotification.wav',
+//   Sound.MAIN_BUNDLE,
+//   (error) => {
+//     if (error) {
+//       console.log('failed to load the sound', error);
+//       return;
+//     }
+//     // loaded successfully
+//     // Play the sound with an onEnd callback
+//     // NotificationSound.play((success) => {
+//     //   if (success) {
+//     //     console.log('successfully finished playing');
+//     //   } else {
+//     //     console.log('playback failed due to audio decoding errors');
+//     //   }
+//     // });
+//   },
+// );
 
 export default HomeScreen = ({ navigation }) => {
   const { loggedUser } = useSelector((state) => state.LoginReducer);
@@ -196,9 +197,9 @@ export default HomeScreen = ({ navigation }) => {
                 // marginEnd: 5,
               }}
               onPress={() => {
-                console.log('InternalWorkOrderNotifactionCount',InternalWorkOrderNotifactionCount)
+                console.log('InternalWorkOrderNotifactionCount', InternalWorkOrderNotifactionCount)
                 // EmergencyJoblistNotifactionCount != 0 &&
-                navigation.navigate('EmergencyJobOrders', { jobDate: jobDate,breakdown:false});
+                navigation.navigate('EmergencyJobOrders', { jobDate: jobDate, breakdown: false });
               }}>
               <Icon name="circle" size={24} color="red" />
               <CmmsText
@@ -208,7 +209,8 @@ export default HomeScreen = ({ navigation }) => {
                   fontSize: 10,
                   fontWeight: 'bold',
                 }}>
-                {InternalWorkOrderNotifactionCount??0}
+                {InternalWorkOrderNotifactionCount ?? 0}
+
               </CmmsText>
             </TouchableOpacity>
 
@@ -271,7 +273,7 @@ export default HomeScreen = ({ navigation }) => {
               }}
               onPress={() => {
                 // EmergencyJoblistNotifactionCount != 0 &&
-                navigation.navigate('EmergencyJobOrders', { jobDate: jobDate,breakdown:true});
+                navigation.navigate('EmergencyJobOrders', { jobDate: jobDate, breakdown: true });
               }}>
               <Icon name="bell" size={24} color="grey" />
               <CmmsText
@@ -286,7 +288,7 @@ export default HomeScreen = ({ navigation }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={{ padding: 4}}
+              style={{ padding: 4 }}
               onPress={() => navigation.navigate('JobOderAssignment')}>
               <Icon name="user-plus" size={24} color="grey" />
             </TouchableOpacity>
@@ -346,7 +348,8 @@ export default HomeScreen = ({ navigation }) => {
                               // dispatch(actionSetJobDate(''));
                               // // dispatch(actionSetLoginData(null));
                               // resetNavigation(navigation, 'Login');
-                              if (NotificationSound.isPlaying()) NotificationSound.stop();
+                              AlertSound.AlertSound.stop();
+                              AlertSound.AlertSoundFirst.stop();
                               navigation.reset({
                                 index: 0,
                                 routes: [{ name: 'Login' }],
@@ -357,7 +360,7 @@ export default HomeScreen = ({ navigation }) => {
                           .catch((err) => {
                             dispatch(actionSetLoading(false));
                             alert(AppTextData.txt_somthing_wrong_try_again);
-                            console.error({ err });
+                            console.log("HomeScreen language load error-->>", err);
                           });
                       },
                     },
@@ -382,6 +385,7 @@ export default HomeScreen = ({ navigation }) => {
     ChecklistNotifactionCount,
     EmergencyJoblistNotifactionCount,
     EmergencyJoblistNotifactionBgStatus,
+    InternalWorkOrderNotifactionCount
   ]);
 
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
@@ -425,7 +429,9 @@ export default HomeScreen = ({ navigation }) => {
     if (EmergencyJobListToShow) {
       setTimeout(() => {
         console.log("modalvisible")
-        if (NotificationSound.isPlaying()) NotificationSound.stop();
+        AlertSound.AlertSound.stop();
+        AlertSound.AlertSoundFirst.stop();
+        // if (NotificationSound.isPlaying()) NotificationSound.stop();
       }, 1000);
     }
   }, [EmergencyJobListToShow])
@@ -436,16 +442,16 @@ export default HomeScreen = ({ navigation }) => {
       _handleAppStateChange,
     );
     return () => {
-      // on unmount
-      if (NotificationSound.isPlaying()) NotificationSound.stop();
+      if (AlertSound.AlertSound.isPlaying()) AlertSound.AlertSound.stop();
+      if (AlertSound.AlertSoundFirst.isPlaying()) AlertSound.AlertSoundFirst.stop();
       eventListenerSubscription?.remove();
     };
   }, [])
   async function _handleAppStateChange(nextAppState) {
     console.log("Home", "handleAppStateChange", { nextAppState })
     if (nextAppState === 'inactive' || nextAppState === 'background') {
-      console.log("handleAppStateChange", NotificationSound.isPlaying());
-      if (NotificationSound.isPlaying()) NotificationSound.stop();
+      if (AlertSound.AlertSound.isPlaying()) AlertSound.AlertSound.stop();
+      if (AlertSound.AlertSoundFirst.isPlaying()) AlertSound.AlertSoundFirst.stop();
     }
   }
 
@@ -486,7 +492,7 @@ export default HomeScreen = ({ navigation }) => {
           setChartTitle(data?.Heading);
         })
         .catch((err) => {
-          console.error('GetWorkStatusPieGraphByDate', err);
+          console.log('GetWorkStatusPieGraphByDate error-->>', err);
         });
 
       getJobOrders(dateTime, selectedTimemillies);
@@ -598,22 +604,39 @@ export default HomeScreen = ({ navigation }) => {
         dispatch(actionSetTechList(data.SEList));
       })
       .catch((err) => {
-        console.error('GetAllTechnicians', err);
+        console.log('GetAllTechnicians error-->>', err);
       });
   }
   const UserData = async () => {
     const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
     if (User.UserType == 2 && fromNotificationOpened) {
-      navigation.navigate('EmergencyJobOrders', { jobDate: jobDate,breakdown:true});
+      navigation.navigate('EmergencyJobOrders', { jobDate: jobDate, breakdown: true });
     }
   };
 
+  /**
+   * Handles incoming Firebase messages in the foreground for the supervisor account.
+   * Routes message handling based on the message type and triggers appropriate actions.
+   *
+   * @param {Object} remoteMessage - The Firebase remote message object
+   * @param {Object} remoteMessage.data - The data payload of the message
+   * @param {string} remoteMessage.data.type - The type of message to handle.
+   * @param {boolean} [fromNotificationOpened=false] - Flag indicating whether the message was triggered by user opening a notification
+   *
+   * @description
+   * Processes different Firebase notification types:
+   * - TYPE_LOG_OUT: Clears user data and navigates to Login screen
+   * - TYPE_SUPEMERGENCY_JOB_LIST_CNT: Updates emergency job list count, plays notification sound, vibrates device, and optionally navigates if notification was opened
+   * - TYPE_REFRESH_TECHNICIAN_ALL_DATA: Sets refreshing state for technician data
+   * - TYPE_ADNORMALITY_JOB_LIST_CNT: Updates abnormality/checklist notification count
+   * - TYPE_CUSTODIAN_WO_COUNT: Updates internal work order notification count
+   */
   function handleFirebaseMsgFg(remoteMessage, fromNotificationOpened = false) {
     console.log(
       'firebase data type on sup account===>>>',
       remoteMessage.data.type,
     );
-    console.log('firebase data on sup account===>>>', remoteMessage.data);
+    console.log('firebase data on sup account===>>>', remoteMessage);
 
     switch (remoteMessage.data.type) {
       case 'TYPE_LOG_OUT':
@@ -626,7 +649,10 @@ export default HomeScreen = ({ navigation }) => {
           index: 0,
           routes: [{ name: 'Login' }],
         });
+
+
         break;
+      // vbn: this type is commented by previous developer and don't know the case
       // case 'TYPE_EMERGENCY_JOB_LIST_CNT':
       //   const lJobListCnt = remoteMessage.data.EmergencyJobListCnt;
       //   console.log(
@@ -647,9 +673,7 @@ export default HomeScreen = ({ navigation }) => {
         );
         const lJobListCnt = remoteMessage.data.EmergencyJobListCnt;
         dispatch(actionSetEmergencyJoblistNotificationCount(lJobListCnt));
-        NotificationSound.setNumberOfLoops(-1);
-        if (!NotificationSound.isPlaying()) NotificationSound.play();
-        Vibration.vibrate(1000);
+        AlertSound.AlertSound.start("TYPE_SUPEMERGENCY_JOB_LIST_CNT from supervisor home screen");
         // dispatch(actionSetJobListCnt(lJobListCnt));
         // if (fromNotificationOpened && lJobListCnt != 0) {
         //   navigation.navigate('EmergencyJobOrders');
@@ -715,6 +739,17 @@ export default HomeScreen = ({ navigation }) => {
             remoteMessage.data?.AbnormalityJobListCnt,
           ),
         );
+        break;
+      case 'TYPE_CUSTODIAN_WO_COUNT':
+        console.error('custodian IWO count==>>', remoteMessage.data);
+        const WOCount = remoteMessage.data.WOInternal ?? remoteMessage.data.WOINTERNAL ?? 0;
+        dispatch(
+          actionSetInternalWorkOrderJobNotificationCount(
+            WOCount,
+          ),
+        );
+        WOCount > 0 ? AlertSound.AlertSoundFirst.start("TYPE_CUSTODIAN_WO_COUNT from supervisor home screen") : AlertSound.AlertSoundFirst.stop();
+        break;
       default:
         break;
     }

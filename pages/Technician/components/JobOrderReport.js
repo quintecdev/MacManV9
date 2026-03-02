@@ -197,7 +197,7 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
     console.log('user details from the sup page==>>', loggedUser);
   }, []);
   const GetServiceReportDetailsByJOIDfunction = () => {
-    console.log('params:', params.JOID);
+    console.log('GetServiceReportDetailsByJOID params:', params);
     dispatch(actionSetLoading(true));
     dispatch(actionSetJobOrderReportVisit(true)); //vbn
     requestWithEndUrl(`${API_TECHNICIAN}GetServiceReportDetailsByJOID`, {

@@ -14,7 +14,7 @@ export const getData = async (url, params) => {
     const response = await axios.get(url, param);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.log( "error------->>>>>>", error);
     throw error;
   }
 };
@@ -31,6 +31,7 @@ export const postData = async (url, params) => {
     const response = await axios.post(url, param);
     return response.data;
   } catch (error) {
+    console.log( "error------->>>>>>", error);
     throw error;
   }
 };

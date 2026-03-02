@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -19,33 +19,33 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
-import {CText, CTextHint} from '../../common/components/CmmsText';
+import { CText, CTextHint } from '../../common/components/CmmsText';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CmmsColors from '../../common/CmmsColors';
-import {API_TECHNICIAN} from '../../network/api_constants';
+import { API_TECHNICIAN } from '../../network/api_constants';
 import requestWithEndUrl from '../../network/request';
-import {useSelector, useDispatch} from 'react-redux';
-import {actionSetLoading} from '../../action/ActionSettings';
+import { useSelector, useDispatch } from 'react-redux';
+import { actionSetLoading } from '../../action/ActionSettings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {actionSetSelectedLng} from '../../action/ActionAppText';
-import {SvgXml} from 'react-native-svg';
-import {actionSetLoginData} from '../../action/ActionLogin';
-import {actionSetLoginStatus} from '../../action/ActionLogin';
+import { actionSetSelectedLng } from '../../action/ActionAppText';
+import { SvgXml } from 'react-native-svg';
+import { actionSetLoginData } from '../../action/ActionLogin';
+import { actionSetLoginStatus } from '../../action/ActionLogin';
 import ASK from '../../constants/ASK';
-import {Dialog} from 'react-native-simple-dialogs';
+import { Dialog } from 'react-native-simple-dialogs';
 import DeviceInfo from 'react-native-device-info';
-import {actionSetEmergencyJoblistNotificationCount} from '../../action/ActionCurrentPage';
+import { actionSetEmergencyJoblistNotificationCount, actionSetInternalWorkOrderJobNotificationCount } from '../../action/ActionCurrentPage';
 import {
   actionSetAlertPopUp,
   actionSetAlertPopUpTwo,
 } from '../../action/ActionAlertPopUp';
-import {actionSetJobDate} from '../../action/ActionVersion';
+import { actionSetJobDate } from '../../action/ActionVersion';
 // import { actionSetLoginData } from '../../action/ActionLogin';
 import Alerts from '../components/Alert/Alerts';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
-
+import AlertSound from '../utils/commonService/alertSound';
 // console.log('Login',{screenWidth,screenHeight})
 
 const xmlUserIcon = `<svg width="123pt" height="115pt" viewBox="0 0 123 115" version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -79,10 +79,10 @@ height="100pt" viewBox="0 0 420 500" version="1.1" xmlns="http://www.w3.org/2000
 </g>
 </svg>`;
 
-export default LoginScreen = ({navigation, route}) => {
+export default LoginScreen = ({ navigation, route }) => {
   // global.roundedScreenHeight = Math.round(screenHeight)
   const [User, setUser] = useState('');
-  const [Pass,setPass]=useState('')
+  const [Pass, setPass] = useState('')
   const [visibleLngDlg, setVisibleLngDlg] = useState(false);
   // const [selectedLng,setSelectedLng] = useState(params?.selectedLng)
   const [lngList, setLngList] = useState([]);
@@ -90,14 +90,14 @@ export default LoginScreen = ({navigation, route}) => {
   // const [language, setLangauge] = useState({});
 
   const dispatch = useDispatch();
-  const {AppTextData, selectedLng} = useSelector(
+  const { AppTextData, selectedLng } = useSelector(
     (state) => state.AppTextViewReducer,
   );
-  const {AlertPopUp, AlertPopUpTwo} = useSelector((state) => {
+  const { AlertPopUp, AlertPopUpTwo } = useSelector((state) => {
     return state.AlertPopUpReducer;
   });
 
-  const {loginStatus} = useSelector((state) => state.LoginReducer);
+  const { loginStatus } = useSelector((state) => state.LoginReducer);
   console.log('login status===>>', loginStatus);
   const AppVersion = DeviceInfo.getVersion();
   const pwdIpRef = useRef(null);
@@ -107,6 +107,13 @@ export default LoginScreen = ({navigation, route}) => {
     dispatch(actionSetLoginData({}));
     dispatch(actionSetEmergencyJoblistNotificationCount(0));
     dispatch(actionSetLoginStatus(false));
+    dispatch(
+      actionSetInternalWorkOrderJobNotificationCount(
+        0
+      ),
+    );
+    AlertSound.AlertSound.stop();
+    AlertSound.AlertSoundFirst.stop();
   }, []);
 
   useEffect(() => {
@@ -122,8 +129,8 @@ export default LoginScreen = ({navigation, route}) => {
       .then((data) => {
         // console.log({selectedLng})
 
-        if (selectedLng.Languagevalue=='') {
-          console.log('hiii im',data[0]?.Language)
+        if (selectedLng.Languagevalue == '') {
+          console.log('hiii im', data[0]?.Language)
           dispatch(actionSetSelectedLng(data[0])); //commented by vbn
           //lang vbn
           AsyncStorage.setItem(
@@ -172,8 +179,8 @@ export default LoginScreen = ({navigation, route}) => {
   //   });
   // }, []);
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <KeyboardAvoidingView style={{flex: 1}} behavior="height">
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="height">
         {/* <SvgXml 
                 style={{position:'absolute'}}
                   xml={
@@ -211,13 +218,13 @@ export default LoginScreen = ({navigation, route}) => {
           body={AlertPopUpTwo?.body}
           visible={AlertPopUpTwo?.visible}
           onOk={() => {
-            dispatch(actionSetAlertPopUpTwo({visible: false})),
+            dispatch(actionSetAlertPopUpTwo({ visible: false })),
               console.log('current value==>>', AlertPopUpTwo);
           }}
           type={AlertPopUpTwo.type}
         />
 
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           {/* height={Math.round(screenWidth)>450?Math.round(screenHeight):700} /> */}
 
           <SvgXml
@@ -270,7 +277,7 @@ export default LoginScreen = ({navigation, route}) => {
                 style={{borderWidth:1,}}
                 > */}
 
-            <View style={[styles.textInputContainer, {marginTop: 20}]}>
+            <View style={[styles.textInputContainer, { marginTop: 20 }]}>
               <Icon
                 name="user"
                 size={18}
@@ -291,14 +298,14 @@ export default LoginScreen = ({navigation, route}) => {
                   setUser(text);
                 }}
 
-                // onSubmitEditing={() => this.passwordInput.focus()}
-                // onSubmitEditing={this.smsPermission.bind(this)}
-                // onChangeText={val => this.onChangeText('mobile', val)}
-                // onChangeText={(text) => { setUser({...User,Password:text}) }}
+              // onSubmitEditing={() => this.passwordInput.focus()}
+              // onSubmitEditing={this.smsPermission.bind(this)}
+              // onChangeText={val => this.onChangeText('mobile', val)}
+              // onChangeText={(text) => { setUser({...User,Password:text}) }}
               />
             </View>
 
-            <View style={{...styles.textInputContainer, marginTop: 20}}>
+            <View style={{ ...styles.textInputContainer, marginTop: 20 }}>
               <Icon
                 name="key"
                 size={18}
@@ -316,13 +323,13 @@ export default LoginScreen = ({navigation, route}) => {
                 value={Pass}
                 onChangeText={(text) => {
                   setPass(text);
-                  console.log('am typing->>>>',User.Username)
+                  console.log('am typing->>>>', User.Username)
                 }}
 
-                // onSubmitEditing={() => this.passwordInput.focus()}
-                // onSubmitEditing={this.smsPermission.bind(this)}
-                // onChangeText={val => this.onChangeText('mobile', val)}
-                // onChangeText={(text) => { setUser({...User,Password:text}) }}
+              // onSubmitEditing={() => this.passwordInput.focus()}
+              // onSubmitEditing={this.smsPermission.bind(this)}
+              // onChangeText={val => this.onChangeText('mobile', val)}
+              // onChangeText={(text) => { setUser({...User,Password:text}) }}
               />
               <TouchableOpacity
                 onPress={() => {
@@ -358,7 +365,7 @@ export default LoginScreen = ({navigation, route}) => {
                   const FcMtoken = await messaging().getToken();
                   await messaging().registerDeviceForRemoteMessages();
                   // console.log("Ext_token........",token)
-                  doLogin(FcMtoken);
+                 await doLogin(FcMtoken);
                 } catch (error) {
                   console.error('login asktoken error', error);
                   // doLogin()
@@ -375,7 +382,7 @@ export default LoginScreen = ({navigation, route}) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={{alignSelf: 'center', marginTop: 5, marginBottom: 8}}
+              style={{ alignSelf: 'center', marginTop: 5, marginBottom: 8 }}
               onPress={() => setVisibleLngDlg(true)}>
               <Text
                 style={{
@@ -387,7 +394,7 @@ export default LoginScreen = ({navigation, route}) => {
               </Text>
             </TouchableOpacity>
           </View>
-          <View style={{paddingBottom: 10}}>
+          <View style={{ paddingBottom: 10 }}>
             <Text
               style={{
                 color: '#A3A3A3',
@@ -402,7 +409,7 @@ export default LoginScreen = ({navigation, route}) => {
 
         {/* </View> */}
         <Dialog
-        animationType='fade'
+          animationType='fade'
           title={AppTextData.txt_langauge}
           titleStyle={styles.DialogTitle}
           dialogStyle={styles.borderRadius}
@@ -410,12 +417,12 @@ export default LoginScreen = ({navigation, route}) => {
           onTouchOutside={() => setVisibleLngDlg(false)}>
           <FlatList
             data={lngList}
-            renderItem={({item}) => {
+            renderItem={({ item }) => {
               const selected = selectedLng.Languagevalue == item.Languagevalue;
               return (
                 <TouchableOpacity
                   // testID='btn_'
-                  style={{flexDirection: 'row', padding: 5}}
+                  style={{ flexDirection: 'row', padding: 5 }}
                   onPress={() => {
                     if (!selected) {
                       dispatch(actionSetSelectedLng(item)); //commented by vbn
@@ -434,7 +441,7 @@ export default LoginScreen = ({navigation, route}) => {
                     size={18}
                     color="black"
                   />
-                  <CText style={{color: 'black', marginStart: 5}}>
+                  <CText style={{ color: 'black', marginStart: 5 }}>
                     {item.Language}
                   </CText>
                 </TouchableOpacity>
@@ -446,9 +453,9 @@ export default LoginScreen = ({navigation, route}) => {
     </SafeAreaView>
   );
 
-  function doLogin(token) {
-    if (User && Pass) { 
-      const params = {"Username":User,"Password":Pass, Token: token == null ? 'nulltoken' : token};
+  async function doLogin(token) {
+    if (User && Pass) {
+      const params = { "Username": User, "Password": Pass, Token: token == null ? 'nulltoken' : token };
       console.log('params for login api call==>>', params);
       requestWithEndUrl(`${API_TECHNICIAN}Login`, params, 'POST')
         .then((res) => {
@@ -460,7 +467,7 @@ export default LoginScreen = ({navigation, route}) => {
         })
         .then((data) => {
           if (data.isSucess) {
-            console.log('login_success date: ', {data});
+            console.log('login_success date: ', { data });
             const TechnicianID = data.TechnicianID;
             const TechnicianName = data.TechnicianName;
             const UserType = data.UserType;
@@ -471,7 +478,7 @@ export default LoginScreen = ({navigation, route}) => {
             });
             // console.log("login_success: ", { loggedUser })
             dispatch(
-              actionSetLoginData({TechnicianID, TechnicianName, UserType}),
+              actionSetLoginData({ TechnicianID, TechnicianName, UserType }),
             );
             AsyncStorage.setItem(ASK.ASK_USER, loggedUser);
             if (UserType == 1 || 2) {
@@ -494,7 +501,7 @@ export default LoginScreen = ({navigation, route}) => {
                 }),
               );
             dispatch(actionSetLoading(false));
-            
+
           } else {
             dispatch(actionSetLoading(false));
             console.log('login Failed data--->>>new', data);
@@ -510,7 +517,7 @@ export default LoginScreen = ({navigation, route}) => {
           }
         })
         .catch((err) => {
-          console.error({err});
+          console.error({ err });
           dispatch(actionSetLoading(false));
           // alert(AppTextData.txt_somthing_wrong_try_again);
           dispatch(
@@ -551,8 +558,8 @@ const styles = StyleSheet.create({
     color: 'white',
     marginStart: 5,
   },
-  borderRadius:{
-    borderRadius:12
+  borderRadius: {
+    borderRadius: 12
   },
-  DialogTitle:{color:CmmsColors.darkGreen,fontWeight:'bold'}
+  DialogTitle: { color: CmmsColors.darkGreen, fontWeight: 'bold' }
 });
