@@ -259,7 +259,7 @@ export default ({route, navigation}) => {
       });
       const result = await launchCamera(
         {
-          saveToPhotos: true,
+          saveToPhotos: false,
           mediaType: 'photo',
           includeBase64: false,
         },

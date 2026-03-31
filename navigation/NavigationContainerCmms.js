@@ -441,14 +441,18 @@ export default () => {
     // console.log("_handleAppStateChange",{nextAppState,appState:appState.current,routelenght:navigationRef?.current.getRootState().index})
     if (nextAppState === 'inactive' || nextAppState === 'background') {
       AlertSound.AlertSound.stop();
-      User.UserType == 2 &&
+      console.log(`app is in background state and user type is supervisor: ${User?.UserType == 2} 'sound has stopped`);
+      User.UserType == 2||
+      User.UserType == 1
+       &&
         (await BackgroundService.start(veryIntensiveTask, options));
-      // console.log('app is in background');
+      console.log('app is in background');
     } else if (
       appState.current.match(/inactive|background/) &&
       nextAppState === 'active'
     ) {
-      if (User.UserType == 2) {
+      console.log(`app is in foreground state and user type is supervisor: ${User?.UserType == 2} 'sound has stopped`);
+      if (User.UserType == 2||User.UserType == 1) {
         await BackgroundService.stop();
 
         dispatch(actionSetEmergencyJoblistNotificationCountUpdate());
@@ -762,7 +766,7 @@ export default () => {
       });
   }
 
-  useEffect(() => {
+  // useEffect(() => {
     // console.log('appstate change');
     // console.log('NavigationContainer_page', 'useEffect', jobOrderList);
     // setLangauge();
@@ -778,47 +782,9 @@ export default () => {
     //       default:alert("Invalid notification");break;
     //   }
     // })
-  }, [jobOrderList, TechList, AppState]);
+  // }, [jobOrderList, TechList, AppState]);
 
   useEffect(() => {
-    // AsyncStorage.getItem(ASK.ASK_LANGUAGE).then((res) => {
-    //   console.log('Language Details RESPONSE===>>>', {res});
-    //   if (res != null) {
-    //     let SelectedLanguage = JSON.parse(res);
-    //     console.log(
-    //       'Language Details from the Navigation Page>>>',
-    //       SelectedLanguage.Language,
-    //     );
-    //   }
-    // });
-    // const SelectedLanguage = await AsyncStorage.getItem(ASK.ASK_LANGUAGE);
-    // requestWithEndUrl(`${API_TECHNICIAN}getMacManMobileAppTextData`, {
-    //   Language: SelectedLanguage
-    //     ? SelectedLanguage.Languagevalue
-    //     : selectedLng.Languagevalue,
-    // })
-    //   .then((res) => {
-    //     console.log('getMacManMobileAppTextData', {res});
-    //     if (res.status != 200) {
-    //       throw Error(res.statusText);
-    //     }
-    //     return res.data;
-    //   })
-    //   .then((data) => {
-    //     console.log('getMacManMobileAppTextData', {data});
-    //     // actionSetRefreshing(true)
-    //     dispatch(actionSetAppTextData(data));
-    //   })
-    //   .catch((err) => {
-    //     console.error({err});
-    //     setIsError(true);
-    //     //   console.error("getMacManMobileAppTextData",err)
-    //     //   alert(`${AppTextData.txt_lng_error}`)
-    //     //   dispatch(actionSetSelectedLng({
-    //     //     Language:"English",
-    //     //     Languagevalue:"en"
-    //     // }))
-    //   });
     GetAppTextData();
   }, [selectedLng.Languagevalue, loggedUser]);
 

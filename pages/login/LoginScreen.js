@@ -47,6 +47,7 @@ const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 import AlertSound from '../utils/commonService/alertSound';
 // console.log('Login',{screenWidth,screenHeight})
+import {checkAndRequestNotificationPermission} from '../components/notification/notification'
 
 const xmlUserIcon = `<svg width="123pt" height="115pt" viewBox="0 0 123 115" version="1.1" xmlns="http://www.w3.org/2000/svg">
 <g id="#ffffffff">
@@ -101,6 +102,12 @@ export default LoginScreen = ({ navigation, route }) => {
   console.log('login status===>>', loginStatus);
   const AppVersion = DeviceInfo.getVersion();
   const pwdIpRef = useRef(null);
+  useEffect(() => {
+    // Request notification permission on app start
+    checkAndRequestNotificationPermission().then(granted => {
+      console.log(TAG, 'Notification permission granted:', granted);
+    });
+  }, []);
   useEffect(() => {
     AsyncStorage.removeItem(ASK.ASK_USER);
     AsyncStorage.removeItem(ASK.ASK_NOTIFICATION_TIMER);
@@ -157,50 +164,10 @@ export default LoginScreen = ({ navigation, route }) => {
         console.error(err);
       });
   }, [selectedLng]);
-  // useEffect(() => {
-  //   AsyncStorage.getItem(ASK.ASK_LANGUAGE).then((res) => {
-  //     console.log('Language Details RESPONSE===>>>', {res});
-  //     if (res != null) {
-  //       const SelectedLanguage = JSON.parse(res);
-  //       console.log(
-  //         'Language Details from the AsyncStorage FROM LOGIN SCREEN>>>',
-  //         SelectedLanguage.Language,
-  //       );
-  //       dispatch(actionSetSelectedLng(SelectedLanguage));
-  //     } else {
-  //       AsyncStorage.setItem(
-  //         ASK.ASK_LANGUAGE,
-  //         JSON.stringify({
-  //           Language: selectedLng.Language,
-  //           Languagevalue: selectedLng.Languagevalue,
-  //         }),
-  //       );
-  //     }
-  //   });
-  // }, []);
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="height">
-        {/* <SvgXml 
-                style={{position:'absolute'}}
-                  xml={
-                    xmlLoginBgGreen
-                  } 
-                  width='100%'
-                  height='100%'
-                //   width={Math.round(screenWidth)}
-                //   height={Math.round(screenHeight-130) }
-                  />  */}
-
-        {/* <View
-            style={{flex:1,
-            height:roundedScreenHeight,borderWidth:5,borderColor:'red',marginTop:5}}
-            >
-
-            </View>
-
-             */}
-
         <ImageBackground
           style={{
             flex: 1,
@@ -361,11 +328,10 @@ export default LoginScreen = ({ navigation, route }) => {
                 //alert("multi langnpm ")
                 try {
                   dispatch(actionSetLoading(true));
-                  let token = await AsyncStorage.getItem(ASK.ASK_TOKEN);
                   const FcMtoken = await messaging().getToken();
                   await messaging().registerDeviceForRemoteMessages();
                   // console.log("Ext_token........",token)
-                 await doLogin(FcMtoken);
+                  await doLogin(FcMtoken);
                 } catch (error) {
                   console.error('login asktoken error', error);
                   // doLogin()

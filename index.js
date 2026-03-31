@@ -22,34 +22,4 @@ if (!__DEV__ && Platform.OS !== "android") {
     global.console = console
   } catch (err) {}
 }
- const bgMsgHandler = messaging().setBackgroundMessageHandler(async remoteMessage => {
-    console.log(TAG,'Message handled in the background!', remoteMessage);
-   //  if(remoteMessage && remoteMessage.data && remoteMessage.data.type == "TYPE_CHAT"){
-
-   //  }
-//     // if(remoteMessage && remoteMessage.data && remoteMessage.data.type == "TYPE_LOG_OUT"){
-//     //     console.log("setBackgroundMessageHandler",remoteMessage)
-//     //     try{
-//     //     AsyncStorage.removeItem(ASK.ASK_USER)
-//     //         // AsyncStorage.clear();
-//     //     } catch(err){
-//     //     console.log("setBackgroundMessageHandler",{err})
-
-//     //     }
-//     // }
-   }
-   );
-
-// Request notification permission on app start
-checkAndRequestNotificationPermission().then(granted => {
-  console.log(TAG, 'Notification permission granted:', granted);
-});
-  
 AppRegistry.registerComponent(appName, () => App);
-// AppRegistry.registerheadlesstask('RNFirebaseBackgroundMessage',()=>
-// // {
-//    // bgMsgHandler,
-   // notificationOpenedListener,
-//    // initialNotificationListener
-// // }
-   // )

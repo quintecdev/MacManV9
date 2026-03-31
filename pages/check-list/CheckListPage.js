@@ -25,11 +25,11 @@ import {
   TouchableHighlight,
 } from 'react-native';
 import CmmsColors from '../../common/CmmsColors';
-import {CmmsText, CText, CTextTitle} from '../../common/components/CmmsText';
+import { CmmsText, CText, CTextTitle } from '../../common/components/CmmsText';
 import SearchBar from '../components/SearchBar';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import requestWithEndUrl from '../../network/request';
-import {useSelector, useDispatch} from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   API_ASSET_PATH,
   API_TECHNICIAN,
@@ -40,19 +40,19 @@ import {
   withKeyboardAwareScrollView,
 } from 'react-native-dropdown-autocomplete';
 import SearchComponent from '../../common/components/SearchComponent';
-import {Dialog} from 'react-native-simple-dialogs';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import { Dialog } from 'react-native-simple-dialogs';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import FromToTimePicker from '../supervisor/job_oder/components/FromToTimePicker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import {actionSetLoading} from '../../action/ActionSettings';
+import { actionSetLoading } from '../../action/ActionSettings';
 import {
   actionSetAlertPopUp,
   actionSetAlertPopUpTwo,
 } from '../../action/ActionAlertPopUp';
 import FromToDatePicker from '../supervisor/job_oder/components/FromToDatePicker'; //'../components/FromToDatePicker'
-import {format, parse} from 'date-fns';
-import {el} from 'date-fns/locale';
+import { format, parse } from 'date-fns';
+import { el } from 'date-fns/locale';
 import DynamicSearchBar from './components/DynamicSearchBar';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
@@ -60,16 +60,17 @@ import AssetInfoPopUp from '../components/AssetInfoPopUp';
 // import PhotoEditor from 'react-native-photo-editor';
 import RNGRP from 'react-native-get-real-path';
 import Alerts from '../components/Alert/Alerts';
+import EditImage from '../components/EditImage/EditImage';
 
 export const deviceWidth = Dimensions.get('window').width;
 
-export default ({navigation, route: {params}}) => {
+export default ({ navigation, route: { params } }) => {
   const assetIpRef = useRef();
 
   const dispatch = useDispatch();
   const [imageURI, setImage] = useState(null);
-  const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
-  const {AlertPopUp, AlertPopUpTwo} = useSelector((state) => {
+  const { AppTextData } = useSelector((state) => state.AppTextViewReducer);
+  const { AlertPopUp, AlertPopUpTwo } = useSelector((state) => {
     return state.AlertPopUpReducer;
   });
 
@@ -86,28 +87,28 @@ export default ({navigation, route: {params}}) => {
   ]);
   // const [ filterAssetList, setFilterAssetList ] = useState([]);
   const [checkedListData, setCheckedListData] = useState(undefined);
-const [abnormatlityButtonPermission,setAbnormatlityButtonPermission]=useState([])
-const [machineMinMaxValue,setMachineMinMaxValue]=useState([])
-console.log('machineminmax value from the state-->>',machineMinMaxValue)
+  const [abnormatlityButtonPermission, setAbnormatlityButtonPermission] = useState([])
+  const [machineMinMaxValue, setMachineMinMaxValue] = useState([])
+  console.log('machineminmax value from the state-->>', machineMinMaxValue)
   const [visibleAssetInfoPopUp, setVisibleAssetInfoPopUp] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(undefined);
-  console.log({selectedAsset});
+  console.log({ selectedAsset });
   const [assetInfo, setAssetInfo] = useState(undefined);
   const [newAttachmentFileList, setnewAttachmentFileList] = useState([]);
   const [IsError, setIsError] = useState(false);
   const [ShowAbnormalityTextBox, setShowAbnormalityTextBox] = useState(
     checkedListData?.IsWorkingFine,
   );
-  const [savebuttonEnable,setSavebuttonEnable]=useState(true)
+  const [savebuttonEnable, setSavebuttonEnable] = useState(true)
   const {
-    loggedUser: {TechnicianID, TechnicianName},
+    loggedUser: { TechnicianID, TechnicianName },
   } = useSelector((state) => state.LoginReducer);
 
   const [dateTimePickerData, setDateTimePickerData] = useState({
     showTimePicker: false,
     where: 'fromTime',
   });
-  console.log({checkedListData});
+  console.log({ checkedListData });
 
   const updateActList = (ActivityList = []) =>
     setCheckedListData((checkedListData) => ({
@@ -118,7 +119,7 @@ console.log('machineminmax value from the state-->>',machineMinMaxValue)
   // const [selectedDate,setSelectedDate] = useState(new Date())
 
   const updateSpareParts = (SparePartsList = []) => {
-    console.log('updateSpareParts', {SparePartsList});
+    console.log('updateSpareParts', { SparePartsList });
     setCheckedListData((checkedListData) => ({
       ...checkedListData,
       SparePartsList,
@@ -151,28 +152,56 @@ console.log('machineminmax value from the state-->>',machineMinMaxValue)
         console.log('Camera permission given');
         launchCamera(
           {
-            saveToPhotos: true,
+            saveToPhotos: false,
             mediaType: 'photo', //'photo' | 'video' | 'mixed'
             includeBase64: false,
             //  durationLimit:
           },
-          ({assets, errorCode, didCancel}) => {
-            console.log('checkForCameraRollPermission', {errorCode, didCancel});
+          ({ assets, errorCode, didCancel }) => {
+            console.log('checkForCameraRollPermission', { errorCode, didCancel });
 
-            if (!didCancel && !errorCode) {
-              //setnewAttachmentBasedOnFormDataImage(assets[0],'CR')
-              RNGRP.getRealPathFromURI(assets[0].uri).then((path) => {
-                // PhotoEditor.Edit({
-                //   path: path,
-                  // RNFS.readFile(path, 'base64').then(imageBase64 =>
-                  //   this.props.actions.sendImageAsBase64(imageBase64)
-                  // )
-                  // onDone: (imagePath) => {
-                    setnewAttachmentBasedOnFormDataImage(assets[0], 'GR');
-                //   },
-                //   hiddenControls: ['save'],
-                // });
+            // if (!didCancel && !errorCode) {
+            //setnewAttachmentBasedOnFormDataImage(assets[0],'CR')
+            // RNGRP.getRealPathFromURI(assets[0].uri).then((path) => {
+            const uri = assets?.[0]?.uri;
+            if (uri) {
+              EditImage(uri).then((result) => {
+                if (result) {
+                  setnewAttachmentBasedOnFormDataImage(result.uri, 'GR');
+                }
+              }).catch((err) => {
+                console.error('EditImage error:', err);
+                dispatch(
+                  actionSetAlertPopUpTwo({
+                    title: AppTextData.txt_Alert,
+                    body: 'Failed to edit image. Please try again.',
+                    visible: true,
+                    type: 'ok',
+                  }),
+                );
               });
+              // PhotoEditor.Edit({
+              //   path: path,
+              // RNFS.readFile(path, 'base64').then(imageBase64 =>
+              //   this.props.actions.sendImageAsBase64(imageBase64)
+              // )
+              // onDone: (imagePath) => {
+              // setnewAttachmentBasedOnFormDataImage(assets[0], 'GR');
+              //   },
+              //   hiddenControls: ['save'],
+              // });
+              // });
+            }
+            else {
+              console.error('Camera error: URI is undefined');
+              dispatch(
+                actionSetAlertPopUpTwo({
+                  title: AppTextData.txt_Alert,
+                  body: 'Failed to capture image. Please try again.',
+                  visible: true,
+                  type: 'ok',
+                }),
+              );
             }
           },
         );
@@ -200,26 +229,54 @@ console.log('machineminmax value from the state-->>',machineMinMaxValue)
         {
           selectionLimit: 1,
         },
-        ({assets, errorCode, didCancel}) => {
+        ({ assets, errorCode, didCancel }) => {
           console.log('checkForGalleryPermission', {
             assets,
             errorCode,
             didCancel,
           });
-          if (!didCancel && !errorCode) {
-            RNGRP.getRealPathFromURI(assets[0].uri).then((path) => {
-              // PhotoEditor.Edit({
-                // path: path,
-                // RNFS.readFile(path, 'base64').then(imageBase64 =>
-                //   this.props.actions.sendImageAsBase64(imageBase64)
-                // )
-                // onDone: (imagePath) => {
-                  setnewAttachmentBasedOnFormDataImage(assets[0], 'GR');
-                // },
-                // hiddenControls: ['save'],
-              // });
+          const uri = assets?.[0]?.uri;
+          if (uri) {
+            EditImage(uri).then((result) => {
+              if (result) {
+                setnewAttachmentBasedOnFormDataImage(result.uri, 'GR');
+              }
+            }).catch((err) => {
+              console.error('EditImage error:', err);
+              dispatch(
+                actionSetAlertPopUpTwo({
+                  title: AppTextData.txt_Alert,
+                  body: 'Failed to edit image. Please try again.',
+                  visible: true,
+                  type: 'ok',
+                }),
+              );
             });
+          } else {
+            console.error('Gallery error: URI is undefined');
+            dispatch(
+              actionSetAlertPopUpTwo({
+                title: AppTextData.txt_Alert,
+                body: 'Failed to select image. Please try again.',
+                visible: true,
+                type: 'ok',
+              }),
+            );
           }
+          // if (!didCancel && !errorCode) {
+          //   RNGRP.getRealPathFromURI(assets[0].uri).then((path) => {
+          // PhotoEditor.Edit({
+          // path: path,
+          // RNFS.readFile(path, 'base64').then(imageBase64 =>
+          //   this.props.actions.sendImageAsBase64(imageBase64)
+          // )
+          // onDone: (imagePath) => {
+          // setnewAttachmentBasedOnFormDataImage(assets[0], 'GR');
+          // },
+          // hiddenControls: ['save'],
+          // });
+          //   });
+          // }
           //   setnewAttachmentFileList(newAttachmentFileList=>[...newAttachmentFileList,img.assets[0]])
         },
       );
@@ -233,31 +290,39 @@ console.log('machineminmax value from the state-->>',machineMinMaxValue)
     // }
   };
 
-  function setnewAttachmentBasedOnFormDataImage({uri, type, fileName}, where) {
-    console.log({fileName});
-    setnewAttachmentFileList((newAttachmentFileList) => [
-      ...newAttachmentFileList,
-      {
-        uri, //this.state.uri[0].uri, == image path file:///storage/emulated/0/Pictures/1511787860629.jpg
-        type,
-        name: `cmms_${where}_attachment_${newAttachmentFileList.length}_${
-          fileName.split('_')[5]
-        }`,
-        // size: newImageFile.size
-      },
-    ]);
+  function setnewAttachmentBasedOnFormDataImage(imageUri, where) {
+    try {
+      if (!imageUri) {
+        console.error('setnewAttachmentBasedOnFormDataImage: imageUri is empty');
+        return;
+      }
+      const fileName = imageUri.split('/').pop() || `photo_${Date.now()}.jpg`;
+      const ext = fileName.split('.').pop()?.toLowerCase() || 'jpg';
+      const mimeType = ext === 'png' ? 'image/png' : 'image/jpg';
+
+      setnewAttachmentFileList((prev) => [
+        ...prev,
+        {
+          uri: imageUri,
+          type: mimeType,
+          name: `cmms_${where}_attachment_${prev.length}_${fileName}`,
+        },
+      ]);
+    } catch (err) {
+      console.error('setnewAttachmentBasedOnFormDataImage error:', err);
+    }
   }
 
   useEffect(() => {
     dispatch(actionSetLoading(true));
-    console.log('the params for the api call ==>',params.JOID,TechnicianID)
+    console.log('the params for the api call ==>', params.JOID, TechnicianID)
     // http://213.136.84.57:2256/api/ApkTechnician/getchecklistassetlist?JOID=3157&SEID=3
     requestWithEndUrl(`${API_TECHNICIAN}getchecklistassetlist`, {
       JOID: params.JOID,
       SEID: TechnicianID,
     })
       .then((res) => {
-        console.log('getchecklistassetlist-->>', {res});
+        console.log('getchecklistassetlist-->>', { res });
         if (res.status != 200) throw Error(res.statusText);
         else if (res.data) {
           var assetDumList = res.data;
@@ -331,7 +396,7 @@ console.log('machineminmax value from the state-->>',machineMinMaxValue)
   }, [selectedAsset]);
 
   return (
-    <SafeAreaView style={{flex: 1, padding: 8}}>
+    <SafeAreaView style={{ flex: 1, padding: 8 }}>
       <DynamicSearchBar
         searchFilterList={
           assetList
@@ -471,18 +536,18 @@ console.log('machineminmax value from the state-->>',machineMinMaxValue)
   // }
 
   async function getAssetInfo(AssetRegID) {
-    console.log('getAssetInfo', {AssetRegID});
+    console.log('getAssetInfo', { AssetRegID });
     //http://localhost:29189/api/ApkTechnician/getassetinformation?AssetRegID=2988
     dispatch(actionSetLoading(true));
     try {
       const assetInfoData = await requestWithEndUrl(
         `${API_TECHNICIAN}getassetinformation`,
-        {AssetRegID},
+        { AssetRegID },
       );
-      console.log('getAssetInfo', {assetInfoData});
+      console.log('getAssetInfo', { assetInfoData });
 
       if (assetInfoData.data && assetInfoData.data.AssetName) {
-        console.log('getAssetInfo', {data: assetInfoData.data});
+        console.log('getAssetInfo', { data: assetInfoData.data });
         // if(AssetRegID)
         setVisibleAssetInfoPopUp(true);
         setAssetInfo(assetInfoData.data);
@@ -506,13 +571,13 @@ console.log('machineminmax value from the state-->>',machineMinMaxValue)
 
   function showCheckListView() {
     return (
-      <View style={{flex: 1, marginVertical: 8}}>
+      <View style={{ flex: 1, marginVertical: 8 }}>
         <Alerts
           title={AlertPopUpTwo?.title}
           body={AlertPopUpTwo?.body}
           visible={AlertPopUpTwo?.visible}
           onOk={() => {
-            dispatch(actionSetAlertPopUpTwo({visible: false})),
+            dispatch(actionSetAlertPopUpTwo({ visible: false })),
               console.log('current value==>>', AlertPopUpTwo);
           }}
           type={AlertPopUpTwo.type}
@@ -593,32 +658,33 @@ console.log('machineminmax value from the state-->>',machineMinMaxValue)
           </View>
         </View> */}
         <ScrollView
-          contentContainerStyle={{flexGrow: 1}}
+          contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="none">
-          {checkedListData.CheckListGroups?.map((CheckListGroup) => {
+          {checkedListData.CheckListGroups?.map((CheckListGroup, groupIdx) => {
             return (
               <View
-                style={{backgroundColor: 'white', marginTop: 2, padding: 8}}>
-                <CTextTitle style={{color: 'black'}}>
+                key={CheckListGroup.GroupID || groupIdx}
+                style={{ backgroundColor: 'white', marginTop: 2, padding: 8 }}>
+                <CTextTitle style={{ color: 'black' }}>
                   {CheckListGroup.Group}
                 </CTextTitle>
                 <FlatList
                   showsVerticalScrollIndicator={false}
                   keyboardShouldPersistTaps="handled"
                   keyboardDismissMode="none"
-                  keyExtractor={(item, index) => index.toString()}
+                  keyExtractor={(item, index) => item.ItemID ? item.ItemID.toString() : index.toString()}
                   // ItemSeparatorComponent={({item,index})=><View style={[{ backgroundColor: 'red', flex: 1 }, index%2==0 ? { marginRight: 10 } : { marginLeft: 10 } ]}/>}
                   data={CheckListGroup.ChecklistItems}
-                  renderItem={({item, index}) => (
+                  renderItem={({ item, index }) => (
                     <View
                       style={{
                         minHeight: 100,
                         padding: 4,
                         marginTop: 1,
                       }}>
-                      <CText style={{color: 'black'}}>
+                      <CText style={{ color: 'black' }}>
                         {index + 1}. {item.Item}
                       </CText>
                       <View
@@ -638,92 +704,93 @@ console.log('machineminmax value from the state-->>',machineMinMaxValue)
                             width: '80%',
                           }}
                           // multiline={true}
-                          keyboardType={item.IsReading ? 'numeric':'default'}
+                          keyboardType={item.IsReading ? 'numeric' : 'default'}
                           value={item.Remarks}
                           onChangeText={(remarks) => {
-                            console.log('number or not==>>',Number(remarks))
-                            if(item.IsReading)
-{if(!isNaN(Number(remarks)))
-                         {   
-                          CheckListGroup.ChecklistItems.forEach(
-                              (element, index) => {
-                                if (
-                                  item.GroupID == element.GroupID &&
-                                  item.ItemID == element.ItemID
-                                ) {
-                                  {element.Remarks = remarks.replace(/[' ',]/g,'');}
+                            console.log('number or not==>>', Number(remarks))
+                            if (item.IsReading) {
+                              if (!isNaN(Number(remarks))) {
+                                CheckListGroup.ChecklistItems.forEach(
+                                  (element, index) => {
+                                    if (
+                                      item.GroupID == element.GroupID &&
+                                      item.ItemID == element.ItemID
+                                    ) {
+                                      { element.Remarks = remarks.replace(/[' ',]/g, ''); }
+                                    }
+                                  }
+                                );
+                                setCheckedListData({ ...checkedListData });
+                                checklistDataAnalysing()
+                              }
+                              else if (remarks[0] == '-' || remarks[0] == '.') {
+                                console.error('inside -ve check')
+                                const regex = /^-\d+(\.\d+)?$/;
+                                if (regex.test(remarks) || remarks.length == 1) {
+
+                                  CheckListGroup.ChecklistItems.forEach(
+                                    (element, index) => {
+                                      if (
+                                        item.GroupID == element.GroupID &&
+                                        item.ItemID == element.ItemID
+                                      ) {
+                                        { element.Remarks = remarks.replace(/[' ',]/g, ''); }
+                                      }
+                                    }
+                                  );
+                                  setCheckedListData({ ...checkedListData });
+                                  checklistDataAnalysing()
+                                }
+                                else {
+                                  dispatch(
+                                    actionSetAlertPopUpTwo({
+                                      title: AppTextData.txt_Alert,
+                                      body: AppTextData.txt_Please_enter_valid_input,
+                                      visible: true,
+                                      type: 'ok',
+                                    }),
+                                  );
                                 }
                               }
-                            );
-                            setCheckedListData({...checkedListData});
- checklistDataAnalysing()
-}
- else if(remarks[0]=='-'|| remarks[0]=='.')
- { 
-  console.error('inside -ve check')
-  const regex = /^-\d+(\.\d+)?$/;
-  if(regex.test(remarks)|| remarks.length==1) { 
-    
-    CheckListGroup.ChecklistItems.forEach(
-      (element, index) => {
-        if (
-          item.GroupID == element.GroupID &&
-          item.ItemID == element.ItemID
-        ) {
-          {element.Remarks = remarks.replace(/[' ',]/g,'');}
-        }
-      }
-    );
-    setCheckedListData({...checkedListData});
-checklistDataAnalysing()}
-else {
-  dispatch(
-    actionSetAlertPopUpTwo({
-      title: AppTextData.txt_Alert,
-      body: AppTextData.txt_Please_enter_valid_input,
-      visible: true,
-      type: 'ok',
-    }),
-  );
- }
-}
- else {
-  dispatch(
-    actionSetAlertPopUpTwo({
-      title: AppTextData.txt_Alert,
-      body: AppTextData.txt_Please_enter_valid_input,
-      visible: true,
-      type: 'ok',
-    }),
-  );
- }}else{
-  {   CheckListGroup.ChecklistItems.forEach(
-    (element, index) => {
-      if (
-        item.GroupID == element.GroupID &&
-        item.ItemID == element.ItemID
-      ) {
-        element.Remarks = remarks;
-      }
-    }
-  );
-  setCheckedListData({...checkedListData});
-}
- }
-                            checkedListData.CheckListGroups?.filter(e=>
-                               e.MaxValue==0.0
+                              else {
+                                dispatch(
+                                  actionSetAlertPopUpTwo({
+                                    title: AppTextData.txt_Alert,
+                                    body: AppTextData.txt_Please_enter_valid_input,
+                                    visible: true,
+                                    type: 'ok',
+                                  }),
+                                );
+                              }
+                            } else {
+                              {
+                                CheckListGroup.ChecklistItems.forEach(
+                                  (element, index) => {
+                                    if (
+                                      item.GroupID == element.GroupID &&
+                                      item.ItemID == element.ItemID
+                                    ) {
+                                      element.Remarks = remarks;
+                                    }
+                                  }
+                                );
+                                setCheckedListData({ ...checkedListData });
+                              }
+                            }
+                            checkedListData.CheckListGroups?.filter(e =>
+                              e.MaxValue == 0.0
                             )
-                            const aaaa= checkedListData.CheckListGroups.map(e=>e.ChecklistItems.filter(
-                              (item) => item.IsReading == true && (item.Remarks>=item.MinValue||item.Remarks<=item.MaxValue)
-                              )).filter(e=>e.length)
-                            console.log('abcdefghij==>>',aaaa
-                           )
+                            const aaaa = checkedListData.CheckListGroups.map(e => e.ChecklistItems.filter(
+                              (item) => item.IsReading == true && (item.Remarks >= item.MinValue || item.Remarks <= item.MaxValue)
+                            )).filter(e => e.length)
+                            console.log('abcdefghij==>>', aaaa
+                            )
                           }}
                           //vbn lang
                           // placeholder="Remarks"
-                          placeholder={item.IsReading?AppTextData.txt_Value:AppTextData.txt_Remarks}
+                          placeholder={item.IsReading ? AppTextData.txt_Value : AppTextData.txt_Remarks}
                         />
-                        {!item.IsReading?<TouchableOpacity
+                        {!item.IsReading ? <TouchableOpacity
                           style={{
                             flexDirection: 'row',
                             padding: 4,
@@ -743,7 +810,7 @@ else {
                                 }
                               },
                             );
-                            setCheckedListData({...checkedListData});
+                            setCheckedListData({ ...checkedListData });
                           }}>
                           <Icon
                             name={
@@ -752,21 +819,21 @@ else {
                             size={18}
                             color="black"
                           />
-                          <CmmsText style={{marginHorizontal: 4}}>
+                          <CmmsText style={{ marginHorizontal: 4 }}>
                             Done
                           </CmmsText>
-                        </TouchableOpacity>:null}
+                        </TouchableOpacity> : null}
                       </View>
-                      {item.Images?<TouchableOpacity 
-                                                        style={{alignSelf:"flex-end",marginStart:10,padding:4}}
-                                                        onPress={()=>{
-                                                          console.log("image icon")
-                                                          navigation.navigate("FullScreenImageView",{imageUrl:item.Images})
-                                                          }
-                                                        }
-                                                        >
-                                                          <Icon name="picture-o" size={24} color="grey" />
-                                                        </TouchableOpacity>:null}
+                      {item.Images ? <TouchableOpacity
+                        style={{ alignSelf: "flex-end", marginStart: 10, padding: 4 }}
+                        onPress={() => {
+                          console.log("image icon")
+                          navigation.navigate("FullScreenImageView", { imageUrl: item.Images })
+                        }
+                        }
+                      >
+                        <Icon name="picture-o" size={24} color="grey" />
+                      </TouchableOpacity> : null}
                     </View>
                   )}
                 />
@@ -785,12 +852,12 @@ else {
                 showsHorizontalScrollIndicator={false}
                 data={checkedListData?.Attachments || []}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={({item, index}) => {
+                renderItem={({ item, index }) => {
                   //{"id":1,"AttachmentUrl":Image/JOCheckList/sample.jpg"}
-                  console.log('AttachmentUrl', {item});
+                  console.log('AttachmentUrl', { item });
                   return (
                     <Image
-                      style={{width: 100, height: 100, marginEnd: 5}}
+                      style={{ width: 100, height: 100, marginEnd: 5 }}
                       source={{
                         uri: item.AttachmentUrl.startsWith('file')
                           ? item.AttachmentUrl
@@ -815,7 +882,7 @@ else {
                     }}>
                     {/* <Icon style={{position:'absolute',end:0,top:0,start:0,bottom:0}} name="plus" size={90} color={CmmsColors.logoBottomGreen} /> */}
                     <TouchableOpacity
-                      style={{position: 'absolute', start: 16, bottom: 16}}
+                      style={{ position: 'absolute', start: 16, bottom: 16 }}
                       onPress={() => checkForGalleryPermission()}>
                       <Icon
                         name="picture-o"
@@ -824,7 +891,7 @@ else {
                       />
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={{position: 'absolute', end: 16, top: 16}}
+                      style={{ position: 'absolute', end: 16, top: 16 }}
                       onPress={() => checkForCameraRollPermission()}>
                       <Icon
                         name="camera"
@@ -841,9 +908,9 @@ else {
                 flexDirection: 'row',
                 margin: 4,
                 padding: 4,
-                marginBottom:15
+                marginBottom: 15
               }}>
-              <Text style={{paddingRight: 15, color: 'black',fontWeight:'bold'}}>
+              <Text style={{ paddingRight: 15, color: 'black', fontWeight: 'bold' }}>
                 {AppTextData.txt_Abnormality}
               </Text>
               <View
@@ -851,84 +918,84 @@ else {
                   flexDirection: 'row',
                   width: '70%',
                   height: 35,
-                  justifyContent:'space-between'
+                  justifyContent: 'space-between'
                 }}>
-                  <View style={{flexDirection:'row'}}>
-                <TouchableOpacity
-                  style={{
-                    paddingHorizontal: 15,
-                    borderColor:
-                      checkedListData?.IsWorkingFine == false
-                        ? 'green'
-                        : 'gray',
-                    paddingVertical: 5,
-                    borderRadius: 18,
-                    marginRight: 5,
-                    backgroundColor:
-                      checkedListData?.IsWorkingFine == false
-                        ? 'green'
-                        : 'gray',
-                    justifyContent:'center',
-                    minWidth: 60,
-                    elevation: 15
-                  }}
-                  onPress={() => {
-                    console.log(
-                      'switch button value---->>',
-                      !checkedListData.IsWorkingFine,
-                    );
-                    setCheckedListData((checkedListData) => ({
-                      ...checkedListData,
-                      IsWorkingFine: false,
-                    }));
-                  }}>
-                  <Text
+                <View style={{ flexDirection: 'row' }}>
+                  <TouchableOpacity
                     style={{
-                      alignSelf: 'center',
-                      color:
+                      paddingHorizontal: 15,
+                      borderColor:
                         checkedListData?.IsWorkingFine == false
-                          ? 'white'
-                          : 'black',fontWeight:'bold'
+                          ? 'green'
+                          : 'gray',
+                      paddingVertical: 5,
+                      borderRadius: 18,
+                      marginRight: 5,
+                      backgroundColor:
+                        checkedListData?.IsWorkingFine == false
+                          ? 'green'
+                          : 'gray',
+                      justifyContent: 'center',
+                      minWidth: 60,
+                      elevation: 15
+                    }}
+                    onPress={() => {
+                      console.log(
+                        'switch button value---->>',
+                        !checkedListData.IsWorkingFine,
+                      );
+                      setCheckedListData((checkedListData) => ({
+                        ...checkedListData,
+                        IsWorkingFine: false,
+                      }));
                     }}>
-                    {AppTextData.txt_No}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    paddingHorizontal: 15,
-                    borderColor:
-                      checkedListData?.IsWorkingFine == true ? 'green' : 'gray',
-                    paddingVertical: 5,
-                    borderRadius: 18,
-                    marginLeft: 5,
-                    elevation: 15,
-                    backgroundColor: '#fff',
-                    backgroundColor:
-                      checkedListData?.IsWorkingFine == true ? 'green' : 'gray',
-                    minWidth: 60,
-                    justifyContent:'center'
-                  }}
-                  onPress={() => {
-                    console.log(
-                      'switch button value---->>',
-                      !checkedListData.IsWorkingFine,
-                    );
-                    setCheckedListData((checkedListData) => ({
-                      ...checkedListData,
-                      IsWorkingFine: true,
-                    }));
-                  }}>
-                  <Text
+                    <Text
+                      style={{
+                        alignSelf: 'center',
+                        color:
+                          checkedListData?.IsWorkingFine == false
+                            ? 'white'
+                            : 'black', fontWeight: 'bold'
+                      }}>
+                      {AppTextData.txt_No}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
                     style={{
-                      alignSelf: 'center',
-                      color:
-                        checkedListData?.IsWorkingFine == true
-                          ? 'white'
-                          : 'black',fontWeight:'bold'
+                      paddingHorizontal: 15,
+                      borderColor:
+                        checkedListData?.IsWorkingFine == true ? 'green' : 'gray',
+                      paddingVertical: 5,
+                      borderRadius: 18,
+                      marginLeft: 5,
+                      elevation: 15,
+                      backgroundColor: '#fff',
+                      backgroundColor:
+                        checkedListData?.IsWorkingFine == true ? 'green' : 'gray',
+                      minWidth: 60,
+                      justifyContent: 'center'
+                    }}
+                    onPress={() => {
+                      console.log(
+                        'switch button value---->>',
+                        !checkedListData.IsWorkingFine,
+                      );
+                      setCheckedListData((checkedListData) => ({
+                        ...checkedListData,
+                        IsWorkingFine: true,
+                      }));
                     }}>
-                    {AppTextData.txt_Yes}
-                  </Text>
-                </TouchableOpacity>
+                    <Text
+                      style={{
+                        alignSelf: 'center',
+                        color:
+                          checkedListData?.IsWorkingFine == true
+                            ? 'white'
+                            : 'black', fontWeight: 'bold'
+                      }}>
+                      {AppTextData.txt_Yes}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
                 {checkedListData?.IsWorkingFine == true ? (
                   <TouchableOpacity
@@ -965,12 +1032,13 @@ else {
                   // placeholder="Notes"
                   value={checkedListData.Notes}
                   onChangeText={(text) => {
-                    setCheckedListData({...checkedListData, Notes: text});
+                    setCheckedListData({ ...checkedListData, Notes: text });
+                    setIsError(false);
                   }}
                 />
                 {IsError ? (
                   <Text
-                    style={{color: 'red', fontWeight: '600', marginBottom: 15}}>
+                    style={{ color: 'red', fontWeight: '600', marginBottom: 15 }}>
                     {AppTextData.txt_Please_give_Abnormality_Notes}
                     {/* Please give Abnormality Notes */}
                   </Text>
@@ -1015,7 +1083,7 @@ else {
                     ActivityList: checkedListData?.ActivityList,
                   })
                 }>
-                <CmmsText style={{color: '#ffffff', textAlign: 'center'}}>
+                <CmmsText style={{ color: '#ffffff', textAlign: 'center' }}>
                   Activities{' '}
                   <CmmsText>{`(${Number(
                     checkedListData?.ActivityList?.length || 0,
@@ -1046,7 +1114,7 @@ else {
                     AssetCode: selectedAsset.AssetCode,
                   })
                 }>
-                <CmmsText style={{color: '#ffffff', textAlign: 'center'}}>
+                <CmmsText style={{ color: '#ffffff', textAlign: 'center' }}>
                   Spareparts{' '}
                   <CmmsText>{`(${Number(
                     checkedListData?.SparePartsList?.length || 0,
@@ -1063,21 +1131,21 @@ else {
           <TouchableOpacity
             style={{
               flex: 1,
-              backgroundColor: CmmsColors.logoBottomGreen,
+              backgroundColor: IsError ? CmmsColors.joSilverAlpha : CmmsColors.logoBottomGreen,
               justifyContent: 'center',
               alignItems: 'center',
               padding: 8,
               borderRadius: 5,
             }}
-            disabled={!savebuttonEnable}
-            onPress={() => 
-               {IsReadingTrueValueEnteredOrNot()&&
+            // disabled={!savebuttonEnable}
+            onPress={() => {
+              IsReadingTrueValueEnteredOrNot() &&
                 saveCheckListData();
-                IsReadingTrueValueEnteredOrNot()&&setSavebuttonEnable(false);
-              }
+              // IsReadingTrueValueEnteredOrNot() && setSavebuttonEnable(false);
+            }
             }>
-            <CmmsText style={{color: '#ffffff', textAlign: 'center'}}>
-              {savebuttonEnable? AppTextData.txt_Save:AppTextData.txt_saving+'...'}
+            <CmmsText style={{ color: '#ffffff', textAlign: 'center' }}>
+              {AppTextData.txt_Save}
             </CmmsText>
             {/* <CmmsText
 										style={{ color: '#ffffff', textAlign: 'center',fontSize:12,fontWeight:'bold' }}
@@ -1089,46 +1157,47 @@ else {
   }
 
 
-async function checklistDataAnalysing(data,userInput,index){
-// console.log('all data from that index-->>>',data)
-// console.log('user inserted data-->>',userInput, 'index is -->>',index)
-// const NewArray=[...machineMinMaxValue]
-// NewArray[0]=data
-// setMachineMinMaxValue(data)
-// console.log('new array after the push',NewArray)
+  async function checklistDataAnalysing(data, userInput, index) {
+    // console.log('all data from that index-->>>',data)
+    // console.log('user inserted data-->>',userInput, 'index is -->>',index)
+    // const NewArray=[...machineMinMaxValue]
+    // NewArray[0]=data
+    // setMachineMinMaxValue(data)
+    // console.log('new array after the push',NewArray)
 
 
-const aboveorBelow = checkedListData.CheckListGroups.flatMap(e=>e.ChecklistItems.filter(
-  (item) => {return(item.Remarks!=""&& item.IsReading == true && ((Number(item.Remarks)<item.MinValue) || (Number(item.Remarks)>item.MaxValue)))
-  }))
-  // const correct = checkedListData.CheckListGroups.flatMap(e=>e.ChecklistItems.filter(
-  //   (item) => (item.Remarks!=""&&item.IsReading == true && ((Number(item.Remarks)>=item.MinValue) && (Number(item.Remarks)<=item.MaxValue)))
-  //   )).filter(e=>e.length)
+    const aboveorBelow = checkedListData.CheckListGroups.flatMap(e => e.ChecklistItems.filter(
+      (item) => {
+        return (item.Remarks != "" && item.IsReading == true && ((Number(item.Remarks) < item.MinValue) || (Number(item.Remarks) > item.MaxValue)))
+      }))
+    // const correct = checkedListData.CheckListGroups.flatMap(e=>e.ChecklistItems.filter(
+    //   (item) => (item.Remarks!=""&&item.IsReading == true && ((Number(item.Remarks)>=item.MinValue) && (Number(item.Remarks)<=item.MaxValue)))
+    //   )).filter(e=>e.length)
     // (Number(item.Remarks)<=item.MinValue||Number(item.Remarks)>=item.MaxValue))
     // )).filter(e=>e.length)
 
-    console.log('aboveorBelow--->',aboveorBelow)
+    console.log('aboveorBelow--->', aboveorBelow)
     // console.log('correct--->',correct)
-if(aboveorBelow?.length>0){
-    const text= [{String:aboveorBelow.map(item => item.Item+'('+item.MinValue.toString()+'-' + item.MaxValue.toString()+') : '+ item.Remarks).join(', ')}];
-    // console.log('item is heree=>',text)
-  // console.error('inside the 1st if')
-    setCheckedListData((checkedListData) => ({
-                              ...checkedListData,
-                              IsWorkingFine: true,
-                              Notes:text[0]?.String
-                            }));
-                            // setCheckedListData({...checkedListData, Notes: text});
-}else if(aboveorBelow?.length==0){
-  // console.error('inside the 2nd if')
-  setCheckedListData((checkedListData) => ({
-    ...checkedListData,
-    IsWorkingFine: false,
-    Notes:checkedListData.Notes
-  }));
-}
+    if (aboveorBelow?.length > 0) {
+      const text = [{ String: aboveorBelow.map(item => item.Item + '(' + item.MinValue.toString() + '-' + item.MaxValue.toString() + ') : ' + item.Remarks).join(', ') }];
+      // console.log('item is heree=>',text)
+      // console.error('inside the 1st if')
+      setCheckedListData((checkedListData) => ({
+        ...checkedListData,
+        IsWorkingFine: true,
+        Notes: text[0]?.String
+      }));
+      // setCheckedListData({...checkedListData, Notes: text});
+    } else if (aboveorBelow?.length == 0) {
+      // console.error('inside the 2nd if')
+      setCheckedListData((checkedListData) => ({
+        ...checkedListData,
+        IsWorkingFine: false,
+        Notes: checkedListData.Notes
+      }));
+    }
 
-}
+  }
 
   function getchecklist(AssetRegID) {
     console.log(
@@ -1147,7 +1216,7 @@ if(aboveorBelow?.length>0){
           setCheckedListData(res.data);
           console.log(
             'what is the checklist condition--->>>',
-            res?.data?.CheckListGroups.length>0,
+            res?.data?.CheckListGroups.length > 0,
           );
         }
         else setCheckedListData({});
@@ -1172,11 +1241,10 @@ if(aboveorBelow?.length>0){
       return value;
     };
   }
-function IsReadingTrueValueEnteredOrNot(){
-  if(checkedListData.CheckListGroups.flatMap(e=>e.ChecklistItems.filter(
-    (item) => (item.Remarks=="" && item.IsReading == true)
-    )).length>0)
-    {
+  function IsReadingTrueValueEnteredOrNot() {
+    if (checkedListData.CheckListGroups.flatMap(e => e.ChecklistItems.filter(
+      (item) => (item.Remarks == "" && item.IsReading == true)
+    )).length > 0) {
       dispatch(
         actionSetAlertPopUpTwo({
           title: AppTextData.txt_Alert,
@@ -1187,11 +1255,11 @@ function IsReadingTrueValueEnteredOrNot(){
       );
       return false
     }
-    else{
+    else {
       return true
     }
-}
-//saving checklist
+  }
+  //saving checklist
 
   function saveCheckListData() {
     //http://213.136.84.57:2256/api/ApkTechnician/savechecklist
@@ -1225,104 +1293,96 @@ function IsReadingTrueValueEnteredOrNot(){
       checkedListDataToSave?.Notes == ''
     ) {
       setIsError(true);
-    } else {
-      setIsError(false);
-      dispatch(actionSetLoading(true));
-      // let checkedListDataToSaveString = JSON.stringify(checkedListDataToSave, function(key, val) {
-      // 	if (val != null && typeof val == "object") {
-      // 		 if (seen.indexOf(val) >= 0) {
-      // 			 return;
-      // 		 }
-      // 		 seen.push(val);
-      // 	 }
-      // 	 return val;
-      //  });
-      // 	console.log("checkedListDataToSaveString",checkedListDataToSaveString)
-      // bodyFormData.append(checkedListData,checkedListDataToSaveString)
-      // console.log("saveCheckListData",{bodyFormData})
+      return;
+    }
+    setIsError(false);
+    dispatch(actionSetLoading(true));
+    // let checkedListDataToSaveString = JSON.stringify(checkedListDataToSave, function(key, val) {
+    // 	if (val != null && typeof val == "object") {
+    // 		 if (seen.indexOf(val) >= 0) {
+    // 			 return;
+    // 		 }
+    // 		 seen.push(val);
+    // 	 }
+    // 	 return val;
+    //  });
+    // 	console.log("checkedListDataToSaveString",checkedListDataToSaveString)
+    // bodyFormData.append(checkedListData,checkedListDataToSaveString)
+    // console.log("saveCheckListData",{bodyFormData})
 
-      requestWithEndUrl(
-        `${API_TECHNICIAN}savechecklist`,
-        checkedListDataToSave,
-        'POST',
-        // { 'Content-Type': 'multipart/form-data' }
-        //   { "contentType": "false" }
-      )
-        .then((res) => {
-          console.log('savechecklist', {res});
-          if (res.status != 200) {
-            throw Error(res.data);
-          }
-          return res.data;
-        })
-        .then((data) => {
-          setSavebuttonEnable(true)
-          if (data) {
-            if (data.isSucess) {
-
-              assetList.forEach((asset) => {
-                if (asset.AssetRegID == selectedAsset.AssetRegID) {
-                  asset.Status = 1;
-                }
-              });
-              setCheckedListData({
-                ...checkedListData,
-                CheckListID: data.CheckListID,
-              });
-              if (newAttachmentFileList.length > 0) {
-                // save attachment file list
-                saveCheckListAttachments(data.CheckListID);
-              } else {
-                dispatch(actionSetLoading(false));
-                // alert(data.Message);
-                dispatch(
-                  actionSetAlertPopUpTwo({
-                    title: AppTextData.txt_Alert,
-                    body: AppTextData.txt_Saved_successfully,
-                    visible: true,
-                    type: 'ok',
-                  }),
-                );
-                Keyboard.dismiss();
-                navigation.goBack();
+    requestWithEndUrl(
+      `${API_TECHNICIAN}savechecklist`,
+      checkedListDataToSave,
+      'POST',
+    )
+      .then((res) => {
+        console.log('savechecklist', { res });
+        if (res.status != 200) {
+          throw Error(res.data);
+        }
+        return res.data;
+      })
+      .then((data) => {
+        dispatch(actionSetLoading(false));
+        if (data) {
+          if (data.isSucess) {
+            assetList.forEach((asset) => {
+              if (asset.AssetRegID == selectedAsset.AssetRegID) {
+                asset.Status = 1;
               }
+            });
+            setCheckedListData({
+              ...checkedListData,
+              CheckListID: data.CheckListID,
+            });
+            if (newAttachmentFileList.length > 0) {
+              // save attachment file list
+              saveCheckListAttachments(data.CheckListID);
             } else {
-              dispatch(actionSetLoading(false));
-              // alert(data.Message);
               dispatch(
                 actionSetAlertPopUpTwo({
                   title: AppTextData.txt_Alert,
-                  body: AppTextData.txt_somthing_wrong_try_again,
+                  body: AppTextData.txt_Saved_successfully,
                   visible: true,
                   type: 'ok',
                 }),
               );
             }
+          } else {
+            // alert(data.Message);
+            dispatch(
+              actionSetAlertPopUpTwo({
+                title: AppTextData.txt_Alert,
+                body: AppTextData.txt_somthing_wrong_try_again,
+                visible: true,
+                type: 'ok',
+              }),
+            );
           }
-        })
-        .catch((e) => {
-          setSavebuttonEnable(true)
-          dispatch(actionSetLoading(false));
-          // alert(AppTextData.txt_somthing_wrong_try_again);
-          dispatch(
-            actionSetAlertPopUpTwo({
-              title: AppTextData.txt_Alert,
-              body: AppTextData.txt_somthing_wrong_try_again,
-              visible: true,
-              type: 'ok',
-            }),
-          );
-          console.error('savechecklist', e);
-        });
-    }
+        }
+      })
+      .catch((e) => {
+        dispatch(actionSetLoading(false));
+        dispatch(
+          actionSetAlertPopUpTwo({
+            title: AppTextData.txt_Alert,
+            body: AppTextData.txt_somthing_wrong_try_again,
+            visible: true,
+            type: 'ok',
+          }),
+        );
+        console.error('savechecklist', e);
+      }).finally(() => {
+        console.log('finally executed');
+        navigation.goBack();
+      });
   }
-
   function saveCheckListAttachments(checkListId) {
     // http://213.136.84.57:2256/api/ApkTechnician/savechecklistattachments
     let bodyFormData = new FormData();
     bodyFormData.append('', checkListId);
     newAttachmentFileList.forEach((Attachment) => {
-      console.log('savechecklistattachments', {Attachment});
+      console.log('savechecklistattachments', { Attachment });
       bodyFormData.append('', Attachment);
     });
 
@@ -1330,10 +1390,10 @@ function IsReadingTrueValueEnteredOrNot(){
       `${API_TECHNICIAN}savechecklistattachments`,
       bodyFormData,
       'POST',
-      {'Content-Type': 'multipart/form-data'},
+      { 'Content-Type': 'multipart/form-data' },
     )
       .then((res) => {
-        console.log('savechecklistattachments', {res});
+        console.log('savechecklistattachments', { res });
         if (res.status != 200) {
           throw Error(res.data);
         }

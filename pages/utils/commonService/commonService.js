@@ -3,9 +3,7 @@ import ASK from "../../../constants/ASK";
 import requestWithEndUrl from "../../../network/request";
 import { API_SUPERVISOR } from "../../../network/api_constants";
 import {
-  actionSetSupCheckListNotification,
   actionSetEmergencyJoblistNotificationCount,
-  actionSetEmergencyJoblistNotificationBgStatus,
   actionSetInternalWorkOrderJobNotificationCount,
 } from '../../../action/ActionCurrentPage';
 import AlertSound from './alertSound';
@@ -17,6 +15,7 @@ import AlertSound from './alertSound';
  */
 export async function NotificationCountUpdate(dispatch) {
   const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
+  
   try {
     const params = { SEID: User.TechnicianID, Date: Date.now() };
     console.log(
@@ -41,6 +40,8 @@ export async function NotificationCountUpdate(dispatch) {
         EmergencyJoblistCount.data.WOInternal,
       ),
     );
+    // Play alert sound if there are internal breakdown jobs and user is supervisor or a breakdown job
+    const isSupervisor = User?.UserType == 2;
     const playBreakdownAlert = EmergencyJoblistCount?.data?.BreakDown > 0;
     const playInternalAlert = EmergencyJoblistCount?.data?.WOInternal > 0;
     const stopBreakdownAlert = EmergencyJoblistCount?.data?.BreakDown == 0;
@@ -53,7 +54,7 @@ export async function NotificationCountUpdate(dispatch) {
       stopBreakdownAlert && AlertSound.AlertSound.stop();
     }
     if (!AlertSound.AlertSoundFirst.isPlaying()) {
-      playInternalAlert ? AlertSound.AlertSoundFirst.start("NotificationCountUpdate") : AlertSound.AlertSoundFirst.stop();
+      playInternalAlert && isSupervisor ? AlertSound.AlertSoundFirst.start("NotificationCountUpdate") : AlertSound.AlertSoundFirst.stop();
     } else {
       stopInternalAlert && AlertSound.AlertSoundFirst.stop();
     }

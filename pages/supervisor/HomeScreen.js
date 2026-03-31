@@ -636,7 +636,7 @@ export default HomeScreen = ({ navigation }) => {
       'firebase data type on sup account===>>>',
       remoteMessage.data.type,
     );
-    console.log('firebase data on sup account===>>>', remoteMessage);
+    console.log('firebase data on sup account===>>>', remoteMessage?.data?.type);
 
     switch (remoteMessage.data.type) {
       case 'TYPE_LOG_OUT':
@@ -652,19 +652,21 @@ export default HomeScreen = ({ navigation }) => {
 
 
         break;
-      // vbn: this type is commented by previous developer and don't know the case
-      // case 'TYPE_EMERGENCY_JOB_LIST_CNT':
-      //   const lJobListCnt = remoteMessage.data.EmergencyJobListCnt;
-      //   console.log(
-      //     'firebase TYPE_EMERGENCY_JOB_LIST_CNT data data ===>>>',
-      //     lJobListCnt,
-      //   );
-      //   dispatch(actionSetJobListCnt(lJobListCnt));
-      //   if (fromNotificationOpened && lJobListCnt != 0)
-      //     navigation.navigate('EmergencyJobOrders', {
-      //       selectedDate: format(new Date(), 'dd/MM/yyyy'),
-      //     });
-      //   break;
+      // vbn: this type is commented by previous developer and don't know the why
+      case 'TYPE_EMERGENCY_JOB_LIST_CNT':
+        const emJob = remoteMessage.data.EmergencyJobListCnt;
+        console.log(
+          'firebase TYPE_EMERGENCY_JOB_LIST_CNT data data ===>>>',
+          emJob,
+        );
+        dispatch(actionSetEmergencyJoblistNotificationCount(emJob));
+        AlertSound.AlertSound.start("TYPE_EMERGENCY_JOB_LIST_CNT from supervisor home screen");
+        // dispatch(actionSetJobListCnt(emJob));
+        // if (fromNotificationOpened && emJob != 0)
+        //   navigation.navigate('EmergencyJobOrders', {
+        //     selectedDate: format(new Date(), 'dd/MM/yyyy'),
+        //   });
+        break;
       case 'TYPE_SUPEMERGENCY_JOB_LIST_CNT':
         //Firebase type to get the emergency joblist count
         console.log(

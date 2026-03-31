@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect, useLayoutEffect} from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -16,13 +16,13 @@ import {
   BackHandler,
   PermissionsAndroid,
 } from 'react-native';
-import {CmmsText, CText} from '../../../common/components/CmmsText';
-import {useSelector, useDispatch} from 'react-redux';
+import { CmmsText, CText } from '../../../common/components/CmmsText';
+import { useSelector, useDispatch } from 'react-redux';
 import CmmsColors from '../../../common/CmmsColors';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import requestWithEndUrl from '../../../network/request';
-import {API_APKJOIMAGE, API_TECHNICIAN} from '../../../network/api_constants';
-import {actionSetLoading} from '../../../action/ActionSettings';
+import { API_APKJOIMAGE, API_TECHNICIAN } from '../../../network/api_constants';
+import { actionSetLoading } from '../../../action/ActionSettings';
 import {
   actionSetAlertPopUp,
   actionSetAlertPopUpTwo,
@@ -30,22 +30,24 @@ import {
 // import PhotoEditor from 'react-native-photo-editor';
 import RNFS from 'react-native-fs';
 import RNGRP from 'react-native-get-real-path';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Alerts from '../../components/Alert/Alerts';
+import EditImage from '../../components/EditImage/EditImage';
+import { set } from 'lodash';
 
-export default Notes = ({navigation, route: {params}}) => {
+export default Notes = ({ navigation, route: { params } }) => {
   const [isNotesAsText, setIsNotesAsText] = useState(true);
-  const {AppTextData} = useSelector((state) => state.AppTextViewReducer);
+  const { AppTextData } = useSelector((state) => state.AppTextViewReducer);
   const dispatch = useDispatch();
   // const noteArea = useRef(null)
-  console.log('Notes', {params});
+  console.log('Notes', { params });
   const [isAdd, setIsAdd] = useState(true); // handle both add and sumbit in single button
   const [newNote, setNewNote] = useState('');
   const [existingNotes, setExistingNotes] = useState([]);
   const {
-    loggedUser: {TechnicianID, TechnicianName},
+    loggedUser: { TechnicianID, TechnicianName },
   } = useSelector((state) => state.LoginReducer);
-  const {AlertPopUp, AlertPopUpTwo} = useSelector((state) => {
+  const { AlertPopUp, AlertPopUpTwo } = useSelector((state) => {
     return state.AlertPopUpReducer;
   });
   const [imageURI, setImage] = useState(null);
@@ -62,57 +64,129 @@ export default Notes = ({navigation, route: {params}}) => {
         buttonNegative: 'Cancel',
         buttonPositive: 'OK',
       });
-launchCamera(
-          {
-            quality: 0.5,
-            maxHeight: 800,
-            maxWidth: 600,
-            saveToPhotos: false,
-            mediaType: 'photo', //'photo' | 'video' | 'mixed'
-            includeBase64: false,
-            //  durationLimit:
-          },
-          ({assets, errorCode, didCancel}) => {
-            console.log('checkForCameraRollPermission', {errorCode, didCancel,AssetUri:assets?.[0]?.uri});
- const uri = assets?.[0]?.uri;
-
-    console.log('Camera result:', uri);
-            if (!didCancel && !errorCode) {
-              if (uri) {
-                setImage(uri);
-              } else {
-                console.error('Camera error: URI is undefined');
-                dispatch(
-                  actionSetAlertPopUpTwo({
-                    title: AppTextData.txt_Alert,
-                    body: 'Failed to capture image. Please try again.',
-                    visible: true,
-                    type: 'ok',
-                  }),
-                );
+      launchCamera(
+        {
+          quality: 0.5,
+          maxHeight: 800,
+          maxWidth: 600,
+          saveToPhotos: false,
+          mediaType: 'photo', //'photo' | 'video' | 'mixed'
+          includeBase64: false,
+          //  durationLimit:
+        },
+        ({ assets, errorCode, didCancel }) => {
+          console.log('checkForCameraRollPermission', { errorCode, didCancel, AssetUri: assets?.[0]?.uri });
+          const uri = assets?.[0]?.uri;
+          console.log('Camera result from note:', uri);
+          console.log('Camera result from note cancel:', didCancel);
+          console.log('Camera result from note error code:', errorCode);
+          if (uri) {
+            EditImage(uri).then((result) => {
+              if (result) {
+                setImage(result.uri);
               }
+            }).catch((err) => {
+              console.error('EditImage error:', err);
+            });
+          } else {
+            console.error('Camera error: URI is undefined');
+            dispatch(
+              actionSetAlertPopUpTwo({
+                title: AppTextData.txt_Alert,
+                body: 'Failed to capture image. Please try again.',
+                visible: true,
+                type: 'ok',
+              }),
+            );
+          }
 
-              // RNGRP.getRealPathFromURI(assets[0].uri).then((path) => {
-              //   console.log({path})
-              //   PhotoEditor.Edit({
-              //     path: path,
-              //     // RNFS.readFile(path, 'base64').then(imageBase64 =>
-              //     //   this.props.actions.sendImageAsBase64(imageBase64)
-              //     // )
-              //     onDone: (imagePath) => {
-              //       console.log({imagePath})
-              //       setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,Images:[...internalWorkOrder.Images,`file://${imagePath}`]}))
-              //       // setImagesToUpload(imagesToUpload=>[...imagesToUpload,assets])
-              //     },
-              //     hiddenControls: ['save'],
-              //   });
-              // });
-            }
-          },
-        );
+          // RNGRP.getRealPathFromURI(assets[0].uri).then((path) => {
+          //   console.log({path})
+          //   PhotoEditor.Edit({
+          //     path: path,
+          //     // RNFS.readFile(path, 'base64').then(imageBase64 =>
+          //     //   this.props.actions.sendImageAsBase64(imageBase64)
+          //     // )
+          //     onDone: (imagePath) => {
+          //       console.log({imagePath})
+          //       setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,Images:[...internalWorkOrder.Images,`file://${imagePath}`]}))
+          //       // setImagesToUpload(imagesToUpload=>[...imagesToUpload,assets])
+          //     },
+          //     hiddenControls: ['save'],
+          //   });
+          // });
 
+        }
+      );
     } catch (err) {
       console.error('camera_error: ', err);
+    }
+    // if (status !== 'granted') {
+    //   alert("Please grant camera roll permissions inside your system's settings");
+    // }else{
+    //   console.log('Media Permissions are granted')
+    // }
+  };
+  const checkForGalleryPermission = async () => {
+    console.log('Gallery', 'start');
+    try {
+      launchImageLibrary(
+        {
+          selectionLimit: 1,
+        },
+        ({ assets, errorCode, didCancel }) => {
+          console.log('checkForGalleryPermission', {
+            assets,
+            errorCode,
+            didCancel,
+          });
+          const uri = assets?.[0]?.uri;
+          if (uri) {
+            EditImage(uri).then((result) => {
+              if (result) {
+                setImage(result.uri);
+              }
+            }).catch((err) => {
+              console.error('EditImage error:', err);
+              dispatch(
+                actionSetAlertPopUpTwo({
+                  title: AppTextData.txt_Alert,
+                  body: 'Failed to edit image. Please try again.',
+                  visible: true,
+                  type: 'ok',
+                }),
+              );
+            });
+          } else {
+            console.error('Gallery error: URI is undefined');
+            dispatch(
+              actionSetAlertPopUpTwo({
+                title: AppTextData.txt_Alert,
+                body: 'Failed to select image. Please try again.',
+                visible: true,
+                type: 'ok',
+              }),
+            );
+          }
+          // if (!didCancel && !errorCode) {
+          //   RNGRP.getRealPathFromURI(assets[0].uri).then((path) => {
+              // PhotoEditor.Edit({
+              // path: path,
+              // RNFS.readFile(path, 'base64').then(imageBase64 =>
+              //   this.props.actions.sendImageAsBase64(imageBase64)
+              // )
+              // onDone: (imagePath) => {
+              // setnewAttachmentBasedOnFormDataImage(assets[0], 'GR');
+              // },
+              // hiddenControls: ['save'],
+              // });
+          //   });
+          // }
+          //   setnewAttachmentFileList(newAttachmentFileList=>[...newAttachmentFileList,img.assets[0]])
+        },
+      );
+    } catch (err) {
+      console.error('gallery_error: ', err);
     }
     // if (status !== 'granted') {
     //   alert("Please grant camera roll permissions inside your system's settings");
@@ -182,7 +256,7 @@ launchCamera(
       SEID: params?.IsSuperVisor == 1 ? params?.SEID : TechnicianID,
     })
       .then((res) => {
-        console.log('GetImageOfJOBySE', {res});
+        console.log('GetImageOfJOBySE', { res });
 
         if (res.status != 200) {
           throw Error(res.statusText);
@@ -192,7 +266,7 @@ launchCamera(
       .then((data) => {
         setImageList(data);
         data.length > 0 && setSelectedImg(data[data.length - 1].ImageUrl);
-          dispatch(actionSetLoading(false));
+        dispatch(actionSetLoading(false));
       })
       .catch((err) => {
         dispatch(actionSetLoading(false));
@@ -202,90 +276,90 @@ launchCamera(
   }
 
   useEffect(() => {
-    console.log('photo:', {imageURI});
-    if (imageURI != null  ) {
-      var imagePath=imageURI;
+    console.log('photo:', { imageURI });
+    if (imageURI != null) {
+         dispatch(actionSetLoading(true));
+      var imagePath = imageURI;
       // console.log('photo:', imageURI.assets[0].uri);
       // dispatch(actionSetLoading(true));
       // RNGRP.getRealPathFromURI(imageURI.assets[0].uri).then((imagePath) => {
-        // dispatch(actionSetLoading(false));
-        // PhotoEditor.Edit({
-        //   path: path,
-          // RNFS.readFile(path, 'base64').then(imageBase64 =>
-          //   this.props.actions.sendImageAsBase64(imageBase64)
-          // )
-          // onDone: (imagePath) => {
-            // console.log('photoedit_ondone: ', {imagePath});
+      // dispatch(actionSetLoading(false));
+      // PhotoEditor.Edit({
+      //   path: path,
+      // RNFS.readFile(path, 'base64').then(imageBase64 =>
+      //   this.props.actions.sendImageAsBase64(imageBase64)
+      // )
+      // onDone: (imagePath) => {
+      // console.log('photoedit_ondone: ', {imagePath});
 
-            dispatch(actionSetLoading(true));
-            let bodyFormData = new FormData();
-            // let newImageFile = new File([ imgFile.encoded ], JobOrderReportData.Custodian + '.png', {
-            // 	type: 'image/*'
-            // });
-            bodyFormData.append(
-              'JODetails',
-              JSON.stringify({JOID: params.JOID, SEID: TechnicianID}),
+      let bodyFormData = new FormData();
+      // let newImageFile = new File([ imgFile.encoded ], JobOrderReportData.Custodian + '.png', {
+      // 	type: 'image/*'
+      // });
+      bodyFormData.append(
+        'JODetails',
+        JSON.stringify({ JOID: params.JOID, SEID: TechnicianID }),
+      );
+      // let imgUri =
+      //   Platform.OS === 'android' ? `file://${imagePath}` : imagePath;
+      console.log('image uri==>>', imagePath);
+      var photo = {
+        uri: imagePath, //this.state.uri[0].uri, == image path file:///storage/emulated/0/Pictures/1511787860629.jpg
+        type: 'image/jpg',
+        name: 'photo.jpg',
+        // size: newImageFile.size
+      };
+      console.log('image var==>>>', photo);
+      bodyFormData.append('JOImage', photo);
+      console.log('body form data after append===>>', bodyFormData);
+      //http://213.136.84.57:1818/api/ApkTechnician/SaveImageOfJO
+      requestWithEndUrl(
+        `${API_TECHNICIAN}SaveImageOfJO`,
+        bodyFormData,
+        'POST',
+        { 'Content-Type': 'multipart/form-data' },
+        //   { "contentType": "false" }
+      )
+        .then((res) => {
+          console.log('SaveImageOfJO', { res });
+          if (res.status != 200) {
+            throw Error(res.data);
+          }
+          return res.data;
+        })
+        .then(async (data) => {
+          console.log({ data });
+          // dispatch(actionSetLoading(false));
+          if (data.isSucess) {
+            // setImageList(imageList=>[...imageList,{}])
+            await getImageList();
+            //   alert(data.Message); //vvvv
+            dispatch(
+              actionSetAlertPopUpTwo({
+                title: AppTextData.txt_Alert,
+                body: AppTextData.txt_Saved_successfully,
+                visible: true,
+                type: 'ok',
+              }),
             );
-            // let imgUri =
-            //   Platform.OS === 'android' ? `file://${imagePath}` : imagePath;
-            console.log('image uri==>>', imagePath);
-            var photo = {
-              uri: imagePath, //this.state.uri[0].uri, == image path file:///storage/emulated/0/Pictures/1511787860629.jpg
-              type: 'image/jpg',
-              name: 'photo.jpg',
-              // size: newImageFile.size
-            };
-            console.log('image var==>>>', photo);
-            bodyFormData.append('JOImage', photo);
-            console.log('body form data after append===>>', bodyFormData);
-            //http://213.136.84.57:1818/api/ApkTechnician/SaveImageOfJO
-            requestWithEndUrl(
-              `${API_TECHNICIAN}SaveImageOfJO`,
-              bodyFormData,
-              'POST',
-              {'Content-Type': 'multipart/form-data'},
-              //   { "contentType": "false" }
-            )
-              .then((res) => {
-                console.log('SaveImageOfJO', {res});
-                if (res.status != 200) {
-                  throw Error(res.data);
-                }
-                return res.data;
-              })
-              .then(async (data) => {
-                console.log({data});
-                // dispatch(actionSetLoading(false));
-                if (data.isSucess) {
-                  // setImageList(imageList=>[...imageList,{}])
-                 await getImageList();
-                  //   alert(data.Message); //vvvv
-                  dispatch(
-                    actionSetAlertPopUpTwo({
-                      title: AppTextData.txt_Alert,
-                      body: AppTextData.txt_Saved_successfully,
-                      visible: true,
-                      type: 'ok',
-                    }),
-                  );
-                } else throw Error(data.Message);
-              })
-              .catch((err) => {
-                dispatch(actionSetLoading(false));
-                console.log({err});
-                // alert(AppTextData.txt_somthing_wrong_try_again);
-                dispatch(
-                  actionSetAlertPopUpTwo({
-                    title: AppTextData.txt_Alert,
-                    body: AppTextData.txt_somthing_wrong_try_again,
-                    visible: true,
-                    type: 'ok',
-                  }),
-                );
-              });
-        //   },
-        //   hiddenControls: ['save'],
-        // });
+          } else throw Error(data.Message);
+        })
+        .catch((err) => {
+          dispatch(actionSetLoading(false));
+          console.log({ err });
+          // alert(AppTextData.txt_somthing_wrong_try_again);
+          dispatch(
+            actionSetAlertPopUpTwo({
+              title: AppTextData.txt_Alert,
+              body: AppTextData.txt_somthing_wrong_try_again,
+              visible: true,
+              type: 'ok',
+            }),
+          );
+        });
+      //   },
+      //   hiddenControls: ['save'],
+      // });
       // });
     }
   }, [imageURI]);
@@ -327,7 +401,7 @@ launchCamera(
   }, []);
 
   return (
-    <SafeAreaView style={{flex: 1, padding: 8}}>
+    <SafeAreaView style={{ flex: 1, padding: 8 }}>
       {/* <Alerts
         title={AlertPopUpTwo?.title}
         body={AlertPopUpTwo?.body}
@@ -346,14 +420,14 @@ launchCamera(
 
   function getNotePageAsText() {
     return (
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <FlatList
-          style={{marginBottom: 10}}
+          style={{ marginBottom: 10 }}
           showsVerticalScrollIndicator={true}
           data={existingNotes}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({item, index}) => (
-            <CmmsText style={{marginVertical: 4, color: 'black'}}>
+          renderItem={({ item, index }) => (
+            <CmmsText style={{ marginVertical: 4, color: 'black' }}>
               {index + 1}. {item.Notes}
             </CmmsText>
           )}
@@ -416,12 +490,12 @@ launchCamera(
                   return res.data;
                 })
                 .then((data) => {
-                  console.log({data});
+                  console.log({ data });
                   dispatch(actionSetLoading(false));
                   if (data.isSucess) {
                     setExistingNotes((existingNotes) => [
                       ...existingNotes,
-                      {Notes: newNote},
+                      { Notes: newNote },
                     ]);
                     setIsAdd(true);
                     setNewNote('');
@@ -429,7 +503,7 @@ launchCamera(
                   // alert(data.Message)
                 })
                 .catch((err) => {
-                  console.log({err});
+                  console.log({ err });
                   dispatch(actionSetLoading(false));
                   //   alert(AppTextData.txt_somthing_wrong_try_again);
                   dispatch(
@@ -463,7 +537,7 @@ launchCamera(
   function getNotePageAsAttachments() {
     console.log('getNotePageAsAttachments: ', 'imuri: ', imageURI);
     return (
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         {imageList.length > 0 && (
           <View
             style={{
@@ -474,29 +548,29 @@ launchCamera(
             <Image
               resizeMode="cover"
               resizeMethod="scale"
-              style={{width: '100%', height: '80%'}}
-              source={{uri: `${API_APKJOIMAGE}${selectedImg}`}}
+              style={{ width: '100%', height: '80%' }}
+              source={{ uri: `${API_APKJOIMAGE}${selectedImg}` }}
             />
 
             {/* <View style={{ height: '20%', width: '100%',borderWidth:1 }}> */}
             <FlatList
-              style={{marginTop: 5}}
+              style={{ marginTop: 5 }}
               data={imageList}
               // ListFooterComponent={()=><View
               // style={{backgroundColor:'red',width:100}}
               // ></View>}
-              renderItem={({item}) => (
+              renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={{marginEnd: 5}}
+                  style={{ marginEnd: 5 }}
                   onPress={() => {
                     // setVisibleImagePopUp(true)
                     setSelectedImg(item.ImageUrl);
                   }}>
                   <Image
-                    style={{height: 150, width: 120}}
+                    style={{ height: 150, width: 120 }}
                     resizeMode="cover"
                     resizeMethod="scale"
-                    source={{uri: `${API_APKJOIMAGE}${item.ImageUrl}`}}
+                    source={{ uri: `${API_APKJOIMAGE}${item.ImageUrl}` }}
                   />
                 </TouchableOpacity>
               )}
@@ -507,52 +581,49 @@ launchCamera(
           </View>
         )}
 
-<View 
- style={{
-  position: 'absolute',
-  bottom: 8,
-  end: 8,
-  marginTop: 10,}}
->
-        <TouchableOpacity
-         style={{
-            borderRadius: 25,
-            borderColor: 'rgba(0,0,0,0.2)',
-            backgroundColor: CmmsColors.logoBottomGreen,
-            height: 50,
-            width: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginBottom:8
-            // paddingHorizontal:8,paddingVertical:4
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 8,
+            end: 8,
+            marginTop: 10,
           }}
-          onPress={() => {
-            checkForCameraRollPermission();
-          }}>
-          <Icon name="camera" size={18} color="white" />
-        </TouchableOpacity>
-        {params?.isPmJob != 0 && 
-        <TouchableOpacity
-         style={{
-            borderRadius: 25,
-            borderColor: 'rgba(0,0,0,0.2)',
-            backgroundColor: CmmsColors.logoBottomGreen,
-            height: 50,
-            width: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            // paddingHorizontal:8,paddingVertical:4
-          }}
-          onPress={() => {
-             launchImageLibrary(
-                    {
-                      selectionLimit: 1,
-                    },
-                   setImage
-                  )
-          }}>
-          <Icon name="paperclip" size={18} color="white" />
-        </TouchableOpacity>}
+        >
+          <TouchableOpacity
+            style={{
+              borderRadius: 25,
+              borderColor: 'rgba(0,0,0,0.2)',
+              backgroundColor: CmmsColors.logoBottomGreen,
+              height: 50,
+              width: 50,
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: 8
+              // paddingHorizontal:8,paddingVertical:4
+            }}
+            onPress={() => {
+              checkForCameraRollPermission();
+            }}>
+            <Icon name="camera" size={18} color="white" />
+          </TouchableOpacity>
+          {params?.isPmJob != 0 &&
+            <TouchableOpacity
+              style={{
+                borderRadius: 25,
+                borderColor: 'rgba(0,0,0,0.2)',
+                backgroundColor: CmmsColors.logoBottomGreen,
+                height: 50,
+                width: 50,
+                justifyContent: 'center',
+                alignItems: 'center',
+                // paddingHorizontal:8,paddingVertical:4
+              }}
+              onPress={() => {
+                checkForGalleryPermission();
+              }}>
+              
+                        <Icon name="paperclip" size={18} color="white" />
+            </TouchableOpacity>}
         </View>
       </View>
     );

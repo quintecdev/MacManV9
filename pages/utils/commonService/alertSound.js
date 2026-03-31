@@ -87,7 +87,7 @@ class AlertSoundService {
     }
   };
 
-  play = (onEnd = null, loops = 0, withVibration = true) => {
+  play = (onEnd = null, loops = -1, withVibration = true) => {
     if (!this.sound || !this.isLoaded) {
       console.warn('Alert sound not loaded yet');
       return;

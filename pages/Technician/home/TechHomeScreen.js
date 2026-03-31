@@ -680,7 +680,17 @@ export default HomeScreen = ({ navigation, route: { params, name } }) => {
         if (fromNotificationOpened && lJobListCnt != 0) {
           UserData();
         }
-
+        dispatch(actionSetEmergencyJoblistNotificationCount(lJobListCnt));
+        break;
+        case 'TYPE_EMERGENCY_AFTER_SUP_NOTI_JOB_LIST_CNT':
+        //Firebase type to get the emergency joblist count
+        console.log(
+          'TYPE_EMERGENCY_AFTER_SUP_NOTI_JOB_LIST_CNT',
+          remoteMessage.data.EmergencyJobListCnt,
+        );
+        const lJob = remoteMessage.data.EmergencyJobListCnt;
+        dispatch(actionSetJobListCnt(lJob));
+        lJob==0&&alertSound.AlertSound.stop();
         dispatch(actionSetEmergencyJoblistNotificationCount(lJobListCnt));
         break;
 
@@ -930,7 +940,6 @@ export default HomeScreen = ({ navigation, route: { params, name } }) => {
     async function _handleAppStateChange(nextAppState) {
       console.log("TechHome", "handleAppStateChange", { nextAppState })
       if (nextAppState === 'inactive' || nextAppState === 'background') {
-        console.log("handleAppStateChange", NotificationSound.isPlaying());
         // if(NotificationSound.isPlaying())NotificationSound.stop();
         stopNotificationSound();
       }
