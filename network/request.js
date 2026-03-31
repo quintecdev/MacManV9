@@ -13,16 +13,24 @@ const request = (options) => {
   };
 
   const onError = (error) => {
-    console.log('Request Failed:', error.config);
+    // Print main error details in a user-friendly way
+    const apiUrl = (error.config && error.config.url) ? error.config.url : 'Unknown URL';
     if (error.response) {
-      console.log('Status:', error.response.status);
-      console.log('Data:', error.response.data);
-      console.log('Headers:', error.response.headers);
+      console.error('API Error!');
+      console.error('URL:', apiUrl);
+      console.error('Status:', error.response.status);
+      if (error.response.data && typeof error.response.data === 'object') {
+        console.error('Error Data:', JSON.stringify(error.response.data, null, 2));
+      } else {
+        console.error('Error Data:', error.response.data);
+      }
+      if (error.response.data && error.response.data.message) {
+        console.error('Message:', error.response.data.message);
+      }
     } else {
-      console.log('Error Message:', error.message);
-      // if(error.message=='Network Error'){
-      //   alert('check your internewt connection ')
-      // }
+      console.error('Network or Unknown Error!');
+      console.error('URL:', apiUrl);
+      console.error('Error Message:', error.message);
     }
     return Promise.reject(error.response || error.message);
   };
