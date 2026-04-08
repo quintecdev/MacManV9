@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react';
+﻿import React,{useEffect} from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -10,13 +10,14 @@ import CmmsColors from './common/CmmsColors';
 import SplashScreen from 'react-native-splash-screen'
 import messaging, { firebase } from '@react-native-firebase/messaging';
 import ErrorPage from './pages/ErrorPage';
+
 const TAG = "CMMS_APP"
 function App() {
-  console.log(TAG,'App_page');
+  // console.log(TAG,'App_page');
   
   
   useEffect(()=>{
-    console.log(TAG,"useEffect")
+    // console.log(TAG,"useEffect")
     SplashScreen.hide()
   },[])
 

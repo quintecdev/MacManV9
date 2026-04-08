@@ -4,15 +4,15 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.quickbiscmms",
+  "applicationId": "com.quickbis.macman.v9",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "versionCode": 1,
-      "versionName": "1",
-      "outputFile": "app-release.apk"
+      "versionName": "9.0.1",
+      "outputFile": "mac-man-v9.apk"
     }
   ]
 }

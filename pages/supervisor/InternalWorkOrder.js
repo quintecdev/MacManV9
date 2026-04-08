@@ -31,9 +31,6 @@ const InternalWorkOrder = ({ route: { params } }) => {
   const [noNotification, setNoNotification] = useState(false);
   const [internalWorkOrder, setInternalWorkOrder] = useState(defaultInternalWO)
 
-  console.log('params from homepage===>>', params);
-  console.log('user Details==>>', loggedUser.TechnicianID);
-
   const [showScanner, setShowScanner] = useState(false);
   const [showDamageList, setShowDamageList] = useState(false);
   const [damageList, setDamageList] = useState([])
@@ -46,7 +43,7 @@ const InternalWorkOrder = ({ route: { params } }) => {
     dispatch(actionSetLoading(true));
     requestWithEndUrl(`${API_COMMON}GetCode`, { FormID: 'WOI', TransMode: 'GET', BranchID: 0, PeriodID: 0 })
       .then((res) => {
-        // console.log('GetCode', {res});
+        
         if (res.status != 200) {
           throw Error(res.statusText);
         }
@@ -56,7 +53,6 @@ const InternalWorkOrder = ({ route: { params } }) => {
         setInternalWorkOrder({ ...defaultInternalWO, RefNo: data })
       })
       .catch((err) => {
-        // console.log('GetCode error', err);
         dispatch(
           actionSetAlertPopUpTwo({
             title: AppTextData.txt_Alert,
@@ -74,29 +70,22 @@ const InternalWorkOrder = ({ route: { params } }) => {
   }, [])
 
   useEffect(() => {
-    console.log("useEffect-debounce-assetcode", internalWorkOrder.AssetCode)
     !isPressed.current ? debouncedAssetCodeChange(internalWorkOrder.AssetCode) : isPressed.current = false
 
   }, [internalWorkOrder.AssetCode])
 
   useEffect(() => {
-    console.log("JIJU", "suggestion list length", suggestionList.length)
     setShowSuggestion(suggestionList.length > 0)
   }, [suggestionList.length])
 
-  // Debounced function to handle AssetCode change
   const debouncedAssetCodeChange = useCallback(
     debounce((code) => {
-      console.log("Debounced AssetCode:", code);
-      // Add your logic here, like validation or API call
-      // setSuggestionList(["abc","abcd","dab","abcfdgfdgfdgfdgfdg fgfdgfgdfgfdg","abcd","dab","abc","abcd","dab"])
-      // http://localhost:29189/api/ApkSupervisor/GetAssetForSearch?AssetCode=rop2030
+
       if (code?.length > 1)
         requestWithEndUrl(`${API_SUPERVISOR}GetAssetForSearch`, {
           AssetCode: code
         })
           .then((res) => {
-            console.log('GetWorkOrderInternalDetails', { res });
             if (res.status != 200) {
               throw Error(res.statusText);
             }
@@ -113,7 +102,7 @@ const InternalWorkOrder = ({ route: { params } }) => {
     []
   );
   const checkForCameraRollPermission = async () => {
-    console.log('CAMERA', 'start');
+    
     try {
       await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
         title: 'App Camera Permission',
@@ -133,11 +122,9 @@ const InternalWorkOrder = ({ route: { params } }) => {
           //  durationLimit:
         },
         ({ assets, errorCode, didCancel }) => {
-          console.log('checkForCameraRollPermission', { errorCode, didCancel, AssetUri: assets?.[0]?.uri });
+          
           const uri = assets?.[0]?.uri;
-          console.log('Camera result from note:', uri);
-          console.log('Camera result from note cancel:', didCancel);
-          console.log('Camera result from note error code:', errorCode);
+          
           if (uri) {
             EditImage(uri).then((result) => {
               if (result) {
@@ -162,24 +149,20 @@ const InternalWorkOrder = ({ route: { params } }) => {
     } catch (err) {
       console.error('camera_error: ', err);
     }
-    // if (status !== 'granted') {
-    //   alert("Please grant camera roll permissions inside your system's settings");
-    // }else{
-    //   console.log('Media Permissions are granted')
-    // }
+    
   };
 
   //http://localhost:29189/api/ApkSupervisor/GetWorkOrderInternalDetails?Action=APKWOINEXT&ID=1&UserID=0
   const getOldInternalWorkOrder = (action = "APKWOINEXT") => {
     dispatch(actionSetLoading(true))
-    console.log("getOldInternalWorkOrder");
+    
     requestWithEndUrl(`${API_SUPERVISOR}GetWorkOrderInternalDetails`, {
       Action: action,
       ID: internalWorkOrder.ID,
       UserID: loggedUser.TechnicianID
     })
       .then((res) => {
-        console.log('GetWorkOrderInternalDetails', { res });
+        
         if (res.status != 200) {
           throw Error(res.statusText);
         }
@@ -188,10 +171,10 @@ const InternalWorkOrder = ({ route: { params } }) => {
       .then((data) => {
         isPressed.current = true
         setInternalWorkOrder(data.ID !== 0 ? data : { ...defaultInternalWO, RefNo: data.RefNo });
-        console.log("JIJU_PRVS", { data })
+        
       })
       .catch((err) => {
-        console.log('GetWorkOrderInternalDetails error', err);
+        
         dispatch(
           actionSetAlertPopUpTwo({
             title: AppTextData.txt_Alert,
@@ -210,13 +193,13 @@ const InternalWorkOrder = ({ route: { params } }) => {
     bodyFormData.append('', JSON.stringify({ ...internalWorkOrder, Images: [], UserID: loggedUser.TechnicianID }));
     internalWorkOrder.Images.forEach((imageUri) => {
       let imageName = `${internalWorkOrder.ID}_${Date.now()}.jpg`
-      console.log('submitInternalWorkOrder', { imageUri });
+      
       if (/^file:\/\/.+\.\w{1,5}$/.test(imageUri)) {
-        console.log("fileUri", imageUri, { imageName })
+        
         bodyFormData.append('', { uri: imageUri, type: 'image/jpg', name: imageName });
       }
     });
-    console.log('submitInternalWorkOrder', { internalWorkOrder })
+    
     requestWithEndUrl(
       `${API_SUPERVISOR}SaveWorkOrderInternal`,
       bodyFormData,
@@ -224,14 +207,14 @@ const InternalWorkOrder = ({ route: { params } }) => {
       { 'Content-Type': 'multipart/form-data' },
     )
       .then((res) => {
-        console.log('SaveWorkOrderInternal', { res });
+        
         if (res.status != 200) {
           throw Error(res.data);
         }
         return res.data;
       })
       .then((data) => {
-        console.log(data);
+        
         if (data) {
           setInternalWorkOrder({ ...defaultInternalWO, RefNo: data.RefNo })
           dispatch(
@@ -271,8 +254,7 @@ const InternalWorkOrder = ({ route: { params } }) => {
       dispatch(actionSetLoading(true))
       requestWithEndUrl(`${API_SUPERVISOR}GetAssetDetailsByCode`, { AssetCode })
         .then((res) => {
-          console.log('GetMaster', { res });
-
+          
           if (res.status != 200) {
 
             throw Error(res.statusText);
@@ -322,7 +304,7 @@ const InternalWorkOrder = ({ route: { params } }) => {
                 style={{ backgroundColor: 'white', flex: 1 }}
                 value={internalWorkOrder.AssetCode}
                 onChangeText={text => {
-                  console.log("JIJU", "Assetcode-ontextchange", text)
+                  
                   setInternalWorkOrder(internalWorkOrder => ({ ...internalWorkOrder, AssetCode: text }))
                 }}
 
@@ -399,7 +381,6 @@ const InternalWorkOrder = ({ route: { params } }) => {
                   OL: 'ol',
                 })
                   .then((res) => {
-                    console.log('GetMaster', { res });
 
                     if (res.status != 200) {
 
@@ -416,7 +397,7 @@ const InternalWorkOrder = ({ route: { params } }) => {
                     }
                   })
                   .catch((err) => {
-                    console.log('GetMaster error', err);
+                    
                     dispatch(
                       actionSetAlertPopUpTwo({
                         title: AppTextData.txt_Alert,
@@ -448,7 +429,6 @@ const InternalWorkOrder = ({ route: { params } }) => {
                   OL: 'ol',
                 })
                   .then((res) => {
-                    console.log('GetMaster', { res });
 
                     if (res.status != 200) {
 
@@ -465,7 +445,7 @@ const InternalWorkOrder = ({ route: { params } }) => {
                     }
                   })
                   .catch((err) => {
-                    console.log('GetMaster error', err);
+                    
                     dispatch(
                       actionSetAlertPopUpTwo({
                         title: AppTextData.txt_Alert,
@@ -518,7 +498,7 @@ const InternalWorkOrder = ({ route: { params } }) => {
             data={internalWorkOrder.Images}
             horizontal
             renderItem={({ item }) => {
-              console.log({ item })
+              
               return <View style={{ width: 150, height: 150, borderWidth: 1, marginStart: 5 }}>
 
                 <Image
@@ -526,28 +506,6 @@ const InternalWorkOrder = ({ route: { params } }) => {
                   style={{ width: 150, height: 150 }}
                   resizeMode='stretch'
                 />
-                {/* { RNFS.exists(item).then((res)=>{
-            console.log({res})
-            return <Pressable
-          style={{position:'absolute',width:28,height:28,end:0,top:0,padding:4}}
-          onPress={()=>{
-            dispatch(actionSetLoading(true))
-            RNFS.exists(item)
-            .then(res=>{
-              if(res){
-                RNFS.unlink(item)
-                .then(()=>{
-                  setInternalWorkOrder(internalWorkOrder=>({...internalWorkOrder,Images:[...internalWorkOrder.Images.filter(imageUri=>imageUri!==item)]}))
-                })
-                .catch(err=>console.error(err))
-              }
-          })
-          .catch(err=>console.error(err))
-          .finally(dispatch(actionSetLoading(false)))
-          }}
-          >
-            <Text>❌</Text>
-            </Pressable>})} */}
               </View>
             }
             }
@@ -583,8 +541,7 @@ const InternalWorkOrder = ({ route: { params } }) => {
           setShowScanner(false)
         }}
         QrCodeData={({ data }) => {
-          // Qrcodefunction(data);
-          console.log('Internal work order>>>>', 'QRcode: ', data);
+          
           getAssetDetailsByCode(data)
           setInternalWorkOrder(internalWorkOrder => ({ ...internalWorkOrder, AssetCode: data }))
           setShowScanner(false)
@@ -600,7 +557,7 @@ const InternalWorkOrder = ({ route: { params } }) => {
           data={damageList}
           renderItem={({ item }) => <TouchableOpacity style={{ padding: 4 }}
             onPress={() => {
-              console.log({ item })
+              
               setInternalWorkOrder(internalWorkOrder => damageOrIWOCats.current === 1 ? { ...internalWorkOrder, Damage: item.Name, DamageID: item.ID } : { ...internalWorkOrder, WICategory: item.Name, WICategoryID: item.ID })
               setShowDamageList(false)
             }}

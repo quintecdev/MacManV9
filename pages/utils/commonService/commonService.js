@@ -15,7 +15,8 @@ import AlertSound from './alertSound';
  */
 export async function NotificationCountUpdate(dispatch) {
   const User = JSON.parse(await AsyncStorage.getItem(ASK.ASK_USER));
-  
+
+  console.log('Running NotificationCountUpdate for user', User);
   try {
     const params = { SEID: User.TechnicianID, Date: Date.now() };
     console.log(
@@ -58,7 +59,8 @@ export async function NotificationCountUpdate(dispatch) {
     } else {
       stopInternalAlert && AlertSound.AlertSoundFirst.stop();
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.log('EmergencyJobListCount error', error);
   }
 }

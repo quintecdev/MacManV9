@@ -1,2 +1,2 @@
-var a = "Aju";
-console.log(a);
+﻿var a = "Aju";
+// console.log(a);

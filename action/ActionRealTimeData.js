@@ -1,6 +1,8 @@
 import actionsConstants from "../constants/actionsConstants"
 
-export const actionSetJobListCnt=(jobListCnt)=>({
+export const actionSetJobListCnt=(jobListCnt)=>(
+     console.log('ActionRealTimeData - actionSetJobListCnt', jobListCnt),{
+   
     type:actionsConstants.ACTION_SET_JOBLISTCNT,
     payload:{jobListCnt}
 })

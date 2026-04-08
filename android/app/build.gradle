@@ -145,11 +145,11 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.quickbiscmms"
+        applicationId "com.quickbis.macman.v9"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 5
-        versionName "5"
+        versionName "9.0.1"
         missingDimensionStrategy 'react-native-camera', 'general' //for qr code scanner
         multiDexEnabled true
     }
@@ -196,6 +196,10 @@ android {
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
+            if (variant.buildType.name == "release") {
+                output.outputFileName = "mac-man-v9.apk"
+            }
+
             // For each separate APK per architecture, set a unique version code as described here:
             // https://developer.android.com/studio/build/configure-apk-splits.html
             def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]

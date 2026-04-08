@@ -1,2 +1,2 @@
-let a = "Aju"
-console.log(a)
+﻿let a = "Aju"
+// console.log(a)

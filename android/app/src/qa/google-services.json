@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:561975605278:android:9f77f05f3dd00e6ea5d60f",
         "android_client_info": {
-          "package_name": "com.quickbiscmms.qa"
+          "package_name": "com.quickbis.macman.v9.qa"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "561975605278-sp0mfrmbtcasd0t6f6ne68855uhcv21i.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.quickbiscmms",
+            "package_name": "com.quickbis.macman.v9",
             "certificate_hash": "5707528eabb3eb9ad28258def0431d449503eb71"
           }
         },

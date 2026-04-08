@@ -1,4 +1,4 @@
-package com.quickbiscmms;
+package com.quickbis.macman.v9;
 import android.content.Intent;
 import android.os.Bundle; // here
 import com.facebook.react.ReactActivity;

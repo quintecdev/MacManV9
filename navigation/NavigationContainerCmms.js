@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+﻿import React, { useEffect, useState, useRef } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -198,7 +198,7 @@ export default () => {
   }, [loggedUser]);
 
   useEffect(() => {
-     console.log("EmergencyJobListToShow --->>", EmergencyJobListToShow);
+    // console.log("EmergencyJobListToShow --->>", EmergencyJobListToShow);
     if (EmergencyJobListToShow) {
       setTimeout(() => {
         AlertSound.AlertSound.stop();
@@ -393,7 +393,7 @@ export default () => {
         await BackgroundActions.stop();
       }
     } catch (error) {
-      console.log('cardDetailfetch error', error);
+      // console.log('cardDetailfetch error', error);
     }
   }
 
@@ -441,18 +441,18 @@ export default () => {
     // console.log("_handleAppStateChange",{nextAppState,appState:appState.current,routelenght:navigationRef?.current.getRootState().index})
     if (nextAppState === 'inactive' || nextAppState === 'background') {
       AlertSound.AlertSound.stop();
-      console.log(`app is in background state and user type is supervisor: ${User?.UserType == 2} 'sound has stopped`);
-      User.UserType == 2||
-      User.UserType == 1
-       &&
+      // console.log(`app is in background state and user type is supervisor: ${User?.UserType == 2} 'sound has stopped`);
+      User.UserType == 2 ||
+        User.UserType == 1
+        &&
         (await BackgroundService.start(veryIntensiveTask, options));
-      console.log('app is in background');
+      // console.log('app is in background');
     } else if (
       appState.current.match(/inactive|background/) &&
       nextAppState === 'active'
     ) {
-      console.log(`app is in foreground state and user type is supervisor: ${User?.UserType == 2} 'sound has stopped`);
-      if (User.UserType == 2||User.UserType == 1) {
+      // console.log(`app is in foreground state and user type is supervisor: ${User?.UserType == 2} 'sound has stopped`);
+      if (User.UserType == 2 || User.UserType == 1) {
         await BackgroundService.stop();
 
         dispatch(actionSetEmergencyJoblistNotificationCountUpdate());
@@ -474,7 +474,7 @@ export default () => {
           })
           .catch((err) => {
             // console.log('login expired 2');
-            console.log('_handleAppStateChange_err: ', { err });
+            // console.log('_handleAppStateChange_err: ', { err });
             dispatch(actionSetLoading(false));
             const currentPage = navigationRef?.current?.getCurrentRoute()?.name;
             // console.log('current page=====>', currentPage);
@@ -613,7 +613,7 @@ export default () => {
     // if(Platform.OS == 'ios') { messaging().getAPNSToken().then(token => { return saveTokenToDatabase(token); }); }
     // Listen to whether the token changes
     messaging().onTokenRefresh(async (token) => {
-      console.log('fcm_token: ', 'onTokenRefresh', token);
+      // console.log('fcm_token: ', 'onTokenRefresh', token);
       const exstAsToken = await AsyncStorage.getItem(ASK.ASK_TOKEN);
       if (exstAsToken != token) {
         AsyncStorage.setItem(ASK.ASK_TOKEN, token);
@@ -724,7 +724,7 @@ export default () => {
       //   ),
       // );
     } catch (error) {
-      console.log('cardDetailfetch error', error);
+      // console.log('cardDetailfetch error', error);
     }
   }
 
@@ -767,21 +767,21 @@ export default () => {
   }
 
   // useEffect(() => {
-    // console.log('appstate change');
-    // console.log('NavigationContainer_page', 'useEffect', jobOrderList);
-    // setLangauge();
-    // messaging().onNotificationOpenedApp(async remoteMessage => {
-    //   console.log('onNotificationOpenedApp', remoteMessage);
-    //   switch(remoteMessage.data.type){
-    //     case 'TYPE_LOG_OUT':
-    //       // AsyncStorage.removeItem(ASK.)
-    //       AsyncStorage.removeItem(ASK.ASK_USER)
-    //     // usenavigation.dispatch(StackActions.replace('splash'))
-    //     navigationRef.current?.dispatch(StackActions.replace('splash'))
-    //       break;
-    //       default:alert("Invalid notification");break;
-    //   }
-    // })
+  // console.log('appstate change');
+  // console.log('NavigationContainer_page', 'useEffect', jobOrderList);
+  // setLangauge();
+  // messaging().onNotificationOpenedApp(async remoteMessage => {
+  //   console.log('onNotificationOpenedApp', remoteMessage);
+  //   switch(remoteMessage.data.type){
+  //     case 'TYPE_LOG_OUT':
+  //       // AsyncStorage.removeItem(ASK.)
+  //       AsyncStorage.removeItem(ASK.ASK_USER)
+  //     // usenavigation.dispatch(StackActions.replace('splash'))
+  //     navigationRef.current?.dispatch(StackActions.replace('splash'))
+  //       break;
+  //       default:alert("Invalid notification");break;
+  //   }
+  // })
   // }, [jobOrderList, TechList, AppState]);
 
   useEffect(() => {
@@ -805,8 +805,12 @@ export default () => {
         );
       }
     });
+
     const params = {
-      Language: selectedLng.Languagevalue,
+      Language:
+        selectedLng.Languagevalue && selectedLng.Languagevalue.trim()
+          ? selectedLng.Languagevalue
+          : 'en',
     };
     requestWithEndUrl(`${API_TECHNICIAN}getMacManMobileAppTextData`, params)
       .then((res) => {
@@ -824,15 +828,15 @@ export default () => {
       });
   }
   // function setLangauge() {
-    // console.log('set lang==>>>');
-    // AsyncStorage.getItem('selectedLng')
-    //   .then((data) => {
-    //     console.log('AsyncStorage_selectedLngValue: ', {data});
-    //     data && dispatch(actionSetSelectedLng(JSON.parse(data)));
-    //   })
-    //   .catch((err) => {
-    //     console.log('AsyncStorage_selectedLngValue: ', {err});
-    //   });
+  // console.log('set lang==>>>');
+  // AsyncStorage.getItem('selectedLng')
+  //   .then((data) => {
+  //     console.log('AsyncStorage_selectedLngValue: ', {data});
+  //     data && dispatch(actionSetSelectedLng(JSON.parse(data)));
+  //   })
+  //   .catch((err) => {
+  //     console.log('AsyncStorage_selectedLngValue: ', {err});
+  //   });
   // }
 
   function updateTokenInDb(exstAsToken, token) {
@@ -863,17 +867,17 @@ export default () => {
             })
             .then((data) => { })
             .catch((err) => {
-              console.log('refreshClientToken', { err });
+              // console.log('refreshClientToken', { err });
             });
         }
       })
       .catch((err) => {
-        console.log('getExistingTokenInDb', { err });
+        // console.log('getExistingTokenInDb', { err });
       });
   }
 
   const updateToken = async () => {
-    console.log('function name==>> NavigationContainer updateToken');
+    // console.log('function name==>> NavigationContainer updateToken');
     const loggedUser = await AsyncStorage.getItem(ASK.ASK_USER);
     const exstAsToken = await AsyncStorage.getItem(ASK.ASK_TOKEN);
     // console.log('messaging', 'KEY_USER: ', loggedUser);
@@ -894,7 +898,7 @@ export default () => {
     messaging()
       .getToken()
       .then(async (token) => {
-        console.log('messaging', 'token: ', token);
+        // console.log('messaging', 'token: ', token);
         if (exstAsToken != token) {
           AsyncStorage.setItem(ASK.ASK_TOKEN, token);
         }
@@ -1015,7 +1019,7 @@ export default () => {
               name="EmergencyJobOrders"
               component={EmergencyJobOrders}
               options={({ route: { params }, navigation }) => {
-                console.log('params in EmergencyJobOrders in from navigation==>>', params);
+                // console.log('params in EmergencyJobOrders in from navigation==>>', params);
                 return ({
                   title: !params.breakdown ? AppTextData.txt_internal_workorder : AppTextData.txt_BreakDown_List,
                   headerTintColor: CmmsColors.logoBottomGreen,

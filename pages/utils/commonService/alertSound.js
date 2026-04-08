@@ -23,18 +23,18 @@ class AlertSoundService {
   }
 
   initSound = () => {
-    console.log('Initializing alert sound with file:', this.soundFile);
+    // console.log('Initializing alert sound with file:', this.soundFile);
     this.sound = new Sound(
       this.soundFile,
       Sound.MAIN_BUNDLE,
       (error) => {
         if (error) {
-          console.log('Failed to load alert sound:', error);
+          // console.log('Failed to load alert sound:', error);
           this.isLoaded = false;
           return;
         }
         this.isLoaded = true;
-        console.log('Alert sound loaded successfully');
+        // console.log('Alert sound loaded successfully');
       }
     );
   };
@@ -45,7 +45,7 @@ class AlertSoundService {
       this.vibrationInterval = setInterval(() => {
         Vibration.vibrate(1000);
       }, 1000);
-      console.log('Vibration started');
+      // console.log('Vibration started');
     }
   };
 
@@ -54,28 +54,28 @@ class AlertSoundService {
       clearInterval(this.vibrationInterval);
       this.vibrationInterval = null;
       Vibration.cancel();
-      console.log('Vibration stopped');
+      // console.log('Vibration stopped');
     }
   };
 
 
   start = (functionName) => {
     let withVibration = true;
-      console.log(`Start called on AlertSoundService with functionName-->>->: ${functionName.toString()}`);
+      // console.log(`Start called on AlertSoundService with functionName-->>->: ${functionName.toString()}`);
     
     if (!this.sound || !this.isLoaded) {
-      console.warn('Alert sound not loaded yet');
+      // console.warn('Alert sound not loaded yet');
       return;
     }
 
     if (!this.sound.isPlaying()) {
-      console.log('Starting alert sound');
+      // console.log('Starting alert sound');
       this.sound.setNumberOfLoops(-1);
       this.sound.play((success) => {
         if (success) {
-          console.log('Alert sound started successfully (infinite loop)');
+          // console.log('Alert sound started successfully (infinite loop)');
         } else {
-          console.log('Alert sound failed to start');
+          // console.log('Alert sound failed to start');
         }
       });
       
@@ -83,7 +83,7 @@ class AlertSoundService {
         this.startVibration();
       }
     } else {
-      console.log('Alert sound is already playing');
+      // console.log('Alert sound is already playing');
     }
   };
 
@@ -98,9 +98,9 @@ class AlertSoundService {
 
     this.sound.play((success) => {
       if (success) {
-        console.log('Alert sound played successfully');
+        // console.log('Alert sound played successfully');
       } else {
-        console.log('Alert sound playback failed due to audio decoding errors');
+        // console.log('Alert sound playback failed due to audio decoding errors');
       }
       
       
@@ -122,7 +122,7 @@ class AlertSoundService {
   stop = () => {
     if (this.sound) {
       this.sound.stop(() => {
-        console.log('Alert sound stopped');
+        // console.log('Alert sound stopped');
       });
     }
     this.stopVibration();
@@ -131,7 +131,7 @@ class AlertSoundService {
   pause = () => {
     if (this.sound) {
       this.sound.pause();
-      console.log('Alert sound paused');
+      // console.log('Alert sound paused');
     }
     
     this.stopVibration();
@@ -141,7 +141,7 @@ class AlertSoundService {
     if (this.sound) {
       const clampedVolume = Math.max(0, Math.min(1, volume));
       this.sound.setVolume(clampedVolume);
-      console.log('Alert sound volume set to:', clampedVolume);
+      // console.log('Alert sound volume set to:', clampedVolume);
     }
   };
 

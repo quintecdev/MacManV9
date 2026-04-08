@@ -1,4 +1,4 @@
-package com.quickbiscmms;
+package com.quickbis.macman.v9;
 
 import androidx.appcompat.app.AppCompatActivity;
 

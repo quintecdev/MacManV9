@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
+﻿import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -90,28 +90,6 @@ export const description = {
   fontFamily: 'sans-serif-condensed',
 };
 
-// var Sound = require('react-native-sound');
-// Sound.setCategory('playback');
-// var NotificationSound = new Sound(
-//   'emergencynotification.wav',
-//   Sound.MAIN_BUNDLE,
-//   (error) => {
-//     if (error) {
-//       console.log('failed to load the sound', error);
-//       return;
-//     }
-//     // loaded successfully
-//     // Play the sound with an onEnd callback
-//     // NotificationSound.play((success) => {
-//     //   if (success) {
-//     //     console.log('successfully finished playing');
-//     //   } else {
-//     //     console.log('playback failed due to audio decoding errors');
-//     //   }
-//     // });
-//   },
-// );
-
 export default HomeScreen = ({ navigation }) => {
   const { loggedUser } = useSelector((state) => state.LoginReducer);
   // console.log("Home", TechnicianID)
@@ -153,11 +131,6 @@ export default HomeScreen = ({ navigation }) => {
     return processColor(e.color);
   });
 
-  // console.log(
-  //   'chart color details==>>',
-  //   processColor(chartData[0].color),
-  //   processColor(chartData[1].color),
-  // );
   /** chart data*/
   const data = {
     dataSets: [
@@ -178,7 +151,7 @@ export default HomeScreen = ({ navigation }) => {
   };
 
   const { jobDate } = useSelector((state) => state.VersionReducer);
-  console.debug('data', chartData);
+  // console.debug('data', chartData);
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: (props) => {
@@ -197,7 +170,7 @@ export default HomeScreen = ({ navigation }) => {
                 // marginEnd: 5,
               }}
               onPress={() => {
-                console.log('InternalWorkOrderNotifactionCount', InternalWorkOrderNotifactionCount)
+                // console.log('InternalWorkOrderNotifactionCount', InternalWorkOrderNotifactionCount)
                 // EmergencyJoblistNotifactionCount != 0 &&
                 navigation.navigate('EmergencyJobOrders', { jobDate: jobDate, breakdown: false });
               }}>
@@ -223,11 +196,6 @@ export default HomeScreen = ({ navigation }) => {
               onPress={() => {
                 navigation.navigate('InternalWorkOrder');
                 // console.log('checklist notification count==>>',ChecklistNotifactionCount)
-
-                console.log(
-                  'ChecklistNotifactionCount==>',
-                  ChecklistNotifactionCount,
-                );
               }}>
               <Icon name='briefcase' color={'grey'} size={24} />
             </TouchableOpacity>
@@ -243,11 +211,6 @@ export default HomeScreen = ({ navigation }) => {
               onPress={() => {
                 navigation.navigate('CheckListNotification');
                 // console.log('checklist notification count==>>',ChecklistNotifactionCount)
-
-                console.log(
-                  'ChecklistNotifactionCount==>',
-                  ChecklistNotifactionCount,
-                );
               }}>
               <Text style={{ color: 'white', fontSize: 12 }}>
                 {ChecklistNotifactionCount}
@@ -312,7 +275,7 @@ export default HomeScreen = ({ navigation }) => {
             <TouchableOpacity
               style={{ padding: 4 }}
               onPress={() => {
-                // console.log('logout')
+                
                 Alert.alert(
                   AppTextData.txt_Logout,
                   AppTextData.txt_Are_you_sure_You_want_to_logout,
@@ -326,16 +289,13 @@ export default HomeScreen = ({ navigation }) => {
                     {
                       text: AppTextData.txt_OK,
                       onPress: () => {
-                        // console.log('OK Pressed')
                         dispatch(actionSetLoading(true));
-                        // http://213.136.84.57:4545/api/ApkTechnician/LogOut
                         requestWithEndUrl(
                           `${API_TECHNICIAN}LogOut`,
                           { TechnicianID: loggedUser?.TechnicianID },
                           'POST',
                         )
                           .then((res) => {
-                            // console.log("URL_LOGIN", res)
                             if (res.status != 200) {
                               throw Error(res.statusText);
                             }
@@ -360,7 +320,6 @@ export default HomeScreen = ({ navigation }) => {
                           .catch((err) => {
                             dispatch(actionSetLoading(false));
                             alert(AppTextData.txt_somthing_wrong_try_again);
-                            console.log("HomeScreen language load error-->>", err);
                           });
                       },
                     },
@@ -403,9 +362,6 @@ export default HomeScreen = ({ navigation }) => {
       // console.log(TAG,"onNotificationOpenedApp",{remoteMessage})
       handleFirebaseMsgFg(remoteMessage, true);
     });
-    // messaging().getInitialNotification(initialNotification=>{
-    //   console.log(TAG,'getInitialNotification:',initialNotification);
-    //  })
 
     messaging()
       .getInitialNotification()
@@ -428,7 +384,6 @@ export default HomeScreen = ({ navigation }) => {
   useEffect(() => {
     if (EmergencyJobListToShow) {
       setTimeout(() => {
-        console.log("modalvisible")
         AlertSound.AlertSound.stop();
         AlertSound.AlertSoundFirst.stop();
         // if (NotificationSound.isPlaying()) NotificationSound.stop();
@@ -447,8 +402,9 @@ export default HomeScreen = ({ navigation }) => {
       eventListenerSubscription?.remove();
     };
   }, [])
+
   async function _handleAppStateChange(nextAppState) {
-    console.log("Home", "handleAppStateChange", { nextAppState })
+    // console.log("Home", "handleAppStateChange", { nextAppState })
     if (nextAppState === 'inactive' || nextAppState === 'background') {
       if (AlertSound.AlertSound.isPlaying()) AlertSound.AlertSound.stop();
       if (AlertSound.AlertSoundFirst.isPlaying()) AlertSound.AlertSoundFirst.stop();
@@ -460,12 +416,12 @@ export default HomeScreen = ({ navigation }) => {
     if (jobDate != '') {
       dispatch(actionSetLoading(true));
       // console.log('Home_useEffect', { refresh })
-      console.log(
-        'params for the getworkstatuspiegraphby date api call==>>',
-        'CurrentDate:' + dateTime,
-        'Date:' + selectedTimemillies,
-        ' SEID:' + loggedUser.TechnicianID,
-      );
+      // console.log(
+      //   'params for the getworkstatuspiegraphby date api call==>>',
+      //   'CurrentDate:' + dateTime,
+      //   'Date:' + selectedTimemillies,
+      //   ' SEID:' + loggedUser.TechnicianID,
+      // );
       const dateTime = Date.now(); //1577946600000
       const selectedTimemillies = parse(
         jobDate,
@@ -484,24 +440,24 @@ export default HomeScreen = ({ navigation }) => {
           return res.data;
         })
         .then((data) => {
-          console.log(
-            'chart data from the backend from the api call GetWorkStatusPieGraphByDate==>',
-            data,
-          );
+          // console.log(
+          //   'chart data from the backend from the api call GetWorkStatusPieGraphByDate==>',
+          //   data,
+          // );
           dispatch(actionSetChartData(data?.Data));
           setChartTitle(data?.Heading);
         })
         .catch((err) => {
-          console.log('GetWorkStatusPieGraphByDate error-->>', err);
+          // console.log('GetWorkStatusPieGraphByDate error-->>', err);
         });
 
       getJobOrders(dateTime, selectedTimemillies);
-      console.log(
-        'params:GetAllTechnicians==>  Date:',
-        selectedTimemillies,
-        'SEID: ',
-        loggedUser.TechnicianID,
-      );
+      // console.log(
+      //   'params:GetAllTechnicians==>  Date:',
+      //   selectedTimemillies,
+      //   'SEID: ',
+      //   loggedUser.TechnicianID,
+      // );
       GetAllTechnicians(selectedTimemillies);
       // requestWithEndUrl(`${API_SUPERVISOR}GetAllTechnicians`, {
       //   Date: selectedTimemillies,
@@ -522,7 +478,7 @@ export default HomeScreen = ({ navigation }) => {
       //     console.error('GetAllTechnicians', err);
       //   });
 
-      getJobListCnt();
+      getJobListCnt(dispatch, selectedTimemillies);
       dispatch(actionSetLoading(false));
     }
   }, [jobDate, refresh]);
@@ -548,15 +504,15 @@ export default HomeScreen = ({ navigation }) => {
     selectedTimemillies = parse(jobDate, 'dd/MM/yyyy', new Date()).getTime(),
   ) {
     // const selectedTimemillies = parse(jobDate, "dd/MM/yyyy", new Date()).getTime()
-    console.log(
-      'get schedul by date params====>>>',
-      'CurrentDate:',
-      dateTime,
-      'Date:',
-      selectedTimemillies,
-      'SEID:',
-      loggedUser?.TechnicianID,
-    );
+    // console.log(
+    //   'get schedul by date params====>>>',
+    //   'CurrentDate:',
+    //   dateTime,
+    //   'Date:',
+    //   selectedTimemillies,
+    //   'SEID:',
+    //   loggedUser?.TechnicianID,
+    // );
     // axios.get(`${API_SUPERVISOR}GetJOScheduleByDate?CurrentDate=${selectedTimemillies}&Date=${selectedTimemillies}`)
     requestWithEndUrl(`${API_SUPERVISOR}GetJOScheduleByDate`, {
       CurrentDate: dateTime,
@@ -583,13 +539,13 @@ export default HomeScreen = ({ navigation }) => {
     selectedTimemillies = parse(jobDate, 'dd/MM/yyyy', new Date()).getTime(),
   ) {
     // const selectedTimemillies = parse(jobDate, "dd/MM/yyyy", new Date()).getTime()
-    console.log(
-      'get schedul by date params====>>>',
-      'Date:',
-      selectedTimemillies,
-      'SEID:',
-      loggedUser?.TechnicianID,
-    );
+    // console.log(
+    //   'get schedul by date params====>>>',
+    //   'Date:',
+    //   selectedTimemillies,
+    //   'SEID:',
+    //   loggedUser?.TechnicianID,
+    // );
     requestWithEndUrl(`${API_SUPERVISOR}GetAllTechnicians`, {
       Date: selectedTimemillies,
       SEID: loggedUser.TechnicianID,
@@ -632,19 +588,11 @@ export default HomeScreen = ({ navigation }) => {
    * - TYPE_CUSTODIAN_WO_COUNT: Updates internal work order notification count
    */
   function handleFirebaseMsgFg(remoteMessage, fromNotificationOpened = false) {
-    console.log(
-      'firebase data type on sup account===>>>',
-      remoteMessage.data.type,
-    );
-    console.log('firebase data on sup account===>>>', remoteMessage?.data?.type);
 
     switch (remoteMessage.data.type) {
       case 'TYPE_LOG_OUT':
         // AsyncStorage.removeItem(ASK.)
         AsyncStorage.removeItem(ASK.ASK_USER);
-        // dispatch(actionSetLoginData(null));
-        // resetNavigation(navigation);
-        // navigation.replace('Login');
         navigation.reset({
           index: 0,
           routes: [{ name: 'Login' }],
@@ -655,78 +603,18 @@ export default HomeScreen = ({ navigation }) => {
       // vbn: this type is commented by previous developer and don't know the why
       case 'TYPE_EMERGENCY_JOB_LIST_CNT':
         const emJob = remoteMessage.data.EmergencyJobListCnt;
-        console.log(
-          'firebase TYPE_EMERGENCY_JOB_LIST_CNT data data ===>>>',
-          emJob,
-        );
         dispatch(actionSetEmergencyJoblistNotificationCount(emJob));
         AlertSound.AlertSound.start("TYPE_EMERGENCY_JOB_LIST_CNT from supervisor home screen");
-        // dispatch(actionSetJobListCnt(emJob));
-        // if (fromNotificationOpened && emJob != 0)
-        //   navigation.navigate('EmergencyJobOrders', {
-        //     selectedDate: format(new Date(), 'dd/MM/yyyy'),
-        //   });
         break;
       case 'TYPE_SUPEMERGENCY_JOB_LIST_CNT':
-        //Firebase type to get the emergency joblist count
-        console.log(
-          'TYPE_SUPEMERGENCY_JOB_LIST_CNT',
-          remoteMessage.data.EmergencyJobListCnt,
-        );
         const lJobListCnt = remoteMessage.data.EmergencyJobListCnt;
         dispatch(actionSetEmergencyJoblistNotificationCount(lJobListCnt));
         AlertSound.AlertSound.start("TYPE_SUPEMERGENCY_JOB_LIST_CNT from supervisor home screen");
-        // dispatch(actionSetJobListCnt(lJobListCnt));
-        // if (fromNotificationOpened && lJobListCnt != 0) {
-        //   navigation.navigate('EmergencyJobOrders');
-        // }
+     
         if (fromNotificationOpened && lJobListCnt != 0) {
           UserData();
         }
         break;
-      // case 'TYPE_SUP_CHART_DATA':
-      //   //using to update the chart
-      //   console.log(
-      //     'firebase chart data data after json parse===>>>',
-      //     JSON.parse(remoteMessage.data.supChartDataToUpdate),
-      //   );
-      //   dispatch(
-      //     actionSetChartData(
-      //       JSON.parse(remoteMessage.data.supChartDataToUpdate),
-      //     ),
-      //   );
-      //   break;
-      // case 'TYPE_SUP_JOB_ORDER_TO_UPDATE':
-      //   //using to Update job cards
-      //   console.log(
-      //     'firebase data TYPE_SUP_JOB_ORDER_TO_UPDATE after json parse===>>>',
-      //     JSON.parse(remoteMessage.data.supJobOrderToUpdate),
-      //   );
-      //   console.log(
-      //     'NavigationContainer',
-      //     'onMessage',
-      //     'TYPE_SUP_JOB_ORDER_TO_UPDATE',
-      //     {remoteMessage, jobOrderList},
-      //   );
-      //   getJobOrders();
-      //   GetAllTechnicians();
-      //   break;
-      // // case 'TYPE_TECH_LIST_TO_UPDATE':
-      //   //using to update bottom cards that shows tech's details
-      //   let remoteSeList = JSON.parse(remoteMessage.data.SEList);
-      //   console.log('firebase data after json parse===>>>', remoteSeList);
-      //   if (TechList.length > 0 && remoteSeList.length > 0) {
-      //     remoteSeList.forEach((remoteSE) => {
-      //       let idxToUpdateTechie = TechList.findIndex(
-      //         (Techie) => remoteSE.ServiceEngrID == Techie.ServiceEngrID,
-      //       );
-      //       if (idxToUpdateTechie != -1) {
-      //         TechList[idxToUpdateTechie] = remoteSE;
-      //       }
-      //     });
-      //     dispatch(actionSetTechList(TechList));
-      //   }
-      //   break;
       case 'TYPE_REFRESH_TECHNICIAN_ALL_DATA':
         dispatch(actionSetRefreshing());
         break;
@@ -756,38 +644,17 @@ export default HomeScreen = ({ navigation }) => {
         break;
     }
   }
-  // async function ChecklistNotificationCount(){
-  //   console.log('function ==>>ChecklistNotificationCount')
 
-  //   try{
-  //     const NotificationCount= await requestWithEndUrl(`${API_SUPERVISOR}GetCheckListAbnormalityJobsCount`,{SEID:loggedUser.TechnicianID});
-  //     dispatch(actionSetSupCheckListNotification(NotificationCount.data.Count))
-
-  //   }catch(error){
-  //     console.log('cardDetailfetch error',error)
-
-  //   }
-  // }
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <EmergencyJobListModal
         visible={EmergencyJobListShow}
         cancel={() => setEmergencyJobListShow(false)}
         OutputData={(e) => {
-          console.log('data from EmergencyJoblist Component==>', e);
-          // EmergencyJoblistWork(e);
+          // console.log('data from EmergencyJoblist Component==>', e);
         }}
       />
-      {/* <ImageBackground
-        style={{
-          flex: 1,
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          // justifyContent: 'center',
-        }}
-        source={require('../../assets/bg/bg_cmms.webp')}
-      /> */}
+      {}
 
       {chartData?.length > 0 && visibleGraph && (
         <>
@@ -822,30 +689,21 @@ export default HomeScreen = ({ navigation }) => {
             usePercentValues={true}
             style={HomeStyles.chart}
             logEnabled={false}
-            // touchEnabled={false}
-            // chartBackgroundColor={processColor('pink')}
+            
             chartDescription={description}
             data={data}
             legend={legend}
-            // highlights={highlights}
 
             extraOffsets={{ top: 5, right: 8, bottom: 5 }}
-            // entryLabelColor={processColor('green')}
-            // entryLabelTextSize={14}
-            // entryLabelFontFamily={'HelveticaNeue-Medium'}
+            
             drawEntryLabels={false}
             rotationEnabled={true}
             rotationAngle={180}
-            // usePercentValues={true}
-            // styledCenterText={{text:'Pie center text!', color: processColor('pink'), fontFamily: 'HelveticaNeue-Medium', size: 20}}
-            // centerTextRadiusPercent={100}
+            
             holeRadius={50}
             holeColor={processColor('transparent')}
-            // holeColor={processColor('#fff')}
-            // transparentCircleRadius={30}
-            // transparentCircleColor={processColor('#f0f0f088')}
+            
             maxAngle={600}
-            // onSelect={this.handleSelect.bind(this)}
             onChange={(event) => console.log(event.nativeEvent)}
           />
           <FadeView style={{ backgroundColor: '#E9E9E9', paddingVertical: 4 }}>
@@ -911,7 +769,7 @@ export default HomeScreen = ({ navigation }) => {
                 onSwipeUp={(state) => console.log('up', 'state', state)}
                 onSwipeDown={(state) => console.log('down', 'state', state)}
                 onSwipeLeft={(state) => {
-                  console.log('jobid: ', item.JOID);
+                  
                   if (state.dx < -70)
                     navigation.navigate('TodayJobOrderIssued', {
                       id: item.JOID,
