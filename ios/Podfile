@@ -1,52 +1,38 @@
-require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
 
-platform :ios, '10.0'
+platform :ios, min_ios_version_supported
+
+prepare_react_native_project!
+
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
 
 target 'QuickBISCMMS' do
   config = use_native_modules!
 
-  use_react_native!(:path => config["reactNativePath"])
-
-  pod 'RNSVG', :path => '../node_modules/react-native-svg'
-
-  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
-
-  pod 'react-native-keep-awake', :path => '../node_modules/react-native-keep-awake'
-
-
-  pod 'react-native-background-timer', :path => '../node_modules/react-native-background-timer'
-
-
-
-  pod 'react-native-signature-capture', :path => '../node_modules/react-native-signature-capture'
-
-  pod 'react-native-fetch-blob', :path => '../node_modules/react-native-fetch-blob'
-
-  pod 'RNPhotoEditor', :path => '../node_modules/react-native-photo-editor'
-
-  pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
+  use_react_native!(
+    :path => config[:reactNativePath],
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
 
   target 'QuickBISCMMSTests' do
     inherit! :complete
     # Pods for testing
   end
 
-  # Enables Flipper.
-  #
-  # Note that if you have use_frameworks! enabled, Flipper will not work and
-  # you should disable these next few lines.
-  use_flipper!
   post_install do |installer|
-    flipper_post_install(installer)
-  end
-end
-
-target 'QuickBISCMMS-tvOS' do
-  # Pods for QuickBISCMMS-tvOS
-
-  target 'QuickBISCMMS-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false
+    )
   end
 end
