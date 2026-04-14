@@ -16,7 +16,7 @@ import {PieChart} from 'react-native-charts-wrapper';
 import axios from 'axios';
 import {parse, format} from 'date-fns';
 import CmmsColors from '../../../common/CmmsColors';
-import DatePicker from 'react-native-datepicker';
+// DatePicker removed - using DatePickerCmms wrapper instead
 import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
 import {useSelector, useDispatch} from 'react-redux';
 import {

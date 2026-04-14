@@ -1,56 +1,56 @@
-import React from 'react';
-import { Text, View } from 'react-native';
-import DatePicker from 'react-native-datepicker'
+import React, { useState } from 'react';
+import { View, TouchableOpacity } from 'react-native';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import CmmsColors from '../../common/CmmsColors';
-import {CText, CTextTitle,CmmsTextStyles} from '../../common/components/CmmsText';
+import { CTextTitle, CmmsTextStyles } from '../../common/components/CmmsText';
+import { format, parse } from 'date-fns';
 
-export default DatePickerCmms = ({...props})=>{
-    return(
+export default DatePickerCmms = ({ ...props }) => {
+    const [isPickerVisible, setPickerVisible] = useState(false);
+
+    const handleConfirm = (date) => {
+        setPickerVisible(false);
+        const formatted = format(date, 'dd/MM/yyyy');
+        props.onDateChange(formatted);
+    };
+
+    const getDateValue = () => {
+        if (!props.selectedDate) return new Date();
+        try {
+            return parse(props.selectedDate, 'dd/MM/yyyy', new Date());
+        } catch {
+            return new Date();
+        }
+    };
+
+    return (
         <View
-          style={{
-            alignSelf: 'center',
-            flexDirection: 'row',
-                backgroundColor:CmmsColors.logoBottomGreen,
-            borderRadius: 20,
-            paddingHorizontal:8,
-            justifyContent:'space-around',
-            alignItems:'center'
-
-          }}
-        >
-          <DatePicker
-            date={props.selectedDate}
-            mode="date"
-            placeholder="select date"
-            format="DD/MM/YYYY"
-            iconSource={require('../../assets/icons/ic_calendar_fi_512_vi.png')}
-            // minDate="2016-05-01"
-            // maxDate="2016-06-01"
-           
-            confirmBtnText="Confirm"
-            cancelBtnText="Cancel"
-            customStyles={{
-              dateIcon: {
-                position: 'absolute',
-                left: -15,
-                top: -20,
-                marginLeft: 5,
-                height: 46, width: 46,
-                
-              },
-              dateInput: {
-                marginLeft: 28,
-                borderWidth: 0
-              },
-              dateText: CmmsTextStyles.textTitle
-              // ... You can check the source to find the other keys.
+            style={{
+                alignSelf: 'center',
+                flexDirection: 'row',
+                backgroundColor: CmmsColors.logoBottomGreen,
+                borderRadius: 20,
+                paddingHorizontal: 8,
+                justifyContent: 'space-around',
+                alignItems: 'center',
             }}
-            onDateChange={(date) => { props.onDateChange(date) }}
-          />
-          <CTextTitle
-          >{props.text}
-              {/* Todays Job Oders (6) (30 M Hrs) */}
-          </CTextTitle>
+        >
+            <TouchableOpacity
+                onPress={() => setPickerVisible(true)}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8 }}
+            >
+                <CTextTitle style={CmmsTextStyles.textTitle}>
+                    {props.selectedDate || 'Select date'}
+                </CTextTitle>
+            </TouchableOpacity>
+            <CTextTitle>{props.text}</CTextTitle>
+            <DateTimePickerModal
+                isVisible={isPickerVisible}
+                mode="date"
+                date={getDateValue()}
+                onConfirm={handleConfirm}
+                onCancel={() => setPickerVisible(false)}
+            />
         </View>
-    )
-}
+    );
+};

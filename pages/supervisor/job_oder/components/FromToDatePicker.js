@@ -1,157 +1,104 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
-import DatePicker from 'react-native-datepicker';
+import { View, TouchableOpacity } from 'react-native';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { parse, format } from 'date-fns';
-// import DateTimePicker from '@react-native-community/datetimepicker';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { CmmsText } from '../../../../common/components/CmmsText';
 
+const formatStr = (mode) => (mode === 'date' ? 'dd/MM/yyyy' : 'HH:mm');
+const parseDate = (str, mode) => {
+	try {
+		return parse(str, formatStr(mode), new Date());
+	} catch {
+		return new Date();
+	}
+};
+
 export default FromToDatePicker = ({ ...props }) => {
-	// const appData = useSelector(state => state.AppTextViewReducer)
 	const { AppTextData } = useSelector((state) => state.AppTextViewReducer);
 
-	const [ selectedFromDate, setSelectedFromDate ] = useState(
-		format(props.fromDate, `${props.mode == 'date' ? 'dd/MM/yyyy' : 'hh:mm'}`)
-	); //format(new Date(), 'dd/MM/yyyy')
-	const [ selectedToDate, setSelectedToDate ] = useState(
-		format(props.toDate, `${props.mode == 'date' ? 'dd/MM/yyyy' : 'hh:mm'}`)
-	); //format(new Date(), 'dd/MM/yyyy')
-	console.log('FromToDatePicker', { props, selectedToDate, selectedFromDate });
+	const [selectedFromDate, setSelectedFromDate] = useState(
+		format(props.fromDate, formatStr(props.mode))
+	);
+	const [selectedToDate, setSelectedToDate] = useState(
+		format(props.toDate, formatStr(props.mode))
+	);
+	const [showFromPicker, setShowFromPicker] = useState(false);
+	const [showToPicker, setShowToPicker] = useState(false);
 
-	useEffect(()=>{
-		setSelectedFromDate(format(props.fromDate, `${props.mode == 'date' ? 'dd/MM/yyyy' : 'hh:mm'}`))
-		setSelectedToDate(format(props.toDate, `${props.mode == 'date' ? 'dd/MM/yyyy' : 'hh:mm'}`))
-	},[props])
+	useEffect(() => {
+		setSelectedFromDate(format(props.fromDate, formatStr(props.mode)));
+		setSelectedToDate(format(props.toDate, formatStr(props.mode)));
+	}, [props]);
+
+	const handleFromConfirm = (date) => {
+		setShowFromPicker(false);
+		const formatted = format(date, formatStr(props.mode));
+		setSelectedFromDate(formatted);
+		props.onDateChange(formatted, selectedToDate);
+	};
+
+	const handleToConfirm = (date) => {
+		setShowToPicker(false);
+		const formatted = format(date, formatStr(props.mode));
+		setSelectedToDate(formatted);
+		props.onDateChange(selectedFromDate, formatted);
+	};
 
 	return (
-		<View style={{ ...{ flexDirection: 'row',flex:1,alignItems: 'center',}, ...props.style }}>
-			<View style={{ flexDirection: 'row',flex:1, alignItems: 'center' ,}}>
+		<View style={{ ...{ flexDirection: 'row', flex: 1, alignItems: 'center' }, ...props.style }}>
+			<View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
 				{props.hasFromTxt && <CmmsText style={{ fontWeight: 'bold' }}>{AppTextData.txt_From} </CmmsText>}
-				{props.isAssignDate?<DatePicker
-					style={{ flex: 1 }}
-					date={selectedFromDate}
-					mode={props.mode}
-					placeholder="select date"
-					format={props.mode == 'date' ? 'DD/MM/YYYY' : 'hh:mm'}
-					// iconSource={require('../../../../assets/icons/ic_calendar.png')}
-					minDate={format(new Date(), `${props.mode == 'date' ? 'dd/MM/yyyy' : 'hh:mm'}`)}
-					maxDate={selectedToDate}
-					showIcon={false}
-					confirmBtnText="Confirm"
-					cancelBtnText="Cancel"
-					customStyles={{
-						// dateIcon: {
-						//   position: 'absolute',
-						//   left: -15,
-						//   top: -15,
-						//   marginLeft: 5,
-						//   height: 48, width: 56,
-
-						// },
-						dateInput: {
-							borderWidth: 0.5,
-							borderColor:'#777',
-							borderRadius:10,
-							elevation:10,
-							backgroundColor:'#fff'
-						},
-						dateText: {
-							fontWeight: 'bold',
-							color: 'black'
-						}
-						// ... You can check the source to find the other keys.
-					}}
-					onDateChange={(date, dateobj) => {
-						console.log('ondate_change', date, { dateobj });
-						setSelectedFromDate(date);
-						props.onDateChange(date, selectedToDate);
-					}}
-				/>:<DatePicker
-				style={{ flex: 1 }}
-				date={selectedFromDate}
-				mode={props.mode}
-				placeholder="select date"
-				format={props.mode == 'date' ? 'DD/MM/YYYY' : 'hh:mm'}
-				// iconSource={require('../../../../assets/icons/ic_calendar.png')}
-				// minDate={format(new Date(), `${props.mode == 'date' ? 'dd/MM/yyyy' : 'hh:mm'}`)}
-				maxDate={selectedToDate}
-				showIcon={false}
-				confirmBtnText="Confirm"
-				cancelBtnText="Cancel"
-				customStyles={{
-					// dateIcon: {
-					//   position: 'absolute',
-					//   left: -15,
-					//   top: -15,
-					//   marginLeft: 5,
-					//   height: 48, width: 56,
-
-					// },
-					dateInput: {
+				<TouchableOpacity
+					onPress={() => setShowFromPicker(true)}
+					style={{
+						flex: 1,
 						borderWidth: 0.5,
-						borderColor:'#777',
-						borderRadius:10,
-						elevation:10,
-						backgroundColor:'#fff'
-					},
-					dateText: {
-						fontWeight: 'bold',
-						color: 'black'
-					}
-					// ... You can check the source to find the other keys.
-				}}
-				onDateChange={(date, dateobj) => {
-					console.log('ondate_change', date, { dateobj });
-					setSelectedFromDate(date);
-					props.onDateChange(date, selectedToDate);
-				}}
-			/>}
-			</View>
-			<View style={{ flexDirection: 'row',flex:1, alignItems: 'center', marginStart: 8 }}>
-				<CmmsText style={{ fontWeight: 'bold', marginHorizontal: 8 }}>{AppTextData.txt_To} </CmmsText>
-				<DatePicker
-					style={{ flex: 1 }}
-					date={selectedToDate}
+						borderColor: '#777',
+						borderRadius: 10,
+						elevation: 10,
+						backgroundColor: '#fff',
+						paddingVertical: 8,
+						alignItems: 'center',
+					}}
+				>
+					<CmmsText style={{ fontWeight: 'bold', color: 'black' }}>{selectedFromDate}</CmmsText>
+				</TouchableOpacity>
+				<DateTimePickerModal
+					isVisible={showFromPicker}
 					mode={props.mode}
-					placeholder="select date"
-					format={props.mode == 'date' ? 'DD/MM/YYYY' : 'hh:mm'}
-					// iconSource={require('../../../../assets/icons/ic_calendar.png')}
-					minDate={selectedFromDate}
-					// maxDate="2016-06-01"
-					showIcon={false}
-					confirmBtnText="Confirm"
-					cancelBtnText="Cancel"
-					customStyles={{
-						// dateIcon: {
-						//   position: 'absolute',
-						//   left: -15,
-						//   top: -15,
-						//   marginLeft: 5,
-						//   height: 48, width: 56,
-
-						// },
-						dateInput: {
-							borderWidth: 0.5,
-							borderColor:'#777',
-							borderRadius:10,
-							elevation:10,
-							marginRight:10,
-							backgroundColor:'#fff'
-						},
-
-						dateText: {
-							fontWeight: 'bold',
-							color: 'black',
-							padding: 0,
-							margin: 0
-						}
-						// ... You can check the source to find the other keys.
+					date={parseDate(selectedFromDate, props.mode)}
+					minimumDate={props.isAssignDate ? new Date() : undefined}
+					maximumDate={parseDate(selectedToDate, props.mode)}
+					onConfirm={handleFromConfirm}
+					onCancel={() => setShowFromPicker(false)}
+				/>
+			</View>
+			<View style={{ flexDirection: 'row', flex: 1, alignItems: 'center', marginStart: 8 }}>
+				<CmmsText style={{ fontWeight: 'bold', marginHorizontal: 8 }}>{AppTextData.txt_To} </CmmsText>
+				<TouchableOpacity
+					onPress={() => setShowToPicker(true)}
+					style={{
+						flex: 1,
+						borderWidth: 0.5,
+						borderColor: '#777',
+						borderRadius: 10,
+						elevation: 10,
+						backgroundColor: '#fff',
+						paddingVertical: 8,
+						alignItems: 'center',
+						marginRight: 10,
 					}}
-					onDateChange={(date, dateobj) => {
-						console.log('ondate_change', date, { dateobj });
-						setSelectedToDate(date);
-						props.onDateChange(selectedFromDate, date);
-					}}
+				>
+					<CmmsText style={{ fontWeight: 'bold', color: 'black' }}>{selectedToDate}</CmmsText>
+				</TouchableOpacity>
+				<DateTimePickerModal
+					isVisible={showToPicker}
+					mode={props.mode}
+					date={parseDate(selectedToDate, props.mode)}
+					minimumDate={parseDate(selectedFromDate, props.mode)}
+					onConfirm={handleToConfirm}
+					onCancel={() => setShowToPicker(false)}
 				/>
 			</View>
 		</View>
@@ -161,5 +108,5 @@ FromToDatePicker.defaultProps = {
 	hasFromTxt: true,
 	mode: 'date',
 	fromDate: new Date(),
-	toDate: new Date()
+	toDate: new Date(),
 };

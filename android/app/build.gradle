@@ -48,7 +48,6 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 5
         versionName "9.0.1"
-        missingDimensionStrategy 'react-native-camera', 'general' //for qr code scanner
         multiDexEnabled true
     }
 

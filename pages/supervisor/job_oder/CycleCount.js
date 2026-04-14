@@ -11,7 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import {parse, format} from 'date-fns';
-import DatePicker from 'react-native-datepicker';
+// DatePicker import removed (unused)
 import CmmsColors from '../../../common/CmmsColors';
 import RadioForm, {
   RadioButton,

@@ -1556,13 +1556,6 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
               dispatch(actionSetLoading(true));
               console.log({imgFile, score, comment});
               let bodyFormData = new FormData();
-              let newImageFile = new File(
-                [imgFile.encoded],
-                JobOrderReportData.Custodian + '.png',
-                {
-                  type: 'image/*',
-                },
-              );
               bodyFormData.append(
                 'Review',
                 JSON.stringify({
@@ -1573,15 +1566,10 @@ export default JobOrderReport = ({navigation, route: {params}}) => {
                   DateTime: new Date().getTime(),
                 }),
               );
-              let imgUri =
-                Platform.OS === 'android'
-                  ? `file://${imgFile.pathName}`
-                  : imgFile.pathName;
               var photo = {
-                uri: imgUri, //this.state.uri[0].uri, == image path file:///storage/emulated/0/Pictures/1511787860629.jpg
-                type: newImageFile.type,
+                uri: `data:image/png;base64,${imgFile.encoded}`,
+                type: 'image/png',
                 name: 'signature.png',
-                size: newImageFile.size,
               };
               //   RNFetchBlob.fs.stat(signUri)
               //         .then((stats) => {

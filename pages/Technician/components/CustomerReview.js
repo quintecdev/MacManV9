@@ -1,14 +1,34 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, TextInput, TouchableOpacity, Dimensions,Image } from 'react-native';
-import SignatureCapture from 'react-native-signature-capture';
+import { View, TextInput, TouchableOpacity, Dimensions, Image } from 'react-native';
+import SignatureScreen from 'react-native-signature-canvas';
 import CmmsColors from '../../../common/CmmsColors';
 const screenHeight = Dimensions.get('window').height;
-import StarRating from 'react-native-star-rating';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { CmmsText } from '../../../common/components/CmmsText';
 import requestWithEndUrl from '../../../network/request';
 import { API_APK_SIGNATURE, API_TECHNICIAN } from '../../../network/api_constants';
 import { useDispatch } from 'react-redux';
 import { actionSetLoading } from '../../../action/ActionSettings';
+
+const StarRating = ({ maxStars = 5, rating, selectedStar, disabled, starStyle, fullStarColor }) => {
+	return (
+		<View style={{ flexDirection: 'row' }}>
+			{Array.from({ length: maxStars }, (_, i) => (
+				<TouchableOpacity
+					key={i}
+					disabled={disabled}
+					onPress={() => selectedStar(i + 1)}
+					style={starStyle}>
+					<Icon
+						name={i < rating ? 'star' : 'star-o'}
+						size={32}
+						color={i < rating ? (fullStarColor || '#f1c40f') : '#ccc'}
+					/>
+				</TouchableOpacity>
+			))}
+		</View>
+	);
+};
 
 export default (CustomerReview = ({ ...props }) => {
 	const signRef = useRef();
@@ -83,7 +103,7 @@ export default (CustomerReview = ({ ...props }) => {
 				<CmmsText style={{ flex: 1, fontSize: 16, fontWeight: 'bold' }}>Signature: </CmmsText>
 				<TouchableOpacity onPress={() => {
 					isShowExtSign&&setIsShowExtSign(false)
-					signRef?.current?.resetImage()
+					signRef?.current?.clearSignature()
 					setIsDragged(false)
 				}
 				}>
@@ -100,24 +120,20 @@ export default (CustomerReview = ({ ...props }) => {
 			<View style={{ flex: 1, marginTop: 10, 
 							borderWidth:1}}>
                 
-				{!isShowExtSign&&<SignatureCapture
-					saveImageFileInExtStorage={true}
+				{!isShowExtSign&&<SignatureScreen
 					ref={signRef}
-					style={{ flex: 1 }}
-					viewMode={'portrait'}
-					showNativeButtons={false}
-					minStrokeWidth={4}
-					maxStrokeWidth={4}
-					onSaveEvent={(imgFile) => {
-						console.log('onSaveEvent', { imgFile });
-						props.saveCustomerReview(imgFile, review.Rating, review.Remarks);
-						// else alert("Please eneter the details")
+					webStyle={`.m-signature-pad--footer { display: none; } .m-signature-pad { box-shadow: none; border: none; } body,html { width: 100%; height: 100%; }`}
+					onOK={(img) => {
+						console.log('onOK signature');
+						const encoded = img.replace('data:image/png;base64,', '');
+						props.saveCustomerReview({encoded}, review.Rating, review.Remarks);
 					}}
-					onDragEvent={(dragEvent=>{
-						console.log('ondrag',dragEvent)
-						setIsDragged(true)
-					})}
-					
+					onBegin={() => {
+						console.log('ondrag begin');
+						setIsDragged(true);
+					}}
+					autoClear={false}
+					descriptionText=""
 				/>}
 				{isShowExtSign&&<Image
 				resizeMode='center'
@@ -167,7 +183,7 @@ export default (CustomerReview = ({ ...props }) => {
 						borderRadius: 5
 					}}
 					onPress={() => {
-						if(isDragged)signRef.current.saveImage();
+						if(isDragged)signRef.current.readSignature();
 						else alert('Signature Needed');
 					}}
 				>

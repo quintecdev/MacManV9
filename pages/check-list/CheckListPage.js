@@ -35,10 +35,6 @@ import {
   API_TECHNICIAN,
   BASE_IP,
 } from '../../network/api_constants';
-import {
-  Autocomplete,
-  withKeyboardAwareScrollView,
-} from 'react-native-dropdown-autocomplete';
 import SearchComponent from '../../common/components/SearchComponent';
 import { Dialog } from 'react-native-simple-dialogs';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';

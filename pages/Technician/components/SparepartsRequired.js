@@ -11,7 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import {parse, format} from 'date-fns';
-import DatePicker from 'react-native-datepicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import CmmsColors from '../../../common/CmmsColors';
 import RadioForm, {
   RadioButton,
@@ -37,6 +37,7 @@ export default SparepartsRequired = ({navigation, route: {params}}) => {
   const [selectedDate, setSelectedDate] = useState(
     format(new Date(), 'dd/MM/yyyy'),
   );
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [ScheduleStatus, setScheduleStatus] = useState(0);
   const [SparepartsRequiredList, setSparepartsRequiredList] = useState([]);
   const [NoOfDays, setNoOfDays] = useState(0);
@@ -83,36 +84,27 @@ export default SparepartsRequired = ({navigation, route: {params}}) => {
                 flexDirection: 'row',
                 alignItems: 'center',
               }}>
-              <DatePicker
-                date={selectedDate}
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                style={{ flexDirection: 'row', alignItems: 'center' }}
+              >
+                <CmmsText style={{
+                  fontFamily: 'san-serif-condensed',
+                  marginStart: 16,
+                  color: 'black',
+                  fontSize: 16,
+                  fontWeight: '900',
+                }}>{selectedDate}</CmmsText>
+              </TouchableOpacity>
+              <DateTimePickerModal
+                isVisible={showDatePicker}
                 mode="date"
-                placeholder={AppTextData.txt_Select_Date}
-                format="DD/MM/YYYY"
-                // showIcon={false}
-                iconSource={require('../../../assets/icons/ic_calendar_fi_512_vi.png')}
-                confirmBtnText={AppTextData.txt_Confirm}
-                cancelBtnText={AppTextData.txt_Cancel}
-                customStyles={{
-                  dateIcon: {
-                    position: 'absolute',
-                    start: 0,
-                    width: 30,
-                    height: 28,
-                  },
-                  dateInput: {
-                    borderWidth: 0,
-                  },
-                  dateText: {
-                    fontFamily: 'san-serif-condensed',
-                    marginStart: 16,
-                    color: 'black',
-                    fontSize: 16,
-                    fontWeight: '900',
-                  },
+                date={(() => { try { return parse(selectedDate, 'dd/MM/yyyy', new Date()); } catch { return new Date(); } })()}
+                onConfirm={(date) => {
+                  setShowDatePicker(false);
+                  setSelectedDate(format(date, 'dd/MM/yyyy'));
                 }}
-                onDateChange={(date) => {
-                  setSelectedDate(date);
-                }}
+                onCancel={() => setShowDatePicker(false)}
               />
 
               <View

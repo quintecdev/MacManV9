@@ -49,7 +49,6 @@ import {
 } from '../../../action/ActionAlertPopUp';
 import { actionSetDrawer } from '../../../action/ActionBottomDrawer';
 const screenHeight = Dimensions.get('window').height;
-import { RNCamera } from 'react-native-camera';
 import { description, HomeStyles, legend } from '../../supervisor/HomeScreen';
 import StatusLabelView from '../../components/StatusLabelView';
 import DatePickerCmms from '../../components/DatePickerCmms';
